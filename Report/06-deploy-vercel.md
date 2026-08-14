@@ -92,22 +92,27 @@ npx supabase db push
 
 `db push` applies everything in `supabase/migrations/`. Run it against staging first, always.
 
-**Seeding is a separate step.** `supabase/seed.sql` is applied automatically by
-`supabase db reset`, which is a *local* workflow — `--linked` variant drops and recreates the
-remote database, so do not point it at a project with real data. For a remote project, apply the
-seed directly:
+**Seeding is a separate flag**, and it needs no PostgreSQL client installed:
 
 ```bash
-psql "$SUPABASE_DB_URL" -f supabase/seed.sql
+npx supabase db push --include-seed
 ```
 
-Write `seed.sql` so it is idempotent (`on conflict … do nothing` on the stock exercise rows),
+This applies any pending migrations and then runs the files listed under `[db.seed]` in
+`supabase/config.toml`. Verified against a fresh project: it inserts the 41 stock exercises.
+
+> **It only runs a seed file once.** The CLI records a hash of each seed file in
+> `supabase_migrations.seed_files` and skips it when the hash is unchanged, so re-running the
+> command on an already-seeded project reports success without doing anything. To force a
+> re-seed, change the file or clear its row from that table.
+
+Avoid `supabase db reset --linked` on any project with real data — it drops and recreates the
+remote database. `supabase seed` is unrelated; it only has a `buckets` subcommand for storage.
+
+Write `seed.sql` so it is idempotent (`on conflict … do update` on the stock exercise rows),
 because it will get run more than once. Note that only the exercise library is global —
 plans and settings are created per user by `provisionUser()` at signup, not by the seed file
 (see `02-data-model.md` §8).
-
-> Recent Supabase CLI versions have added flags for including the seed in a push. Check
-> `npx supabase db push --help` for what your installed version supports before relying on it.
 
 ---
 
