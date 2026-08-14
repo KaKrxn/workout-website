@@ -41,14 +41,14 @@ function describeConfigProblem(url?: string, key?: string): string | null {
   if (!url.includes("://")) {
     return url.startsWith("sb_")
       ? "NEXT_PUBLIC_SUPABASE_URL holds an API key, not a URL — the two values are swapped"
-      : `NEXT_PUBLIC_SUPABASE_URL is missing the scheme — use https://${url.slice(0, 40)}`;
+      : "NEXT_PUBLIC_SUPABASE_URL has no scheme — it must be https://<project-ref>.supabase.co";
   }
 
   let parsed: URL;
   try {
     parsed = new URL(url);
   } catch {
-    return `NEXT_PUBLIC_SUPABASE_URL is not a valid URL ("${url.slice(0, 40)}")`;
+    return "NEXT_PUBLIC_SUPABASE_URL is not a valid URL";
   }
   const isLocal = parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost";
   if (parsed.protocol !== "https:" && !isLocal) {
@@ -124,10 +124,10 @@ export async function proxy(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser());
   } catch (err) {
-    console.error("Could not reach Supabase auth:", err);
+    console.error(`Could not reach Supabase at ${url}:`, err);
     return new NextResponse(
-      `Cannot reach Supabase at ${url}. Check the project ref is correct and the ` +
-        `project is not paused, then redeploy.`,
+      "Cannot reach Supabase. Check the project ref is correct and the project " +
+        "is not paused, then redeploy.",
       { status: 503, headers: { "content-type": "text/plain; charset=utf-8" } },
     );
   }
