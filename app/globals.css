@@ -1,0 +1,210 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/*
+  FitTrack design tokens — see Report/03-ui-spec.md §1.
+  The theme is driven by `data-theme` on <html> (set by next-themes), not by a `.dark` class.
+*/
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ─────────────── Light (the source of truth for every colour) ─────────────── */
+:root {
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --surface-2: #f2f1ed;
+
+  --text-1: #0b0b0b;
+  --text-2: #52514e;
+  --muted: #898781;
+
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+
+  /* Series colours. Identity, not rank — see 03-ui-spec.md §1 and 04-analytics-spec.md */
+  --s1: #2a78d6; /* strength / the primary tracked metric */
+  --s2: #eb6834; /* cardio, and load on the overload chart */
+  --s3: #1baf7a; /* reserved third series */
+
+  --good: #0ca30c;
+  --good-text: #006300;
+
+  /* Heatmap ramp — a single blue hue, light to dark */
+  --hm0: #eceae4;
+  --hm1: #b7d3f6;
+  --hm2: #6da7ec;
+  --hm3: #2a78d6;
+  --hm4: #184f95;
+
+  /* Text that sits on top of a filled --s1 / --good surface */
+  --on-accent: #ffffff;
+
+  --destructive: #c0392b;
+  --shadow-card: 0 1px 2px rgba(11, 11, 11, 0.05), 0 8px 24px rgba(11, 11, 11, 0.04);
+
+  --radius: 0.625rem; /* 10px — buttons */
+  --radius-card: 14px;
+
+  color-scheme: light;
+}
+
+/* ─────────────── Dark ─────────────── */
+[data-theme="dark"] {
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --surface-2: #232322;
+
+  --text-1: #ffffff;
+  --text-2: #c3c2b7;
+  --muted: #898781;
+
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.1);
+
+  --s1: #3987e5;
+  --s2: #d95926;
+  --s3: #199e70;
+
+  --good: #0ca30c;
+  --good-text: #0ca30c;
+
+  --hm0: #232322;
+  --hm1: #184f95;
+  --hm2: #256abf;
+  --hm3: #3987e5;
+  --hm4: #86b6ef;
+
+  --on-accent: #ffffff;
+
+  --destructive: #e06c5b;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  /* No display face — see 03-ui-spec.md §1 */
+  --font-sans: system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: var(--font-sans);
+
+  /* FitTrack tokens, exposed as Tailwind utilities (bg-surface, text-text-2, fill-s1, …) */
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-text-1: var(--text-1);
+  --color-text-2: var(--text-2);
+  --color-label: var(--muted); /* `muted` is taken by shadcn's surface token */
+  --color-grid: var(--grid);
+  --color-axis: var(--axis);
+  --color-s1: var(--s1);
+  --color-s2: var(--s2);
+  --color-s3: var(--s3);
+  --color-good: var(--good);
+  --color-good-text: var(--good-text);
+  --color-on-accent: var(--on-accent);
+  --color-hm0: var(--hm0);
+  --color-hm1: var(--hm1);
+  --color-hm2: var(--hm2);
+  --color-hm3: var(--hm3);
+  --color-hm4: var(--hm4);
+
+  /* shadcn's semantic names, mapped onto the tokens above so its components inherit the theme */
+  --color-background: var(--page);
+  --color-foreground: var(--text-1);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--text-1);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--text-1);
+  --color-primary: var(--s1);
+  --color-primary-foreground: var(--on-accent);
+  --color-secondary: var(--surface-2);
+  --color-secondary-foreground: var(--text-1);
+  --color-muted: var(--surface-2);
+  --color-muted-foreground: var(--text-2);
+  --color-accent: var(--surface-2);
+  --color-accent-foreground: var(--text-1);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--s1);
+
+  --color-sidebar: var(--surface);
+  --color-sidebar-foreground: var(--text-1);
+  --color-sidebar-primary: var(--s1);
+  --color-sidebar-primary-foreground: var(--on-accent);
+  --color-sidebar-accent: var(--surface-2);
+  --color-sidebar-accent-foreground: var(--text-1);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-ring: var(--s1);
+
+  /* Chart slots, for any shadcn/recharts component that reads them.
+     Only three are distinct — never add a fourth series (03-ui-spec.md §1). */
+  --color-chart-1: var(--s1);
+  --color-chart-2: var(--s2);
+  --color-chart-3: var(--s3);
+  --color-chart-4: var(--hm2);
+  --color-chart-5: var(--hm4);
+
+  /* Radii — cards 14px, buttons 10px, chips 999px (03-ui-spec.md §1) */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-card: var(--radius-card);
+
+  --shadow-card: var(--shadow-card);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply font-sans;
+  }
+
+  body {
+    @apply bg-page text-text-1;
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Numbers line up in tables and on axes (03-ui-spec.md §1) */
+  .num,
+  table td,
+  input[type="number"] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Focus is clearly visible: 2px --s1 ring, 2px offset (03-ui-spec.md §8) */
+  :focus-visible {
+    outline: 2px solid var(--s1);
+    outline-offset: 2px;
+  }
+}
+
+/* Honour prefers-reduced-motion (03-ui-spec.md §8) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Honour forced-colors: the heatmap swaps colour for hatching (03-ui-spec.md §8) */
+@media (forced-colors: active) {
+  .hm-cell {
+    forced-color-adjust: none;
+    fill: Canvas;
+    stroke: CanvasText;
+  }
+}
