@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FitTrack — Home Workout & Body Composition Tracker</title>
+<style>
+:root{
+  --page:#f9f9f7; --surface:#fcfcfb; --surface-2:#f2f1ed;
+  --text-1:#0b0b0b; --text-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --good:#0ca30c; --good-text:#006300;
+  --hm0:#eceae4; --hm1:#b7d3f6; --hm2:#6da7ec; --hm3:#2a78d6; --hm4:#184f95;
+  --shadow:0 1px 2px rgba(11,11,11,.05), 0 8px 24px rgba(11,11,11,.04);
+  color-scheme:light;
+}
+html[data-theme="dark"]{
+  --page:#0d0d0d; --surface:#1a1a19; --surface-2:#232322;
+  --text-1:#ffffff; --text-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --good:#0ca30c; --good-text:#0ca30c;
+  --hm0:#232322; --hm1:#184f95; --hm2:#256abf; --hm3:#3987e5; --hm4:#86b6ef;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--text-1);
+  font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Thai",sans-serif;
+  font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+h1,h2,h3{margin:0;line-height:1.3}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px 96px}
+
+header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--page) 88%,transparent);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.hd{max-width:1120px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:-.02em;font-size:16px;white-space:nowrap}
+.logo .dot{width:26px;height:26px;border-radius:8px;background:var(--s1);display:grid;place-items:center}
+.logo .dot svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round}
+nav{display:flex;gap:2px;background:var(--surface-2);padding:3px;border-radius:10px}
+nav button{padding:6px 13px;border-radius:7px;color:var(--text-2);font-weight:500;font-size:13px;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--surface);color:var(--text-1);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.spacer{flex:1}
+.icon-btn{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;border:1px solid var(--border);flex:none}
+.icon-btn:hover{background:var(--surface-2)}
+.icon-btn svg{width:16px;height:16px;stroke:var(--text-2);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--s3);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow)}
+.pad{padding:18px}
+.row{display:flex;align-items:center;gap:12px}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.num{font-variant-numeric:tabular-nums}
+.view{display:none;padding-top:24px}
+.view.on{display:block}
+.h-title{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.sub{color:var(--text-2);font-size:13px;margin-top:2px}
+.viewhead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.btn{padding:9px 16px;border-radius:10px;background:var(--s1);color:#fff;font-weight:600;font-size:13px}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:var(--surface);color:var(--text-1);border:1px solid var(--border)}
+.btn.ghost:hover{background:var(--surface-2)}
+.chip{padding:5px 11px;border-radius:999px;font-size:12px;font-weight:600;background:var(--surface-2);color:var(--text-2);cursor:pointer}
+.chip.on{background:var(--s1);color:#fff}
+.tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;letter-spacing:.02em}
+.t-chest{background:color-mix(in srgb,var(--s1) 15%,transparent);color:var(--s1)}
+.t-back{background:color-mix(in srgb,var(--s3) 17%,transparent);color:var(--s3)}
+.t-legs{background:color-mix(in srgb,var(--s2) 16%,transparent);color:var(--s2)}
+.t-cardio{background:color-mix(in srgb,var(--s2) 16%,transparent);color:var(--s2)}
+.t-rest{background:var(--surface-2);color:var(--muted)}
+
+/* program switch */
+.seg{display:inline-flex;background:var(--surface-2);border-radius:9px;padding:2px;gap:2px}
+.seg button{padding:4px 12px;border-radius:7px;font-size:12px;font-weight:600;color:var(--text-2)}
+.seg button.on{background:var(--surface);color:var(--text-1);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+/* today */
+.hero{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:16px;align-items:start}
+.streak-big{font-size:42px;font-weight:700;letter-spacing:-.03em;line-height:1;margin:8px 0 2px}
+.ring{display:flex;align-items:center;gap:14px;margin-top:14px}
+.ring svg{width:58px;height:58px;transform:rotate(-90deg);flex:none}
+.plan-title{font-size:19px;font-weight:700;letter-spacing:-.02em}
+.meta{display:flex;gap:18px;margin:14px 0 16px;flex-wrap:wrap}
+.meta div{font-size:12px;color:var(--text-2)}
+.meta b{display:block;font-size:17px;color:var(--text-1);font-weight:700;font-variant-numeric:tabular-nums}
+.ex{border-top:1px solid var(--border);margin-top:6px}
+.ex-row{display:flex;align-items:flex-start;gap:12px;padding:11px 2px;border-bottom:1px solid var(--border);cursor:pointer}
+.ex-row:last-child{border-bottom:none}
+.check{width:22px;height:22px;border-radius:7px;border:1.8px solid var(--axis);flex:none;display:grid;place-items:center;margin-top:2px}
+.check svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.ex-row.done .check{background:var(--good);border-color:var(--good)}
+.ex-row.done .check svg{opacity:1}
+.ex-row.done .ex-name{color:var(--muted);text-decoration:line-through}
+.ex-main{flex:1;min-width:0}
+.ex-name{font-weight:600;font-size:14px;display:flex;align-items:center;gap:6px}
+.keydot{width:6px;height:6px;border-radius:50%;background:var(--s1);flex:none}
+.ex-sub{display:block;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:1px}
+.ex-target{display:block;font-size:12px;color:var(--s1);font-weight:600;font-variant-numeric:tabular-nums;margin-top:3px}
+.ex-last{font-size:12px;color:var(--text-2);font-variant-numeric:tabular-nums;text-align:right;flex:none;padding-left:8px}
+.ex-last b{display:block;color:var(--text-1)}
+.progress{height:6px;border-radius:999px;background:var(--surface-2);overflow:hidden;margin-top:4px}
+.progress i{display:block;height:100%;background:var(--good);border-radius:999px;transition:width .3s}
+.banner{margin-top:14px;padding:11px 13px;border-radius:11px;font-size:12.5px;line-height:1.5;
+  background:color-mix(in srgb,var(--good) 10%,transparent);border:1px solid color-mix(in srgb,var(--good) 30%,transparent)}
+.banner b{color:var(--good-text)}
+.banner.warn{background:color-mix(in srgb,var(--s2) 10%,transparent);border-color:color-mix(in srgb,var(--s2) 30%,transparent)}
+.banner.warn b{color:var(--s2)}
+
+/* schedule */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:9px}
+.day{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 9px;min-height:170px;display:flex;flex-direction:column;gap:7px}
+.day.today{border-color:var(--s1);box-shadow:0 0 0 2px color-mix(in srgb,var(--s1) 22%,transparent)}
+.day .dname{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.day .dnum{font-size:18px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.day .slot{border-radius:9px;padding:8px;font-size:12px;line-height:1.42;background:var(--surface-2)}
+.day .slot b{display:block;font-size:12.5px;margin-top:5px}
+.day .slot span{color:var(--muted);font-size:11px;display:block}
+.day .ab{margin-top:auto;display:flex;gap:3px;background:var(--surface-2);border-radius:8px;padding:2px}
+.day .ab button{flex:1;font-size:11px;font-weight:700;padding:4px;border-radius:6px;color:var(--muted)}
+.day .ab button.on{background:var(--surface);color:var(--text-1);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.tpl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+
+/* charts */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+.tile{padding:16px}
+.tile .val{font-size:29px;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin-top:6px;font-variant-numeric:tabular-nums}
+.tile .delta{font-size:12px;font-weight:600;margin-top:4px}
+.up{color:var(--good-text)}
+.tile.star{border-color:color-mix(in srgb,var(--s1) 45%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--s1) 18%,transparent),var(--shadow)}
+.chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:2px}
+.chart-title{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.chart-sub{font-size:12px;color:var(--text-2);margin-top:1px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--text-2)}
+.legend i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:middle}
+.legend i.dash{width:14px;height:2px;border-radius:0}
+.hm-scroll{overflow-x:auto;padding-bottom:4px;margin-top:14px}
+.hm-scroll::-webkit-scrollbar{height:7px}
+.hm-scroll::-webkit-scrollbar-thumb{background:var(--axis);border-radius:99px}
+.hm-legend{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
+.hm-legend i{width:11px;height:11px;border-radius:3px;display:block}
+.hm-legend i.dash{border:1.5px dashed var(--axis);background:transparent}
+rect.cell{cursor:pointer}
+rect.cell:hover{stroke:var(--text-1);stroke-width:1.5}
+#tip{position:fixed;pointer-events:none;opacity:0;transition:opacity .12s;z-index:99;
+  background:var(--text-1);color:var(--page);padding:7px 10px;border-radius:8px;
+  font-size:12px;line-height:1.45;box-shadow:0 6px 20px rgba(0,0,0,.22);max-width:250px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.bar-row .lbl{width:104px;font-size:12.5px;color:var(--text-2);flex:none}
+.bar-row .lbl small{color:var(--muted);font-size:11px}
+.bar-track{flex:1;height:16px;background:var(--surface-2);border-radius:4px;overflow:hidden;position:relative}
+.bar-track i{display:block;height:100%;border-radius:0 4px 4px 0;background:var(--s1)}
+.bar-track u{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--text-2);opacity:.55}
+.bar-row .v{width:60px;text-align:right;font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--text-2);flex:none}
+table.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:12px}
+table.tbl th{text-align:left;font-weight:600;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);font-size:11.5px}
+table.tbl td{padding:6px 8px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums}
+.tbl-wrap{display:none;max-height:250px;overflow:auto}
+.tbl-wrap.on{display:block}
+.linkbtn{font-size:12px;color:var(--s1);font-weight:600;text-decoration:underline;text-underline-offset:3px;flex:none}
+.sel{font-size:12.5px;padding:5px 9px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-1)}
+
+/* body page */
+.vt-card{padding:22px;display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center}
+.vt-num{font-size:56px;font-weight:700;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.measure{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin-top:14px}
+.measure label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:4px}
+.measure input{width:100%;padding:8px 10px;border-radius:9px;border:1px solid var(--border);
+  background:var(--surface-2);color:var(--text-1);font:inherit;font-variant-numeric:tabular-nums}
+.photo{aspect-ratio:3/4;border-radius:11px;border:1.5px dashed var(--axis);display:grid;place-items:center;
+  color:var(--muted);font-size:12px;text-align:center;padding:12px;background:var(--surface-2)}
+
+.note{margin-top:26px;padding:14px 16px;border-radius:12px;border:1px dashed var(--axis);color:var(--text-2);font-size:12.5px;line-height:1.6}
+.note b{color:var(--text-1)}
+@media(max-width:900px){
+  .hero,.grid2{grid-template-columns:1fr}
+  .tiles{grid-template-columns:1fr 1fr}
+  .week{grid-template-columns:repeat(2,1fr)}
+  .vt-card{grid-template-columns:1fr;gap:16px}
+  nav button{padding:6px 9px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div id="tip"></div>
+
+<header><div class="hd">
+  <div class="logo"><span class="dot"><svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg></span>FitTrack</div>
+  <nav role="tablist">
+    <button role="tab" aria-selected="true" data-v="today">วันนี้</button>
+    <button role="tab" aria-selected="false" data-v="schedule">ตาราง</button>
+    <button role="tab" aria-selected="false" data-v="analytics">สถิติ</button>
+    <button role="tab" aria-selected="false" data-v="body">ร่างกาย</button>
+  </nav>
+  <div class="spacer"></div>
+  <button class="icon-btn" id="theme" title="สลับธีมสว่าง/มืด">
+    <svg viewBox="0 0 24 24" id="ticon"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.2 4.2l1.5 1.5M18.3 18.3l1.5 1.5M2 12h2M20 12h2M4.2 19.8l1.5-1.5M18.3 5.7l1.5-1.5"/></svg>
+  </button>
+  <div class="avatar">ก</div>
+</div></header>
+
+<div class="wrap">
+
+<!-- ============ TODAY ============ -->
+<section class="view on" id="v-today">
+  <div class="viewhead">
+    <div>
+      <h1 class="h-title">วันนี้ — อก + หลัง + ไหล่</h1>
+      <div class="sub">วันศุกร์ที่ 14 สิงหาคม 2026 · สัปดาห์ที่ 33 · วันสำคัญที่สุดสำหรับเป้าหมาย V-Taper</div>
+    </div>
+    <button class="btn ghost">＋ บันทึกกิจกรรมอื่น</button>
+  </div>
+
+  <div class="hero">
+    <div class="card pad">
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <div>
+          <div class="row" style="gap:7px">
+            <span class="tag t-chest">อก</span><span class="tag t-back">หลัง</span><span class="tag t-legs">ไหล่</span>
+          </div>
+          <div class="plan-title" style="margin-top:9px">โปรแกรม B — ศุกร์</div>
+        </div>
+        <div style="text-align:right">
+          <div class="seg" id="abseg">
+            <button class="on" data-p="B">B · ดัมเบล</button>
+            <button data-p="A">A · ไม่ใช้อุปกรณ์</button>
+          </div>
+          <div style="margin-top:10px"><button class="btn">เริ่มเลย →</button></div>
+        </div>
+      </div>
+
+      <div class="meta">
+        <div>ท่าทั้งหมด<b class="num" id="m-ex">7</b></div>
+        <div>เซ็ตรวม<b class="num" id="m-sets">24</b></div>
+        <div>เวลาโดยประมาณ<b class="num" id="m-time">58 นาที</b></div>
+        <div>ปริมาตรเป้า<b class="num" id="m-vol">9,150 kg</b></div>
+      </div>
+
+      <div class="eyebrow">ความคืบหน้าวันนี้ <span class="num" id="pct">0%</span></div>
+      <div class="progress"><i id="pbar" style="width:0%"></i></div>
+      <div class="ex" id="exlist"></div>
+
+      <div class="banner" id="ob-banner">
+        <b>พร้อมเพิ่มน้ำหนักแล้ว — Dumbbell Bench Press</b><br>
+        ครั้งก่อนทำครบ 12 ครั้งทั้ง 4 เซ็ตที่ 12.5 kg · สัปดาห์หน้าลอง <b>15 kg</b> แล้วเริ่มที่ 6–8 ครั้ง
+      </div>
+      <div class="banner warn" style="margin-top:9px">
+        <b>Goblet Squat ถึงเพดานดัมเบลแล้ว (25 kg)</b><br>
+        เพิ่มความยากด้วยท่าขาเดียวแทน — Bulgarian Split Squat หรือ Single-leg RDL
+      </div>
+
+      <div style="margin-top:12px;font-size:12px;color:var(--muted)">
+        แตะแถวเพื่อทำเครื่องหมายว่าเสร็จ · <span style="color:var(--s1)">■</span> = ท่าหลักสำหรับเป้าหมายอก/หลัง/ไหล่
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card pad">
+        <div class="eyebrow">Streak ปัจจุบัน</div>
+        <div class="streak-big num">12 <span style="font-size:16px;font-weight:600;color:var(--text-2)">สัปดาห์</span></div>
+        <div style="font-size:12.5px;color:var(--text-2)">ทำครบเป้า 5 วัน/สัปดาห์ ติดกัน 12 สัปดาห์ — สถิติสูงสุด 15</div>
+        <div class="ring">
+          <svg viewBox="0 0 44 44">
+            <circle cx="22" cy="22" r="18" fill="none" stroke="var(--surface-2)" stroke-width="6"/>
+            <circle cx="22" cy="22" r="18" fill="none" stroke="var(--good)" stroke-width="6"
+                    stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="45.2"/>
+          </svg>
+          <div>
+            <div style="font-size:18px;font-weight:700" class="num">4<span style="color:var(--muted);font-weight:600">/5</span></div>
+            <div style="font-size:12px;color:var(--text-2)">เวทสัปดาห์นี้ · คาร์ดิโอ 2/3</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card pad">
+        <div class="eyebrow" style="margin-bottom:10px">7 วันที่ผ่านมา</div>
+        <div id="mini7" style="display:flex;gap:6px"></div>
+        <div style="margin-top:12px;display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-2)">
+          <span>ปริมาตรรวม</span><b class="num" style="color:var(--text-1)">34,600 kg</b></div>
+        <div style="margin-top:5px;display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-2)">
+          <span>คาร์ดิโอ</span><b class="num" style="color:var(--text-1)">62 นาที</b></div>
+      </div>
+
+      <div class="card pad">
+        <div class="eyebrow" style="margin-bottom:8px">สถิติใหม่ล่าสุด</div>
+        <div id="prlist"></div>
+      </div>
+
+      <div class="card pad">
+        <div class="eyebrow" style="margin-bottom:8px">พรุ่งนี้</div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.6">
+          <b style="color:var(--text-1)">เสาร์ — ขา + หน้าท้อง + Cardio</b><br>
+          7 ท่า + ลู่วิ่ง 20–30 นาที · เป็นวันที่คุณข้ามบ่อยที่สุด (4 ครั้งใน 12 สัปดาห์)
+        </div>
+        <button class="btn ghost" style="margin-top:12px;width:100%">ตั้งเตือน 07:00</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>หมายเหตุการออกแบบ</b> — แถว "เป้าวันนี้" คือหัวใจของหน้านี้ ระบบคำนวณจาก double progression
+    (ทำครบ rep range บนสุดทุกเซตแล้วจึงเพิ่มน้ำหนัก) ผู้ใช้จึงไม่ต้องเปิดประวัติเองว่าครั้งก่อนทำได้เท่าไหร่ ·
+    ปุ่ม <b>B ⇄ A</b> สลับเป็นโปรแกรมไม่ใช้อุปกรณ์ได้ทันทีโดย streak ไม่ขาด เพราะระบบนับว่า
+    "ฝึกกลุ่มกล้ามเนื้อนี้แล้ว" ไม่ได้นับว่า "ทำท่านี้แล้ว" ·
+    วันพฤหัสจะเปลี่ยนการ์ดนี้เป็นฟอร์มลู่วิ่ง (เวลา / ระยะทาง / ความชัน) แทนรายการท่า
+  </div>
+</section>
+
+<!-- ============ SCHEDULE ============ -->
+<section class="view" id="v-schedule">
+  <div class="viewhead">
+    <div>
+      <h1 class="h-title">ตารางสัปดาห์นี้</h1>
+      <div class="sub">10 – 16 สิงหาคม 2026 · เวท 5 วัน + คาร์ดิโอ 3 ครั้ง · ทำซ้ำทุกสัปดาห์</div>
+    </div>
+    <div class="row">
+      <button class="btn ghost">◀</button><button class="btn ghost">▶</button>
+      <button class="btn">＋ เพิ่มวันฝึก</button>
+    </div>
+  </div>
+
+  <div class="tpl">
+    <span class="chip on">โปรแกรม B — ดัมเบล + เบาะ + ลู่วิ่ง</span>
+    <span class="chip">โปรแกรม A — ไม่ใช้อุปกรณ์</span>
+    <span class="chip">＋ สร้างแผนเอง</span>
+  </div>
+
+  <div class="week" id="week"></div>
+
+  <div class="grid2" style="margin-top:16px">
+    <div class="card pad">
+      <div class="chart-title">6 สัปดาห์ล่าสุด เทียบเป้า</div>
+      <div class="chart-sub">เป้า 5 วัน/สัปดาห์ · ปรับได้ในหน้าตั้งค่า</div>
+      <div style="margin-top:14px" id="goalbars"></div>
+    </div>
+    <div class="card pad">
+      <div class="chart-title">สรุปแผนสัปดาห์นี้</div>
+      <div class="chart-sub">แบ่งตามกลุ่มกล้ามเนื้อที่ได้ฝึก (นับวันที่แตะกลุ่มนั้น)</div>
+      <div style="margin-top:14px" id="splitbars"></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>หมายเหตุการออกแบบ</b> — ทุกวันมีปุ่มสลับ <b>A/B</b> ในตัว เพราะข้อจำกัดจริงคือ
+    "บางวันไม่สะดวกใช้ดัมเบล" ไม่ใช่ "อยากเปลี่ยนโปรแกรมทั้งชุด" ·
+    แผน (plan) กับสิ่งที่ทำจริง (session) แยกกันในฐานข้อมูล จึงคำนวณ "% ทำได้ตามแผน" ได้
+    ซึ่งวัดความสม่ำเสมอได้ตรงกว่าการนับจำนวนครั้งเพียงอย่างเดียว
+  </div>
+</section>
+
+<!-- ============ ANALYTICS ============ -->
+<section class="view" id="v-analytics">
+  <div class="viewhead">
+    <div>
+      <h1 class="h-title">สถิติของคุณ</h1>
+      <div class="sub">ข้อมูลย้อนหลัง 1 ปี · อัปเดตล่าสุดวันนี้</div>
+    </div>
+    <div class="row" style="gap:6px">
+      <span class="chip">30 วัน</span><span class="chip">90 วัน</span>
+      <span class="chip on">1 ปี</span><span class="chip">ทั้งหมด</span>
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="card tile star">
+      <div class="eyebrow">★ V-Taper Ratio</div>
+      <div class="val" id="t-vt">—</div>
+      <div class="delta up" id="t-vt-d">—</div>
+    </div>
+    <div class="card tile">
+      <div class="eyebrow">เปอร์เซ็นต์ไขมัน</div>
+      <div class="val" id="t-bf">—</div>
+      <div class="delta up" id="t-bf-d">—</div>
+    </div>
+    <div class="card tile">
+      <div class="eyebrow">Streak</div>
+      <div class="val">12 <span style="font-size:15px;color:var(--text-2);font-weight:600">สัปดาห์</span></div>
+      <div class="delta up">▲ สถิติสูงสุด 15</div>
+    </div>
+    <div class="card tile">
+      <div class="eyebrow">ทำได้ตามแผน</div>
+      <div class="val" id="t-adh">—</div>
+      <div class="delta up">▲ ดีขึ้น 14% จากครึ่งปีแรก</div>
+    </div>
+  </div>
+
+  <div class="card pad" style="margin-bottom:16px">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">ความสม่ำเสมอรายวัน</div>
+        <div class="chart-sub">สีเข้ม = ปริมาณงานมาก · ช่องขอบประ = วันพักตามแผน (ไม่นับว่าพลาด)</div>
+      </div>
+      <button class="linkbtn" data-tbl="hm-tbl">ดูเป็นตาราง</button>
+    </div>
+    <div class="hm-scroll"><svg id="heatmap"></svg></div>
+    <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div class="hm-legend">น้อย <i style="background:var(--hm0)"></i><i style="background:var(--hm1)"></i>
+        <i style="background:var(--hm2)"></i><i style="background:var(--hm3)"></i><i style="background:var(--hm4)"></i> มาก
+        <span style="margin-left:12px"><i class="dash" style="display:inline-block;vertical-align:middle"></i> วันพักตามแผน</span></div>
+      <div class="hm-legend" id="hm-summary"></div>
+    </div>
+    <div class="tbl-wrap" id="hm-tbl"><table class="tbl"><thead><tr><th>วันที่</th><th>วันฝึก</th><th>ปริมาตร (kg)</th><th>เวลา</th></tr></thead><tbody id="hm-tbody"></tbody></table></div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:16px">
+    <div class="card pad">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">★ V-Taper Ratio (ไหล่ ÷ เอว)</div>
+          <div class="chart-sub">วัดทุก 2 สัปดาห์ · เส้นประ = เป้า 1.618</div>
+        </div>
+        <button class="linkbtn" data-tbl="vt-tbl">ดูเป็นตาราง</button>
+      </div>
+      <svg id="vtchart" style="width:100%;height:200px;margin-top:8px"></svg>
+      <div style="display:flex;gap:22px;margin-top:12px;font-size:12.5px;color:var(--text-2)">
+        <span>รอบไหล่ <b class="num" style="color:var(--text-1)" id="sh-now"></b> cm <span class="up" id="sh-d"></span></span>
+        <span>รอบเอว <b class="num" style="color:var(--text-1)" id="wa-now"></b> cm <span class="up" id="wa-d"></span></span>
+      </div>
+      <div class="tbl-wrap" id="vt-tbl"><table class="tbl"><thead><tr><th>สัปดาห์</th><th>ไหล่</th><th>เอว</th><th>อัตราส่วน</th></tr></thead><tbody id="vt-tbody"></tbody></table></div>
+    </div>
+
+    <div class="card pad">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">เปอร์เซ็นต์ไขมัน และน้ำหนักตัว</div>
+          <div class="chart-sub">สองกราฟแยกกัน — หน่วยต่างกัน ห้ามใช้แกนคู่</div>
+        </div>
+      </div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:10px">เปอร์เซ็นต์ไขมัน (%)</div>
+      <svg id="bfchart" style="width:100%;height:104px"></svg>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:8px">น้ำหนักตัว (kg) — เส้นหนา = ค่าเฉลี่ย 7 วัน</div>
+      <svg id="wtchart" style="width:100%;height:104px"></svg>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:8px">น้ำหนักรายวันแกว่งได้ปกติ ให้ดูเส้นค่าเฉลี่ย 7 วัน</div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:16px">
+    <div class="card pad">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">ปริมาตรรวมรายสัปดาห์</div>
+          <div class="chart-sub">หน่วย: กิโลกรัม · 26 สัปดาห์ล่าสุด</div>
+        </div>
+        <button class="linkbtn" data-tbl="vol-tbl">ดูเป็นตาราง</button>
+      </div>
+      <svg id="volchart" style="width:100%;height:200px;margin-top:8px"></svg>
+      <div class="legend"><span><i style="background:var(--s1)"></i>ปริมาตรจริง</span><span><i class="dash" style="background:var(--axis)"></i>ค่าเฉลี่ย 4 สัปดาห์</span></div>
+      <div class="tbl-wrap" id="vol-tbl"><table class="tbl"><thead><tr><th>สัปดาห์</th><th>ปริมาตร (kg)</th></tr></thead><tbody id="vol-tbody"></tbody></table></div>
+    </div>
+
+    <div class="card pad">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">จำนวนวันที่ออก เทียบเป้า</div>
+          <div class="chart-sub">เส้นประ = เป้า 5 วัน/สัปดาห์ · ไม่ถึงเป้าใช้สีอ่อน ไม่ใช่สีแดง</div>
+        </div>
+        <button class="linkbtn" data-tbl="day-tbl">ดูเป็นตาราง</button>
+      </div>
+      <svg id="daychart" style="width:100%;height:200px;margin-top:8px"></svg>
+      <div class="legend"><span><i style="background:var(--s1)"></i>ถึงเป้า</span><span><i style="background:var(--hm1)"></i>ไม่ถึงเป้า</span></div>
+      <div class="tbl-wrap" id="day-tbl"><table class="tbl"><thead><tr><th>สัปดาห์</th><th>จำนวนวัน</th><th>ถึงเป้า</th></tr></thead><tbody id="day-tbody"></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:16px">
+    <div class="card pad">
+      <div class="chart-title">สัดส่วนกลุ่มกล้ามเนื้อ เทียบลำดับความสำคัญ</div>
+      <div class="chart-sub">เซตรวม 90 วันล่าสุด · เรียงตามลำดับความสำคัญของเป้าหมาย ไม่ใช่เรียงตามค่า</div>
+      <div style="margin-top:16px" id="musclebars"></div>
+      <div class="banner warn" style="margin-top:6px">
+        <b>หลัง (Lat) ได้ 118 เซ็ต แต่ลำดับความสำคัญเป็นอันดับ 1</b><br>
+        ยังห่างจากสัดส่วนที่ควรเป็น — เป้าหมาย V-Taper ควรเพิ่ม Row และ Pullover อีกสัปดาห์ละ 2–3 เซ็ต
+      </div>
+    </div>
+
+    <div class="card pad">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">Progressive Overload</div>
+          <div class="chart-sub">น้ำหนักเพิ่มเป็นขั้น จึงใช้เส้นขั้นบันได ไม่ใช่เส้นตรง</div>
+        </div>
+        <select class="sel" id="prsel">
+          <option value="0">Dumbbell Bench Press</option>
+          <option value="1">One-arm Dumbbell Row</option>
+          <option value="2">Dumbbell Lateral Raise</option>
+        </select>
+      </div>
+      <svg id="prchart" style="width:100%;height:200px;margin-top:8px"></svg>
+      <div class="legend"><span><i style="background:var(--s2)"></i>น้ำหนักที่ใช้</span><span><i class="dash" style="background:var(--text-2)"></i>เพดานดัมเบล 25 kg</span></div>
+    </div>
+  </div>
+
+  <div class="card pad">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">คาร์ดิโอรายสัปดาห์</div>
+        <div class="chart-sub">เป้า 2–3 ครั้ง × 25–40 นาที = 75–120 นาที/สัปดาห์ (แถบจาง)</div>
+      </div>
+    </div>
+    <svg id="cardiochart" style="width:100%;height:170px;margin-top:8px"></svg>
+  </div>
+
+  <div class="note">
+    <b>หมายเหตุการออกแบบ</b> — <b>V-Taper Ratio อยู่ช่องแรก ส่วนน้ำหนักตัวไม่อยู่ใน stat tile เลย</b>
+    เพราะระหว่างสร้างกล้ามพร้อมลดไขมัน น้ำหนักมักไม่ขยับและทำให้เข้าใจผิดว่าโปรแกรมไม่ได้ผล ·
+    กราฟกลุ่มกล้ามเนื้อเรียงตามลำดับความสำคัญ (หลัง → ไหล่ → อก → ขา → แขน → ท้อง) ไม่ใช่เรียงตามค่า
+    เพื่อให้เห็นทันทีว่ากลุ่มที่ควรได้เยอะที่สุดได้เยอะจริงไหม ·
+    ชุดสีผ่าน validator ทั้ง contrast และการมองเห็นสีบกพร่อง (deutan/protan/tritan) และทุกกราฟมีปุ่ม "ดูเป็นตาราง"
+  </div>
+</section>
+
+<!-- ============ BODY ============ -->
+<section class="view" id="v-body">
+  <div class="viewhead">
+    <div>
+      <h1 class="h-title">สัดส่วนร่างกาย</h1>
+      <div class="sub">บันทึกน้ำหนักทุกวัน · % ไขมันทุกสัปดาห์ · วัดสัดส่วนทุก 2 สัปดาห์</div>
+    </div>
+    <button class="btn">บันทึกวันนี้</button>
+  </div>
+
+  <div class="card vt-card" style="margin-bottom:16px">
+    <div>
+      <div class="eyebrow">★ V-Taper Ratio</div>
+      <div class="vt-num" id="b-vt">—</div>
+      <div style="font-size:12.5px;color:var(--text-2);margin-top:4px">รอบไหล่ ÷ รอบเอว</div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-2);margin-bottom:6px">
+        <span>เริ่มต้น <span class="num" id="b-vt0"></span></span><span>ตอนนี้ <b class="num" style="color:var(--text-1)" id="b-vt2"></b></span><span>เป้า 1.618</span>
+      </div>
+      <div class="progress" style="height:10px"><i id="b-vtbar" style="background:var(--s1);width:0%"></i></div>
+      <div style="font-size:12.5px;color:var(--text-2);margin-top:10px" id="b-vtnote"></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:16px">
+    <div class="card pad">
+      <div class="chart-title">บันทึกการวัด</div>
+      <div class="chart-sub">วัดตอนเช้าก่อนอาหาร ใช้สายวัดเดิมและจุดวัดเดิมทุกครั้ง</div>
+      <div class="measure">
+        <div><label>รอบไหล่ (cm)</label><input id="i-sh" value=""></div>
+        <div><label>รอบอก (cm)</label><input value="102.5"></div>
+        <div><label>รอบเอว (cm)</label><input id="i-wa" value=""></div>
+        <div><label>รอบแขน (cm)</label><input value="35.5"></div>
+        <div><label>รอบคอ (cm)</label><input value="38.0"></div>
+        <div><label>น้ำหนัก (kg)</label><input id="i-wt" value=""></div>
+        <div><label>% ไขมัน</label><input id="i-bf" value=""></div>
+      </div>
+      <div class="note" style="margin-top:16px">
+        <b>ทำไมต้องวัดรอบคอ</b> — ใช้ประกอบการประเมินไขมันบริเวณคาง ซึ่งเป็นเป้าหมายที่ระบุไว้
+        แต่ต้องเข้าใจว่า <b>ไม่สามารถสั่งให้ร่างกายเผาผลาญไขมันเฉพาะจุดได้</b>
+        ความชัดของแนวกรามมาจากเปอร์เซ็นต์ไขมันรวมที่ลดลง ประกอบกับโครงสร้างกระดูก ปริมาณกล้ามเนื้อ
+        และท่าทางของศีรษะ/คอ
+      </div>
+    </div>
+
+    <div class="card pad">
+      <div class="chart-title">รูปถ่ายเปรียบเทียบ</div>
+      <div class="chart-sub">ตั้งเป็นส่วนตัวเสมอ · ถ่ายมุมเดิม แสงเดิม เวลาเดิม</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+        <div><div class="photo">14 ก.พ. 2026<br><span id="p-old"></span></div>
+          <div style="text-align:center;font-size:12px;color:var(--muted);margin-top:6px">6 เดือนก่อน</div></div>
+        <div><div class="photo">14 ส.ค. 2026<br><span id="p-now"></span></div>
+          <div style="text-align:center;font-size:12px;color:var(--muted);margin-top:6px">วันนี้</div></div>
+      </div>
+      <div style="margin-top:14px;display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-2)">
+        <span>น้ำหนัก</span><b class="num" style="color:var(--text-1)" id="c-wt"></b></div>
+      <div style="margin-top:5px;display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-2)">
+        <span>เปอร์เซ็นต์ไขมัน</span><b class="num" style="color:var(--good-text)" id="c-bf"></b></div>
+      <div style="margin-top:5px;display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-2)">
+        <span>รอบไหล่</span><b class="num" style="color:var(--good-text)" id="c-sh"></b></div>
+      <div style="margin-top:5px;display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-2)">
+        <span>รอบเอว</span><b class="num" style="color:var(--good-text)" id="c-wa"></b></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>หมายเหตุการออกแบบ</b> — หน้านี้จงใจให้ V-Taper Ratio เป็นสิ่งที่ใหญ่ที่สุด และให้น้ำหนักตัวเป็นแค่หนึ่งช่องในฟอร์ม
+    เพราะเป้าหมายของโปรแกรมคือเปลี่ยน<b>รูปร่าง</b> ไม่ใช่ลดตัวเลขบนตาชั่ง ·
+    การแสดงรอบไหล่และรอบเอวคู่กันใต้กราฟสำคัญมาก เพราะอัตราส่วนที่ดีขึ้นเพราะ "ไหล่กว้างขึ้น"
+    กับ "เอวเล็กลง" นำไปสู่การปรับโปรแกรมคนละแบบ
+  </div>
+</section>
+
+</div>
+
+<script>
+let _s = 20260814;
+const rnd = () => (_s = (_s*1664525 + 1013904223) % 4294967296) / 4294967296;
+const TODAY = new Date(2026,7,14);
+const DAYNAMES = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+const MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const fmt = n => n.toLocaleString('en-US');
+const r1 = n => Math.round(n*10)/10;
+
+/* ---------- โปรแกรม B: วันศุกร์ (อก + หลัง + ไหล่) ---------- */
+const PROG = {
+  B: { label:'โปรแกรม B — ศุกร์', ex:7, sets:24, time:'58 นาที', vol:'9,150 kg', items:[
+    {n:'Dumbbell Bench Press',   s:'4 เซ็ต × 8–12 ครั้ง · 12.5 kg', last:'12/12/12/12', next:'พร้อมเพิ่มเป็น 15 kg', key:true},
+    {n:'Bent-over Dumbbell Row', s:'4 เซ็ต × 8–12 ครั้ง · 20 kg',   last:'10/10/9/8',   next:'11 / 11 / 10 / 9', key:true},
+    {n:'Dumbbell Pullover',      s:'3 เซ็ต × 10–15 ครั้ง · 17.5 kg',last:'13/12/11',    next:'14 / 13 / 12', key:true},
+    {n:'Dumbbell Fly',           s:'3 เซ็ต × 10–15 ครั้ง · 10 kg',  last:'14/13/12',    next:'15 / 14 / 13'},
+    {n:'Dumbbell Shoulder Press',s:'3 เซ็ต × 8–12 ครั้ง · 15 kg',   last:'10/9/8',      next:'11 / 10 / 9'},
+    {n:'Dumbbell Lateral Raise', s:'4 เซ็ต × 12–20 ครั้ง · 7.5 kg', last:'16/15/14/13', next:'17 / 16 / 15 / 14', key:true},
+    {n:'Rear Delt Fly',          s:'3 เซ็ต × 12–20 ครั้ง · 6 kg',   last:'18/16/15',    next:'19 / 17 / 16'}
+  ]},
+  A: { label:'โปรแกรม A — ศุกร์ (ช่วงบน)', ex:5, sets:17, time:'38 นาที', vol:'ใช้น้ำหนักตัว', items:[
+    {n:'Push-up',            s:'4 เซ็ต × 8–15 ครั้ง',  last:'15/14/12/11', next:'15 / 15 / 13 / 12'},
+    {n:'Wide Push-up',       s:'3 เซ็ต × 10–15 ครั้ง', last:'13/12/11',    next:'14 / 13 / 12'},
+    {n:'Pike Push-up',       s:'4 เซ็ต × 6–12 ครั้ง',  last:'10/9/8/8',    next:'11 / 10 / 9 / 9', key:true},
+    {n:'Diamond Push-up',    s:'3 เซ็ต × 6–12 ครั้ง',  last:'9/8/7',       next:'10 / 9 / 8'},
+    {n:'Reverse Snow Angel', s:'3 เซ็ต × 15–20 ครั้ง', last:'18/17/16',    next:'19 / 18 / 17', key:true}
+  ]}
+};
+let curProg = 'B';
+const exlist = document.getElementById('exlist');
+function renderEx(){
+  const p = PROG[curProg];
+  document.getElementById('m-ex').textContent = p.ex;
+  document.getElementById('m-sets').textContent = p.sets;
+  document.getElementById('m-time').textContent = p.time;
+  document.getElementById('m-vol').textContent = p.vol;
+  document.getElementById('ob-banner').style.display = curProg==='B' ? '' : 'none';
+  exlist.innerHTML = '';
+  p.items.forEach((e,i)=>{
+    const r = document.createElement('div');
+    r.className = 'ex-row' + (i<2 ? ' done':'');
+    r.innerHTML = `<span class="check"><svg viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg></span>
+      <span class="ex-main">
+        <span class="ex-name">${e.key?'<i class="keydot"></i>':''}${e.n}</span>
+        <span class="ex-sub">${e.s}</span>
+        <span class="ex-target">▸ เป้าวันนี้ ${e.next}</span>
+      </span>
+      <span class="ex-last">ครั้งก่อน<b>${e.last}</b></span>`;
+    r.onclick = ()=>{ r.classList.toggle('done'); upd(); };
+    exlist.appendChild(r);
+  });
+  upd();
+}
+function upd(){
+  const rows = exlist.querySelectorAll('.ex-row');
+  const d = exlist.querySelectorAll('.ex-row.done').length;
+  const p = rows.length ? Math.round(d/rows.length*100) : 0;
+  document.getElementById('pbar').style.width = p+'%';
+  document.getElementById('pct').textContent = p+'%';
+}
+renderEx();
+document.querySelectorAll('#abseg button').forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll('#abseg button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); curProg = b.dataset.p; renderEx();
+  };
+});
+
+document.getElementById('prlist').innerHTML = [
+  ['Dumbbell Bench Press','12.5 kg','▲ 2.5'],
+  ['One-arm Dumbbell Row','22.5 kg','▲ 2.5'],
+  ['Dumbbell Lateral Raise','7.5 kg','คงที่ 3 สัปดาห์']
+].map(([n,v,d],i)=>`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;${i<2?'border-bottom:1px solid var(--border)':''}">
+  <span style="font-size:13px;font-weight:600">${n}</span>
+  <span class="num" style="font-size:13px"><b>${v}</b> <span style="font-size:11.5px;font-weight:600;color:${d.startsWith('▲')?'var(--good-text)':'var(--muted)'}">${d}</span></span></div>`).join('');
+
+/* ---------- 1 ปีของข้อมูล (โปรแกรม B) ---------- */
+// dow: 0=อา พัก, 1-3 เวท, 4 คาร์ดิโอ, 5 เวท, 6 เวท+คาร์ดิโอ
+const DAYTYPE = ['rest','strength','strength','strength','cardio','strength','strength'];
+const DAYLABEL = ['พัก','อก+ไหล่+Tri','หลัง+Biceps','ขา+ท้อง','Cardio / Recovery','อก+หลัง+ไหล่','ขา+ท้อง+Cardio'];
+const days = [];
+for(let i=364;i>=0;i--){
+  const d = new Date(TODAY); d.setDate(d.getDate()-i);
+  const dow = d.getDay(), type = DAYTYPE[dow];
+  const planned = type !== 'rest';
+  const t = (364-i)/364, idx = 364-i;
+  let p = 0.5 + 0.44*t;
+  if(idx>95 && idx<125) p = 0.18;
+  if(idx>228 && idx<246) p = 0.22;
+  const done = planned && rnd() < p;
+  const base = 5600 + 4200*t;
+  const vol = (done && type==='strength') ? Math.round(base*(0.72+rnd()*0.55)/50)*50 : 0;
+  const cardioMin = done && (type==='cardio' ? 25+Math.round(rnd()*15) : (dow===6 ? 20+Math.round(rnd()*10) : 0));
+  const mins = done ? (type==='cardio' ? cardioMin : 45+Math.round(rnd()*20)+ (dow===6?cardioMin:0)) : 0;
+  days.push({date:d, dow, type, planned, done, vol, mins, cardioMin: cardioMin||0, label:DAYLABEL[dow]});
+}
+const wk = [];
+for(let i=0;i<52;i++){
+  const sl = days.slice(i*7, i*7+7);
+  wk.push({
+    done: sl.filter(d=>d.done && d.type==='strength').length,
+    planned: sl.filter(d=>d.planned).length,
+    vol: sl.reduce((a,d)=>a+d.vol,0),
+    cardio: sl.reduce((a,d)=>a+d.cardioMin,0),
+    label: `${sl[0].date.getDate()} ${MONTHS[sl[0].date.getMonth()]}`
+  });
+}
+const last26 = wk.slice(-26);
+
+// สัดส่วนร่างกาย
+const bodyPts = [];                       // ทุก 2 สัปดาห์ 26 จุด
+for(let i=0;i<26;i++){
+  const t = i/25;
+  const sh = 112.5 + 5.5*t + (rnd()-.5)*0.5;
+  const wa = 84.5 - 7.0*t + (rnd()-.5)*0.5;
+  bodyPts.push({ label: wk[52-26+i].label, sh:r1(sh), wa:r1(wa), ratio: Math.round(sh/wa*1000)/1000 });
+}
+const bfPts = last26.map((w,i)=> r1(24.5 - 6.1*(i/25) + (rnd()-.5)*0.4));
+const wtPts = [];                          // รายวัน 182 วัน
+for(let i=0;i<182;i++){ const t=i/181; wtPts.push(r1(78.2 - 3.6*t + (rnd()-.5)*1.2)); }
+const wtMA = wtPts.map((_,i)=>{ const s=wtPts.slice(Math.max(0,i-6),i+1); return s.reduce((a,b)=>a+b,0)/s.length; });
+
+// progressive overload — 3 ท่า
+const LIFTS = [
+  { name:'Dumbbell Bench Press', start:8,  step:1.25, ceil:25 },
+  { name:'One-arm Dumbbell Row', start:14, step:1.25, ceil:25 },
+  { name:'Dumbbell Lateral Raise', start:4, step:0.5, ceil:25 }
+];
+const liftData = LIFTS.map(L=>{ let v=L.start; const a=[];
+  for(let i=0;i<26;i++){ if(rnd()<0.32) v=Math.min(L.ceil, v+L.step*2); a.push(r1(v)); } return a; });
+
+/* ---------- mini 7 วัน ---------- */
+const mini = document.getElementById('mini7');
+days.slice(-7).forEach(d=>{
+  const el = document.createElement('div'); el.style.cssText='flex:1;text-align:center';
+  const bg = d.done ? (d.type==='cardio'?'var(--s2)':'var(--s1)') : (d.planned?'var(--surface-2)':'transparent');
+  const br = d.done ? 'none' : '1.5px dashed var(--axis)';
+  el.innerHTML = `<div style="height:32px;border-radius:8px;background:${bg};border:${br}"></div>
+                  <div style="font-size:11px;color:var(--muted);margin-top:4px">${DAYNAMES[d.dow]}</div>`;
+  mini.appendChild(el);
+});
+
+/* ---------- ตาราง ---------- */
+const WEEKPLAN = [
+  {d:'จันทร์',n:10,t:'อก + ไหล่ + Triceps',sub:'6 ท่า · 52 นาที',tags:[['t-chest','อก'],['t-legs','ไหล่']]},
+  {d:'อังคาร',n:11,t:'หลัง + Biceps',sub:'6 ท่า · 48 นาที',tags:[['t-back','หลัง']]},
+  {d:'พุธ',n:12,t:'ขา + หน้าท้อง',sub:'7 ท่า · 55 นาที',tags:[['t-legs','ขา']]},
+  {d:'พฤหัส',n:13,t:'Cardio / Recovery',sub:'ลู่วิ่ง 25–40 นาที',tags:[['t-cardio','คาร์ดิโอ']],cardio:true},
+  {d:'ศุกร์',n:14,t:'อก + หลัง + ไหล่',sub:'7 ท่า · 58 นาที',tags:[['t-chest','อก'],['t-back','หลัง']],today:true},
+  {d:'เสาร์',n:15,t:'ขา + ท้อง + Cardio',sub:'7 ท่า + วิ่ง 20–30 นาที',tags:[['t-legs','ขา'],['t-cardio','คาร์ดิโอ']]},
+  {d:'อาทิตย์',n:16,t:null}
+];
+const week = document.getElementById('week');
+WEEKPLAN.forEach(w=>{
+  const el = document.createElement('div');
+  el.className = 'day' + (w.today?' today':'');
+  const tags = w.t ? w.tags.map(([c,l])=>`<span class="tag ${c}">${l}</span>`).join(' ') : `<span class="tag t-rest">วันพัก</span>`;
+  el.innerHTML = `<div><div class="dname">${w.d}</div><div class="dnum">${w.n}</div></div>` +
+    (w.t ? `<div class="slot">${tags}<b>${w.t}</b><span>${w.sub}</span></div>`
+         : `<div class="slot" style="background:transparent">${tags}<span style="margin-top:6px">ฟื้นฟูกล้ามเนื้อ</span></div>`) +
+    (w.t && !w.cardio ? `<div class="ab"><button class="on">B</button><button>A</button></div>` : `<div class="ab" style="visibility:hidden"><button>·</button></div>`);
+  week.appendChild(el);
+});
+
+function bars(el, data){
+  const max = Math.max(...data.map(d=> Math.max(d.v, d.target||0)));
+  el.innerHTML = data.map(d=>`
+    <div class="bar-row">
+      <span class="lbl">${d.l}${d.sm?` <small>${d.sm}</small>`:''}</span>
+      <span class="bar-track"><i style="width:${Math.max(2,d.v/max*100)}%${d.c?`;background:${d.c}`:''}"></i>${
+        d.target!==undefined?`<u style="left:${d.target/max*100}%"></u>`:''}</span>
+      <span class="v">${d.t!==undefined?d.t:d.v}</span>
+    </div>`).join('');
+}
+bars(document.getElementById('goalbars'), wk.slice(-6).map(w=>({
+  l:w.label, v:Math.max(w.done,0.2), t:w.done+'/5', c: w.done>=5?'var(--s1)':'var(--hm1)'
+})));
+bars(document.getElementById('splitbars'), [
+  {l:'อก',       v:2, t:'2 วัน'},
+  {l:'หลัง',     v:2, t:'2 วัน'},
+  {l:'ไหล่',     v:2, t:'2 วัน'},
+  {l:'ขา',       v:2, t:'2 วัน'},
+  {l:'แขน',      v:2, t:'2 วัน'},
+  {l:'หน้าท้อง', v:3, t:'3 วัน'},
+  {l:'คาร์ดิโอ',  v:2, t:'2 วัน', c:'var(--s2)'},
+  {l:'พัก',      v:1, t:'1 วัน', c:'var(--axis)'}
+]);
+
+/* ---------- tooltip ---------- */
+const tip = document.getElementById('tip');
+function showTip(e, html){
+  tip.innerHTML = html; tip.style.opacity = 1;
+  const r = tip.getBoundingClientRect();
+  let x = e.clientX + 14, y = e.clientY - r.height - 10;
+  if(x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
+  if(y < 8) y = e.clientY + 18;
+  tip.style.left = x+'px'; tip.style.top = y+'px';
+}
+const hideTip = ()=> tip.style.opacity = 0;
+
+/* ---------- heatmap ---------- */
+const CELL=12, GAP=3, STEP=15, TOP=20, LEFT=26;
+function drawHeatmap(){
+  const svg = document.getElementById('heatmap');
+  const cells = Array(days[0].date.getDay()).fill(null).concat(days);
+  const weeks = Math.ceil(cells.length/7);
+  const W = LEFT + weeks*STEP + 4, H = TOP + 7*STEP + 4;
+  svg.setAttribute('width',W); svg.setAttribute('height',H); svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  let s = '', lastM = -1;
+  [1,3,5].forEach(i=> s += `<text x="0" y="${TOP+i*STEP+10}" font-size="10" fill="var(--muted)">${DAYNAMES[i]}</text>`);
+  cells.forEach((c,i)=>{ if(!c) return;
+    if(c.date.getMonth()!==lastM && c.date.getDate()<=7){ lastM=c.date.getMonth();
+      s += `<text x="${LEFT+Math.floor(i/7)*STEP}" y="12" font-size="10" fill="var(--muted)">${MONTHS[lastM]}</text>`; }});
+  const maxVol = Math.max(...days.map(d=>d.vol));
+  cells.forEach((c,i)=>{ if(!c) return;
+    const x = LEFT + Math.floor(i/7)*STEP, y = TOP + (i%7)*STEP;
+    let fill='var(--hm0)', stroke='none', dash='';
+    if(c.done){ const r = c.vol/maxVol;
+      fill = c.type==='cardio' ? 'var(--hm2)' : r<.35?'var(--hm1)':r<.6?'var(--hm2)':r<.82?'var(--hm3)':'var(--hm4)';
+    } else if(!c.planned){ fill='transparent'; stroke='var(--axis)'; dash=' stroke-dasharray="2 2"'; }
+    const t = c.done
+      ? `<b>${c.date.getDate()} ${MONTHS[c.date.getMonth()]}</b><br>${c.label}<br>${c.vol?fmt(c.vol)+' kg · ':''}${c.mins} นาที`
+      : `<b>${c.date.getDate()} ${MONTHS[c.date.getMonth()]}</b><br>${c.planned?'วางแผนไว้ แต่ไม่ได้ทำ':'วันพักตามแผน'}`;
+    s += `<rect class="cell" x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="3" fill="${fill}"
+           stroke="${stroke}" stroke-width="1"${dash} data-t="${t.replace(/"/g,'&quot;')}"/>`;
+  });
+  svg.innerHTML = s;
+  svg.querySelectorAll('rect.cell').forEach(r=>{
+    r.addEventListener('mousemove', e=> showTip(e, r.dataset.t));
+    r.addEventListener('mouseleave', hideTip);
+  });
+}
+drawHeatmap();
+
+const doneDays = days.filter(d=>d.done).length, plannedDays = days.filter(d=>d.planned).length;
+function maxGap(){ let g=0,m=0; days.forEach(d=>{ if(d.done)g=0; else if(d.planned){g++;m=Math.max(m,g)} }); return m; }
+document.getElementById('hm-summary').innerHTML =
+  `ออกกำลังกาย <b style="color:var(--text-1)">${doneDays}</b> วัน จากที่วางแผน ${plannedDays} วัน · ช่วงที่ขาดยาวที่สุด ${maxGap()} วัน`;
+document.getElementById('t-adh').textContent = Math.round(doneDays/plannedDays*100)+'%';
+document.getElementById('hm-tbody').innerHTML = days.filter(d=>d.done).slice(-40).reverse().map(d=>
+  `<tr><td>${d.date.getDate()} ${MONTHS[d.date.getMonth()]} ${d.date.getFullYear()}</td><td>${d.label}</td>
+   <td>${d.vol?fmt(d.vol):'—'}</td><td>${d.mins} นาที</td></tr>`).join('');
+
+/* ---------- line chart ---------- */
+function lineChart(id, series, o){
+  const svg = document.getElementById(id);
+  const W = svg.clientWidth || 480, H = svg.clientHeight || 200;
+  const M = o.margin || {t:12,r:14,b:26,l:46};
+  const iw = W-M.l-M.r, ih = H-M.t-M.b;
+  const vals = series.flatMap(s=>s.data).concat(o.extra||[]);
+  const max = o.max !== undefined ? o.max : Math.max(...vals)*1.06;
+  const min = o.zero ? 0 : (o.min !== undefined ? o.min : Math.min(...vals) - (Math.max(...vals)-Math.min(...vals))*0.15);
+  const n = series[0].data.length;
+  const X = i => M.l + (n<2?0:i/(n-1)*iw);
+  const Y = v => M.t + ih - (v-min)/((max-min)||1)*ih;
+  let s = '', ticks = o.ticks||3;
+  for(let k=0;k<=ticks;k++){
+    const v = min + (max-min)*k/ticks, y = Y(v);
+    s += `<line x1="${M.l}" x2="${W-M.r}" y1="${y}" y2="${y}" stroke="var(--grid)" stroke-width="1"/>
+          <text x="${M.l-8}" y="${y+4}" font-size="10.5" fill="var(--muted)" text-anchor="end">${o.fmtY(v)}</text>`;
+  }
+  if(o.band){ s += `<rect x="${M.l}" y="${Y(o.band[1])}" width="${iw}" height="${Math.abs(Y(o.band[0])-Y(o.band[1]))}"
+      fill="var(--s2)" opacity=".08"/>`; }
+  if(o.target !== undefined){
+    s += `<line x1="${M.l}" x2="${W-M.r}" y1="${Y(o.target)}" y2="${Y(o.target)}" stroke="var(--text-2)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text x="${W-M.r}" y="${Y(o.target)-6}" font-size="10.5" fill="var(--text-2)" text-anchor="end">${o.targetLabel||''}</text>`;
+  }
+  if(o.labels){
+    let lastLx = -1e9;
+    o.labels.forEach((l,i)=>{ const x = X(i);
+      if(l && x-lastLx>=64 && x<=W-M.r-8){
+        s += `<text x="${x}" y="${H-6}" font-size="10.5" fill="var(--muted)" text-anchor="middle">${l}</text>`; lastLx=x; }});
+  }
+  series.forEach(se=>{
+    if(se.dots){ se.data.forEach((v,i)=> s += `<circle cx="${X(i)}" cy="${Y(v)}" r="1.8" fill="${se.color}" opacity=".45"/>`); return; }
+    let pts;
+    if(se.step){ pts = se.data.flatMap((v,i)=> i===0?[`${X(i)},${Y(v)}`]:[`${X(i)},${Y(se.data[i-1])}`,`${X(i)},${Y(v)}`]).join(' '); }
+    else pts = se.data.map((v,i)=>`${X(i)},${Y(v)}`).join(' ');
+    if(se.area) s += `<polygon points="${M.l},${M.t+ih} ${pts} ${X(n-1)},${M.t+ih}" fill="${se.color}" opacity=".09"/>`;
+    s += `<polyline points="${pts}" fill="none" stroke="${se.color}" stroke-width="${se.w||2}"
+          stroke-linejoin="round" stroke-linecap="round"${se.dash?' stroke-dasharray="4 4"':''}/>`;
+  });
+  const main = series.find(x=>!x.dots && !x.dash) || series[0];
+  s += `<circle cx="${X(n-1)}" cy="${Y(main.data[n-1])}" r="4.5" fill="${main.color}" stroke="var(--surface)" stroke-width="2"/>`;
+  if(o.tip){
+    main.data.forEach((v,i)=> s += `<rect class="hit" x="${X(i)-iw/n/2}" y="${M.t}" width="${iw/n}" height="${ih}"
+      fill="transparent" data-i="${i}" data-x="${X(i)}" data-y="${Y(v)}"/>`);
+    s += `<line id="${id}-ch" x1="0" x2="0" y1="${M.t}" y2="${M.t+ih}" stroke="var(--axis)" stroke-width="1" opacity="0"/>
+          <circle id="${id}-cd" r="5" fill="${main.color}" stroke="var(--surface)" stroke-width="2" opacity="0"/>`;
+  }
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.innerHTML = s;
+  if(o.tip){
+    const ch = svg.querySelector(`#${id}-ch`), cd = svg.querySelector(`#${id}-cd`);
+    svg.querySelectorAll('.hit').forEach(h=>{
+      h.addEventListener('mousemove', e=>{
+        ch.setAttribute('x1',h.dataset.x); ch.setAttribute('x2',h.dataset.x); ch.setAttribute('opacity','1');
+        cd.setAttribute('cx',h.dataset.x); cd.setAttribute('cy',h.dataset.y); cd.setAttribute('opacity','1');
+        showTip(e, o.tip(+h.dataset.i));
+      });
+      h.addEventListener('mouseleave', ()=>{ ch.setAttribute('opacity','0'); cd.setAttribute('opacity','0'); hideTip(); });
+    });
+  }
+}
+
+/* ---------- bar chart ---------- */
+function barChart(id, data, o){
+  const svg = document.getElementById(id);
+  const W = svg.clientWidth || 480, H = svg.clientHeight || 200;
+  const M = {t:12,r:14,b:26,l:o.l||30};
+  const iw = W-M.l-M.r, ih = H-M.t-M.b;
+  const max = o.max !== undefined ? o.max : Math.max(...data, o.goal||0)+1;
+  const bw = iw/data.length, Y = v => M.t + ih - v/max*ih;
+  let s = '', lastLx = -1e9;
+  const ticks = o.ticks || max;
+  for(let k=0;k<=ticks;k++){ const v = max*k/ticks, y = Y(v);
+    s += `<line x1="${M.l}" x2="${W-M.r}" y1="${y}" y2="${y}" stroke="var(--grid)" stroke-width="1"/>
+          <text x="${M.l-7}" y="${y+4}" font-size="10.5" fill="var(--muted)" text-anchor="end">${o.fmtY?o.fmtY(v):v}</text>`; }
+  if(o.band) s += `<rect x="${M.l}" y="${Y(o.band[1])}" width="${iw}" height="${Math.abs(Y(o.band[0])-Y(o.band[1]))}" fill="var(--s2)" opacity=".10"/>`;
+  data.forEach((v,i)=>{
+    const x = M.l+i*bw+2, w = bw-4, y = Y(v), h = M.t+ih-y;
+    const c = o.color ? o.color(v,i) : 'var(--s1)';
+    if(h>0.5) s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${c}"/>`;
+    const cx = x+w/2;
+    if((i%Math.ceil(data.length/5)===0 || i===data.length-1) && cx-lastLx>=64 && cx<=W-M.r-8){
+      s += `<text x="${cx}" y="${H-6}" font-size="10.5" fill="var(--muted)" text-anchor="middle">${o.labels[i]}</text>`; lastLx=cx; }
+    s += `<rect class="hit" x="${M.l+i*bw}" y="${M.t}" width="${bw}" height="${ih}" fill="transparent" data-i="${i}"/>`;
+  });
+  if(o.goal !== undefined){
+    s += `<line x1="${M.l}" x2="${W-M.r}" y1="${Y(o.goal)}" y2="${Y(o.goal)}" stroke="var(--text-2)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text x="${W-M.r}" y="${Y(o.goal)-6}" font-size="10.5" fill="var(--text-2)" text-anchor="end">${o.goalLabel}</text>`; }
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.innerHTML = s;
+  svg.querySelectorAll('.hit').forEach(h=>{
+    h.addEventListener('mousemove', e=> showTip(e, o.tip(+h.dataset.i)));
+    h.addEventListener('mouseleave', hideTip);
+  });
+}
+
+/* ---------- render all charts ---------- */
+let curLift = 0;
+function drawAll(){
+  // V-Taper
+  lineChart('vtchart', [{data:bodyPts.map(p=>p.ratio), color:'var(--s1)', area:true}], {
+    labels: bodyPts.map(p=>p.label), target:1.618, targetLabel:'เป้า 1.618',
+    max:1.66, min:1.28, fmtY:v=>v.toFixed(2),
+    tip:i=>`<b>${bodyPts[i].label}</b><br>อัตราส่วน ${bodyPts[i].ratio.toFixed(3)}<br>ไหล่ ${bodyPts[i].sh} ÷ เอว ${bodyPts[i].wa} cm`
+  });
+  // body fat
+  lineChart('bfchart', [{data:bfPts, color:'var(--s1)', area:true}], {
+    margin:{t:8,r:14,b:24,l:46}, ticks:2, fmtY:v=>v.toFixed(1)+'%',
+    labels: last26.map(w=>w.label),
+    tip:i=>`<b>${last26[i].label}</b><br>ไขมัน ${bfPts[i].toFixed(1)}%`
+  });
+  // weight
+  lineChart('wtchart', [
+    {data:wtPts, color:'var(--muted)', dots:true},
+    {data:wtMA, color:'var(--s1)', w:2.5}
+  ], { margin:{t:8,r:14,b:24,l:46}, ticks:2, fmtY:v=>v.toFixed(1),
+    labels: wtPts.map((_,i)=> i%36===0 ? `${6-Math.round(i/36)} ด.ก่อน` : ''),
+    tip:i=>`<b>วันที่ ${i+1}</b><br>น้ำหนัก ${wtPts[i].toFixed(1)} kg<br>เฉลี่ย 7 วัน ${wtMA[i].toFixed(1)} kg` });
+  // volume
+  const volData = last26.map(w=>w.vol);
+  const ma = volData.map((_,i)=>{ const s=volData.slice(Math.max(0,i-3),i+1); return s.reduce((a,b)=>a+b,0)/s.length; });
+  lineChart('volchart', [{data:volData,color:'var(--s1)',area:true},{data:ma,color:'var(--axis)',dash:true}], {
+    labels:last26.map(w=>w.label), zero:true, fmtY:v=>Math.round(v/1000)+'k',
+    tip:i=>`<b>สัปดาห์ ${last26[i].label}</b><br>ปริมาตร ${fmt(last26[i].vol)} kg<br>เวท ${last26[i].done} วัน · คาร์ดิโอ ${last26[i].cardio} นาที`
+  });
+  // days vs goal
+  barChart('daychart', last26.map(w=>w.done), {
+    labels:last26.map(w=>w.label), goal:5, goalLabel:'เป้า 5 วัน', max:6, ticks:6,
+    color:v=> v>=5?'var(--s1)':'var(--hm1)',
+    tip:i=>`<b>สัปดาห์ ${last26[i].label}</b><br>เวท ${last26[i].done} วัน · คาร์ดิโอ ${last26[i].cardio} นาที<br>${last26[i].done>=5?'✓ ถึงเป้า':'ไม่ถึงเป้า'}`
+  });
+  // overload
+  lineChart('prchart', [{data:liftData[curLift], color:'var(--s2)', area:true, step:true}], {
+    labels:last26.map(w=>w.label), target:25, targetLabel:'เพดานดัมเบล 25 kg',
+    max:27, min:0, fmtY:v=>Math.round(v)+' kg',
+    tip:i=>`<b>สัปดาห์ ${last26[i].label}</b><br>${LIFTS[curLift].name}<br>${liftData[curLift][i]} kg`
+  });
+  // cardio
+  barChart('cardiochart', last26.map(w=>w.cardio), {
+    labels:last26.map(w=>w.label), max:150, ticks:3, l:36, band:[75,120],
+    fmtY:v=>Math.round(v)+'′', color:()=> 'var(--s2)',
+    tip:i=>`<b>สัปดาห์ ${last26[i].label}</b><br>คาร์ดิโอ ${last26[i].cardio} นาที<br>เป้า 75–120 นาที`
+  });
+}
+drawAll();
+
+// tiles + body page
+const vtNow = bodyPts[bodyPts.length-1], vtOld = bodyPts[bodyPts.length-5];
+document.getElementById('t-vt').textContent = vtNow.ratio.toFixed(2);
+document.getElementById('t-vt-d').textContent = `▲ ${(vtNow.ratio-vtOld.ratio).toFixed(3)} ใน 8 สัปดาห์ · เป้า 1.618`;
+document.getElementById('t-bf').textContent = bfPts[bfPts.length-1].toFixed(1)+'%';
+document.getElementById('t-bf-d').textContent = `▼ ${(bfPts[0]-bfPts[bfPts.length-1]).toFixed(1)}% ใน 6 เดือน`;
+document.getElementById('sh-now').textContent = vtNow.sh;
+document.getElementById('sh-d').textContent = `▲${r1(vtNow.sh-vtOld.sh)}`;
+document.getElementById('wa-now').textContent = vtNow.wa;
+document.getElementById('wa-d').textContent = `▼${r1(vtOld.wa-vtNow.wa)}`;
+document.getElementById('vt-tbody').innerHTML = bodyPts.slice().reverse().map(p=>
+  `<tr><td>${p.label}</td><td>${p.sh}</td><td>${p.wa}</td><td>${p.ratio.toFixed(3)}</td></tr>`).join('');
+document.getElementById('vol-tbody').innerHTML = last26.map(w=>`<tr><td>${w.label}</td><td>${fmt(w.vol)}</td></tr>`).join('');
+document.getElementById('day-tbody').innerHTML = last26.map(w=>
+  `<tr><td>${w.label}</td><td>${w.done}</td><td>${w.done>=5?'ใช่':'ไม่'}</td></tr>`).join('');
+
+document.getElementById('b-vt').textContent = vtNow.ratio.toFixed(2);
+document.getElementById('b-vt2').textContent = vtNow.ratio.toFixed(3);
+document.getElementById('b-vt0').textContent = bodyPts[0].ratio.toFixed(2);
+document.getElementById('b-vtbar').style.width = Math.round((vtNow.ratio-bodyPts[0].ratio)/(1.618-bodyPts[0].ratio)*100)+'%';
+document.getElementById('b-vtnote').innerHTML =
+  `เดินทางมาแล้ว <b style="color:var(--text-1)">${Math.round((vtNow.ratio-bodyPts[0].ratio)/(1.618-bodyPts[0].ratio)*100)}%</b> ของระยะทางถึงเป้า —
+   มาจากไหล่กว้างขึ้น ${r1(vtNow.sh-bodyPts[0].sh)} cm และเอวเล็กลง ${r1(bodyPts[0].wa-vtNow.wa)} cm`;
+
+// ซิงก์ตัวเลขในหน้า "ร่างกาย" กับข้อมูลชุดเดียวกับกราฟ
+const vt0 = bodyPts[0], bfNow = bfPts[bfPts.length-1], bfOld = bfPts[0];
+const wtNow = wtMA[wtMA.length-1], wtOld = wtMA[0];
+document.getElementById('i-sh').value = vtNow.sh.toFixed(1);
+document.getElementById('i-wa').value = vtNow.wa.toFixed(1);
+document.getElementById('i-wt').value = wtNow.toFixed(1);
+document.getElementById('i-bf').value = bfNow.toFixed(1);
+document.getElementById('p-now').textContent = `${wtNow.toFixed(1)} kg · ${bfNow.toFixed(1)}%`;
+document.getElementById('p-old').textContent = `${wtOld.toFixed(1)} kg · ${bfOld.toFixed(1)}%`;
+document.getElementById('c-wt').textContent = `−${(wtOld-wtNow).toFixed(1)} kg`;
+document.getElementById('c-bf').textContent = `−${(bfOld-bfNow).toFixed(1)}%`;
+document.getElementById('c-sh').textContent = `+${(vtNow.sh-vt0.sh).toFixed(1)} cm`;
+document.getElementById('c-wa').textContent = `−${(vt0.wa-vtNow.wa).toFixed(1)} cm`;
+
+// muscle groups — เรียงตามลำดับความสำคัญ ไม่ใช่ตามค่า
+bars(document.getElementById('musclebars'), [
+  {l:'หลัง / Lat', sm:'#1', v:118, t:'118 เซ็ต', target:142},
+  {l:'ไหล่',       sm:'#2', v:134, t:'134 เซ็ต', target:128},
+  {l:'อก',         sm:'#3', v:126, t:'126 เซ็ต', target:114},
+  {l:'ขา',         sm:'#4', v:104, t:'104 เซ็ต', target:100},
+  {l:'แขน',        sm:'#5', v:88,  t:'88 เซ็ต',  target:72},
+  {l:'หน้าท้อง',   sm:'#6', v:76,  t:'76 เซ็ต',  target:64}
+]);
+
+/* ---------- controls ---------- */
+document.getElementById('prsel').onchange = e=>{ curLift = +e.target.value; drawAll(); };
+document.querySelectorAll('nav button').forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected','false'));
+    b.setAttribute('aria-selected','true');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+    document.getElementById('v-'+b.dataset.v).classList.add('on');
+    scrollTo(0,0);
+    if(b.dataset.v==='analytics') drawAll();
+  };
+});
+document.querySelectorAll('[data-tbl]').forEach(b=>{
+  b.onclick = ()=>{ const el = document.getElementById(b.dataset.tbl);
+    el.classList.toggle('on'); b.textContent = el.classList.contains('on') ? 'ซ่อนตาราง' : 'ดูเป็นตาราง'; };
+});
+document.querySelectorAll('.chip').forEach(c=>{
+  c.onclick = ()=>{ const sibs = c.parentElement.querySelectorAll('.chip');
+    sibs.forEach(x=>x.classList.remove('on')); c.classList.add('on'); };
+});
+document.getElementById('theme').onclick = ()=>{
+  const dark = document.documentElement.dataset.theme === 'dark';
+  document.documentElement.dataset.theme = dark ? 'light' : 'dark';
+  document.getElementById('ticon').innerHTML = dark
+    ? '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.2 4.2l1.5 1.5M18.3 18.3l1.5 1.5M2 12h2M20 12h2M4.2 19.8l1.5-1.5M18.3 5.7l1.5-1.5"/>'
+    : '<path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/>';
+  drawHeatmap(); drawAll();
+};
+addEventListener('resize', ()=>{ clearTimeout(window._rt); window._rt = setTimeout(()=>{drawHeatmap();drawAll()},150); });
+</script>
+</body>
+</html>

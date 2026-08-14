@@ -1,0 +1,228 @@
+{
+  "$schema": "./program-seed.schema.md",
+  "version": "1.0.0",
+  "generatedFor": "FitTrack — Home Workout & Body Composition Tracker",
+  "note": "ข้อมูลชุดนี้แปลงมาจาก reportwebsite.md โดยตรง ใช้ seed ลงตาราง exercises / plans / plan_days / plan_items ได้ทันที",
+
+  "profile": {
+    "trainingLocation": "home",
+    "equipment": [
+      { "id": "dumbbell_adj_25", "name": "ดัมเบลปรับน้ำหนัก", "maxWeightKg": 25, "unit": "kg" },
+      { "id": "bench_flat", "name": "เบาะ/ม้านั่งแบบราบ", "incline": false },
+      { "id": "treadmill", "name": "ลู่วิ่ง" }
+    ],
+    "goals": [
+      { "id": "fat_loss", "label": "ลดไขมันโดยรวม (คาง / กรามชัด)", "priority": 1, "metric": "body_fat_pct" },
+      { "id": "back_width", "label": "หลังกว้าง / V-Taper", "priority": 2, "metric": "v_taper_ratio" },
+      { "id": "shoulder_width", "label": "ไหล่กว้าง", "priority": 3, "metric": "measure_shoulder" },
+      { "id": "chest_size", "label": "อกใหญ่ขึ้น", "priority": 4, "metric": "measure_chest" },
+      { "id": "full_body", "label": "ฝึกครบทั้งร่างกาย", "priority": 5, "metric": "muscle_balance" }
+    ],
+    "musclePriority": ["back_lat", "shoulders", "chest", "legs", "arms", "core"],
+    "weeklyTarget": { "strengthDays": 5, "cardioSessions": 3, "cardioMinutesMin": 25, "cardioMinutesMax": 40 },
+    "intensityRule": { "type": "RIR", "min": 1, "max": 3, "note": "จบเซตแล้วยังเหลือแรงประมาณ 1–3 ครั้ง ไม่ต้องหมดแรงทุกเซต" }
+  },
+
+  "exercises": [
+    { "id": "pushup",              "name": "Push-up",                             "kind": "bodyweight", "muscle": "chest",     "secondary": ["shoulders","arms"], "equipment": [],                  "repRange": [8, 15] },
+    { "id": "wide_pushup",         "name": "Wide Push-up",                        "kind": "bodyweight", "muscle": "chest",     "secondary": ["shoulders"],        "equipment": [],                  "repRange": [10, 15] },
+    { "id": "pike_pushup",         "name": "Pike Push-up",                        "kind": "bodyweight", "muscle": "shoulders", "secondary": ["arms"],             "equipment": [],                  "repRange": [6, 12] },
+    { "id": "diamond_pushup",      "name": "Diamond Push-up",                     "kind": "bodyweight", "muscle": "arms",      "secondary": ["chest"],            "equipment": [],                  "repRange": [6, 12] },
+    { "id": "decline_pushup",      "name": "Decline Push-up",                     "kind": "bodyweight", "muscle": "chest",     "secondary": ["shoulders"],        "equipment": ["bench_flat"],      "repRange": [8, 15], "note": "ใช้แทน Incline Dumbbell Press เพื่อเน้นอกบน (วางเท้าบนเบาะ)" },
+    { "id": "leg_raise",           "name": "Leg Raise",                           "kind": "bodyweight", "muscle": "core",      "secondary": [],                   "equipment": [],                  "repRange": [10, 15] },
+    { "id": "plank",               "name": "Plank",                               "kind": "duration",   "muscle": "core",      "secondary": [],                   "equipment": [],                  "durationRangeS": [30, 60] },
+    { "id": "crunch",              "name": "Crunch",                              "kind": "bodyweight", "muscle": "core",      "secondary": [],                   "equipment": [],                  "repRange": [15, 20] },
+    { "id": "bicycle_crunch",      "name": "Bicycle Crunch",                      "kind": "bodyweight", "muscle": "core",      "secondary": [],                   "equipment": [],                  "repRange": [15, 20], "perSide": true },
+    { "id": "bw_squat",            "name": "Bodyweight Squat",                    "kind": "bodyweight", "muscle": "legs",      "secondary": ["glutes"],           "equipment": [],                  "repRange": [15, 20] },
+    { "id": "reverse_lunge",       "name": "Reverse Lunge",                       "kind": "bodyweight", "muscle": "legs",      "secondary": ["glutes"],           "equipment": [],                  "repRange": [10, 15], "perSide": true },
+    { "id": "split_squat",         "name": "Split Squat",                         "kind": "bodyweight", "muscle": "legs",      "secondary": ["glutes"],           "equipment": [],                  "repRange": [8, 12],  "perSide": true },
+    { "id": "glute_bridge",        "name": "Glute Bridge",                        "kind": "bodyweight", "muscle": "glutes",    "secondary": ["legs"],             "equipment": [],                  "repRange": [15, 20] },
+    { "id": "sl_glute_bridge",     "name": "Single-leg Glute Bridge",             "kind": "bodyweight", "muscle": "glutes",    "secondary": ["legs"],             "equipment": [],                  "repRange": [10, 15], "perSide": true },
+    { "id": "calf_raise",          "name": "Calf Raise",                          "kind": "bodyweight", "muscle": "legs",      "secondary": [],                   "equipment": [],                  "repRange": [15, 25] },
+    { "id": "reverse_snow_angel",  "name": "Reverse Snow Angel",                  "kind": "bodyweight", "muscle": "back_lat",  "secondary": ["shoulders"],        "equipment": [],                  "repRange": [12, 20] },
+    { "id": "prone_ytw",           "name": "Prone Y-T-W Raise",                   "kind": "bodyweight", "muscle": "back_lat",  "secondary": ["shoulders"],        "equipment": [],                  "repRange": [8, 12] },
+    { "id": "superman",            "name": "Superman",                            "kind": "bodyweight", "muscle": "back_lat",  "secondary": ["core"],             "equipment": [],                  "repRange": [12, 20] },
+    { "id": "bird_dog",            "name": "Bird Dog",                            "kind": "bodyweight", "muscle": "core",      "secondary": ["back_lat"],         "equipment": [],                  "repRange": [10, 10], "perSide": true },
+
+    { "id": "db_bench_press",      "name": "Dumbbell Bench Press",                "kind": "strength",   "muscle": "chest",     "secondary": ["shoulders","arms"], "equipment": ["dumbbell_adj_25","bench_flat"], "repRange": [6, 12],  "isKeyLift": true },
+    { "id": "db_fly",              "name": "Dumbbell Fly",                        "kind": "strength",   "muscle": "chest",     "secondary": [],                   "equipment": ["dumbbell_adj_25","bench_flat"], "repRange": [10, 15] },
+    { "id": "db_shoulder_press",   "name": "Dumbbell Shoulder Press",             "kind": "strength",   "muscle": "shoulders", "secondary": ["arms"],             "equipment": ["dumbbell_adj_25"], "repRange": [8, 12] },
+    { "id": "db_lateral_raise",    "name": "Dumbbell Lateral Raise",              "kind": "strength",   "muscle": "shoulders", "secondary": [],                   "equipment": ["dumbbell_adj_25"], "repRange": [12, 20], "isKeyLift": true },
+    { "id": "db_oh_tri_ext",       "name": "Dumbbell Overhead Triceps Extension", "kind": "strength",   "muscle": "arms",      "secondary": [],                   "equipment": ["dumbbell_adj_25"], "repRange": [10, 15] },
+    { "id": "db_row_onearm",       "name": "One-arm Dumbbell Row",                "kind": "strength",   "muscle": "back_lat",  "secondary": ["arms"],             "equipment": ["dumbbell_adj_25","bench_flat"], "repRange": [8, 12], "perSide": true, "isKeyLift": true },
+    { "id": "db_row_bentover",     "name": "Bent-over Dumbbell Row",              "kind": "strength",   "muscle": "back_lat",  "secondary": ["arms"],             "equipment": ["dumbbell_adj_25"], "repRange": [8, 12],  "isKeyLift": true },
+    { "id": "db_pullover",         "name": "Dumbbell Pullover",                   "kind": "strength",   "muscle": "back_lat",  "secondary": ["chest"],            "equipment": ["dumbbell_adj_25","bench_flat"], "repRange": [10, 15], "isKeyLift": true },
+    { "id": "db_rear_delt_fly",    "name": "Rear Delt Fly",                       "kind": "strength",   "muscle": "shoulders", "secondary": ["back_lat"],         "equipment": ["dumbbell_adj_25"], "repRange": [12, 20] },
+    { "id": "db_curl",             "name": "Dumbbell Curl",                       "kind": "strength",   "muscle": "arms",      "secondary": [],                   "equipment": ["dumbbell_adj_25"], "repRange": [8, 15] },
+    { "id": "db_hammer_curl",      "name": "Hammer Curl",                         "kind": "strength",   "muscle": "arms",      "secondary": [],                   "equipment": ["dumbbell_adj_25"], "repRange": [8, 15] },
+    { "id": "goblet_squat",        "name": "Goblet Squat",                        "kind": "strength",   "muscle": "legs",      "secondary": ["glutes","core"],    "equipment": ["dumbbell_adj_25"], "repRange": [8, 15] },
+    { "id": "db_rdl",              "name": "Dumbbell Romanian Deadlift",          "kind": "strength",   "muscle": "legs",      "secondary": ["glutes","back_lat"],"equipment": ["dumbbell_adj_25"], "repRange": [8, 12] },
+    { "id": "bulgarian_split",     "name": "Bulgarian Split Squat",               "kind": "strength",   "muscle": "legs",      "secondary": ["glutes"],           "equipment": ["dumbbell_adj_25","bench_flat"], "repRange": [8, 12], "perSide": true },
+    { "id": "db_glute_bridge",     "name": "Dumbbell Glute Bridge",               "kind": "strength",   "muscle": "glutes",    "secondary": ["legs"],             "equipment": ["dumbbell_adj_25"], "repRange": [10, 15] },
+    { "id": "db_calf_raise",       "name": "Dumbbell Calf Raise",                 "kind": "strength",   "muscle": "legs",      "secondary": [],                   "equipment": ["dumbbell_adj_25"], "repRange": [15, 25] },
+    { "id": "db_lunge",            "name": "Dumbbell Lunge",                      "kind": "strength",   "muscle": "legs",      "secondary": ["glutes"],           "equipment": ["dumbbell_adj_25"], "repRange": [10, 10], "perSide": true },
+    { "id": "sl_rdl",              "name": "Single-leg Romanian Deadlift",        "kind": "strength",   "muscle": "legs",      "secondary": ["glutes"],           "equipment": ["dumbbell_adj_25"], "repRange": [8, 12], "perSide": true, "note": "ใช้เพิ่มความยากเมื่อดัมเบล 25 kg เริ่มเบาเกินไป" },
+
+    { "id": "treadmill",           "name": "ลู่วิ่ง (เดินเร็ว / เดินชัน)",          "kind": "cardio",     "muscle": "cardio",    "secondary": [],                   "equipment": ["treadmill"],       "durationRangeS": [1500, 2400] },
+    { "id": "walk_easy",           "name": "เดินเบา ๆ",                            "kind": "cardio",     "muscle": "cardio",    "secondary": [],                   "equipment": [],                  "durationRangeS": [1200, 2400] },
+
+    { "id": "chin_tuck",           "name": "Chin Tuck",                           "kind": "duration",   "muscle": "neck",      "secondary": [],                   "equipment": [],                  "repRange": [10, 15], "holdS": [3, 5] },
+    { "id": "neck_curl",           "name": "Neck Curl",                           "kind": "bodyweight", "muscle": "neck",      "secondary": [],                   "equipment": [],                  "repRange": [10, 15] }
+  ],
+
+  "plans": [
+    {
+      "id": "plan_a_bodyweight",
+      "name": "โปรแกรม A — ไม่ใช้อุปกรณ์",
+      "splitType": "bodyweight_5day",
+      "isDefault": false,
+      "useWhen": "วันที่ไม่สะดวกใช้อุปกรณ์ หรือออกกำลังกายนอกสถานที่",
+      "days": [
+        { "dayOfWeek": 1, "label": "อก + ไหล่ + Triceps + หน้าท้อง", "isRest": false, "items": [
+          { "exerciseId": "pushup",             "sets": 4, "reps": [8, 15] },
+          { "exerciseId": "wide_pushup",        "sets": 3, "reps": [10, 15] },
+          { "exerciseId": "pike_pushup",        "sets": 3, "reps": [6, 12] },
+          { "exerciseId": "diamond_pushup",     "sets": 3, "reps": [6, 12] },
+          { "exerciseId": "leg_raise",          "sets": 3, "reps": [10, 15] },
+          { "exerciseId": "plank",              "sets": 3, "durationS": [30, 60] }
+        ]},
+        { "dayOfWeek": 2, "label": "ขา + ก้น", "isRest": false, "items": [
+          { "exerciseId": "bw_squat",           "sets": 4, "reps": [15, 20] },
+          { "exerciseId": "reverse_lunge",      "sets": 3, "reps": [10, 15], "perSide": true },
+          { "exerciseId": "split_squat",        "sets": 3, "reps": [8, 12],  "perSide": true },
+          { "exerciseId": "glute_bridge",       "sets": 3, "reps": [15, 20] },
+          { "exerciseId": "calf_raise",         "sets": 4, "reps": [15, 25] }
+        ]},
+        { "dayOfWeek": 3, "label": "หลัง + Core", "isRest": false, "items": [
+          { "exerciseId": "reverse_snow_angel", "sets": 4, "reps": [12, 20] },
+          { "exerciseId": "prone_ytw",          "sets": 3, "reps": [8, 12] },
+          { "exerciseId": "superman",           "sets": 3, "reps": [12, 20] },
+          { "exerciseId": "bird_dog",           "sets": 3, "reps": [10, 10], "perSide": true },
+          { "exerciseId": "bicycle_crunch",     "sets": 3, "reps": [15, 20], "perSide": true }
+        ]},
+        { "dayOfWeek": 4, "label": "พัก", "isRest": true, "restNote": "พักเต็มวันหรือเดินเบา ๆ", "items": [] },
+        { "dayOfWeek": 5, "label": "ช่วงบน", "isRest": false, "items": [
+          { "exerciseId": "pushup",             "sets": 4, "reps": [8, 15] },
+          { "exerciseId": "wide_pushup",        "sets": 3, "reps": [10, 15] },
+          { "exerciseId": "pike_pushup",        "sets": 4, "reps": [6, 12] },
+          { "exerciseId": "diamond_pushup",     "sets": 3, "reps": [6, 12] },
+          { "exerciseId": "reverse_snow_angel", "sets": 3, "reps": [15, 20] }
+        ]},
+        { "dayOfWeek": 6, "label": "ขา + หน้าท้อง", "isRest": false, "items": [
+          { "exerciseId": "bw_squat",           "sets": 4, "reps": [15, 20] },
+          { "exerciseId": "reverse_lunge",      "sets": 3, "reps": [12, 12], "perSide": true },
+          { "exerciseId": "sl_glute_bridge",    "sets": 3, "reps": [10, 15], "perSide": true },
+          { "exerciseId": "calf_raise",         "sets": 4, "reps": [20, 20] },
+          { "exerciseId": "leg_raise",          "sets": 3, "reps": [10, 15] },
+          { "exerciseId": "plank",              "sets": 3, "durationS": [45, 60] }
+        ]},
+        { "dayOfWeek": 0, "label": "พัก", "isRest": true, "restNote": "พักเต็มวันหรือเดินเบา ๆ", "items": [] }
+      ]
+    },
+
+    {
+      "id": "plan_b_dumbbell",
+      "name": "โปรแกรม B — ดัมเบล + เบาะราบ + ลู่วิ่ง",
+      "splitType": "dumbbell_5day_plus_cardio",
+      "isDefault": true,
+      "useWhen": "โปรแกรมหลัก — ทำ Progressive Overload ได้ดีกว่า และฝึกหลังได้มีประสิทธิภาพกว่า",
+      "days": [
+        { "dayOfWeek": 1, "label": "อก + ไหล่ + Triceps", "isRest": false, "focus": ["chest","shoulders","arms"], "items": [
+          { "exerciseId": "db_bench_press",     "sets": 4, "reps": [6, 12],  "isKey": true },
+          { "exerciseId": "db_fly",             "sets": 3, "reps": [10, 15] },
+          { "exerciseId": "db_shoulder_press",  "sets": 4, "reps": [8, 12] },
+          { "exerciseId": "db_lateral_raise",   "sets": 4, "reps": [12, 20], "isKey": true },
+          { "exerciseId": "db_oh_tri_ext",      "sets": 3, "reps": [10, 15] },
+          { "exerciseId": "plank",              "sets": 3, "durationS": [30, 60] }
+        ]},
+        { "dayOfWeek": 2, "label": "หลัง + Biceps", "isRest": false, "focus": ["back_lat","arms"], "items": [
+          { "exerciseId": "db_row_onearm",      "sets": 4, "reps": [8, 12], "perSide": true, "isKey": true },
+          { "exerciseId": "db_row_bentover",    "sets": 4, "reps": [8, 12], "isKey": true },
+          { "exerciseId": "db_pullover",        "sets": 3, "reps": [10, 15], "isKey": true },
+          { "exerciseId": "db_rear_delt_fly",   "sets": 3, "reps": [12, 20] },
+          { "exerciseId": "db_curl",            "sets": 3, "reps": [8, 15] },
+          { "exerciseId": "db_hammer_curl",     "sets": 3, "reps": [8, 15] }
+        ]},
+        { "dayOfWeek": 3, "label": "ขา + หน้าท้อง", "isRest": false, "focus": ["legs","core"], "items": [
+          { "exerciseId": "goblet_squat",       "sets": 4, "reps": [8, 15] },
+          { "exerciseId": "db_rdl",             "sets": 4, "reps": [8, 12] },
+          { "exerciseId": "bulgarian_split",    "sets": 3, "reps": [8, 12], "perSide": true },
+          { "exerciseId": "db_glute_bridge",    "sets": 3, "reps": [10, 15] },
+          { "exerciseId": "db_calf_raise",      "sets": 4, "reps": [15, 25] },
+          { "exerciseId": "leg_raise",          "sets": 3, "reps": [10, 15] },
+          { "exerciseId": "crunch",             "sets": 3, "reps": [15, 20] }
+        ]},
+        { "dayOfWeek": 4, "label": "Cardio / Recovery", "isRest": false, "isCardioDay": true, "focus": ["cardio"], "items": [
+          { "exerciseId": "treadmill", "sets": 1, "durationS": [1500, 2400], "note": "เดินเร็วหรือเดินชันระดับที่ควบคุมได้ — หากล้ามาก พักเต็มวันแทนได้" }
+        ]},
+        { "dayOfWeek": 5, "label": "อก + หลัง + ไหล่", "isRest": false, "isPriorityDay": true, "focus": ["chest","back_lat","shoulders"],
+          "note": "วันสำคัญที่สุดสำหรับเป้าหมาย อกใหญ่ + หลังกว้าง + ไหล่กว้าง", "items": [
+          { "exerciseId": "db_bench_press",     "sets": 4, "reps": [8, 12], "isKey": true },
+          { "exerciseId": "db_row_bentover",    "sets": 4, "reps": [8, 12], "isKey": true },
+          { "exerciseId": "db_pullover",        "sets": 3, "reps": [10, 15], "isKey": true },
+          { "exerciseId": "db_fly",             "sets": 3, "reps": [10, 15] },
+          { "exerciseId": "db_shoulder_press",  "sets": 3, "reps": [8, 12] },
+          { "exerciseId": "db_lateral_raise",   "sets": 4, "reps": [12, 20], "isKey": true },
+          { "exerciseId": "db_rear_delt_fly",   "sets": 3, "reps": [12, 20] }
+        ]},
+        { "dayOfWeek": 6, "label": "ขา + หน้าท้อง + Cardio", "isRest": false, "focus": ["legs","core","cardio"], "items": [
+          { "exerciseId": "goblet_squat",       "sets": 4, "reps": [10, 15] },
+          { "exerciseId": "db_rdl",             "sets": 3, "reps": [8, 12] },
+          { "exerciseId": "db_lunge",           "sets": 3, "reps": [10, 10], "perSide": true },
+          { "exerciseId": "db_calf_raise",      "sets": 4, "reps": [15, 25] },
+          { "exerciseId": "leg_raise",          "sets": 3, "reps": [10, 15] },
+          { "exerciseId": "bicycle_crunch",     "sets": 3, "reps": [15, 15], "perSide": true },
+          { "exerciseId": "plank",              "sets": 3, "durationS": [30, 60] },
+          { "exerciseId": "treadmill",          "sets": 1, "durationS": [1200, 1800] }
+        ]},
+        { "dayOfWeek": 0, "label": "พัก", "isRest": true, "restNote": "พักเต็มวันหรือทำกิจกรรมเบา ๆ", "items": [] }
+      ]
+    },
+
+    {
+      "id": "addon_neck",
+      "name": "เสริม — คอ / กราม",
+      "splitType": "addon",
+      "isDefault": false,
+      "useWhen": "ทำต่อท้ายวันไหนก็ได้ 2–3 ครั้ง/สัปดาห์",
+      "note": "ไม่ลดไขมันเฉพาะจุด แต่ช่วยเรื่องท่าทางศีรษะและคอ ซึ่งมีผลต่อความชัดของแนวกราม",
+      "days": [
+        { "dayOfWeek": null, "label": "คอ / ท่าทาง", "isRest": false, "items": [
+          { "exerciseId": "chin_tuck", "sets": 3, "reps": [10, 15], "holdS": [3, 5] },
+          { "exerciseId": "neck_curl", "sets": 2, "reps": [10, 15] }
+        ]}
+      ]
+    }
+  ],
+
+  "progressiveOverload": {
+    "rule": "double_progression",
+    "description": "อยู่ที่น้ำหนักเดิมจนทำครบจำนวนครั้งบนสุดของ rep range ได้ทุกเซต แล้วจึงเพิ่มน้ำหนักและเริ่มจากครั้งที่ต่ำลง",
+    "example": {
+      "exerciseId": "db_bench_press",
+      "target": "4 × 6–12",
+      "weeks": [
+        { "week": 1, "weightKg": 10, "reps": [10, 9, 8, 8] },
+        { "week": 2, "weightKg": 10, "reps": [11, 10, 9, 8] },
+        { "week": 3, "weightKg": 10, "reps": [12, 12, 11, 10] },
+        { "week": 4, "weightKg": 10, "reps": [12, 12, 12, 12], "action": "เพิ่มน้ำหนักในสัปดาห์ถัดไป" }
+      ]
+    },
+    "weightIncrementKg": 2.5,
+    "deloadTrigger": { "stalledWeeks": 3, "action": "ลดน้ำหนัก 10% แล้วไต่ขึ้นใหม่ หรือเปลี่ยนเป็นท่าขาเดียว/ยากขึ้น" }
+  },
+
+  "bodyMetrics": [
+    { "id": "weight",          "label": "น้ำหนักตัว",      "unit": "kg", "cadence": "daily",   "chart": "line_with_7day_avg", "direction": "down" },
+    { "id": "body_fat_pct",    "label": "เปอร์เซ็นต์ไขมัน", "unit": "%",  "cadence": "weekly",  "chart": "line",               "direction": "down", "isPrimaryGoal": true },
+    { "id": "measure_shoulder","label": "รอบไหล่",         "unit": "cm", "cadence": "biweekly","chart": "line",               "direction": "up" },
+    { "id": "measure_chest",   "label": "รอบอก",           "unit": "cm", "cadence": "biweekly","chart": "line",               "direction": "up" },
+    { "id": "measure_waist",   "label": "รอบเอว",          "unit": "cm", "cadence": "biweekly","chart": "line",               "direction": "down" },
+    { "id": "measure_arm",     "label": "รอบแขน",          "unit": "cm", "cadence": "biweekly","chart": "line",               "direction": "up" },
+    { "id": "measure_neck",    "label": "รอบคอ",           "unit": "cm", "cadence": "biweekly","chart": "line",               "direction": "down", "note": "ใช้ประกอบการประเมินไขมันบริเวณคาง" },
+    { "id": "v_taper_ratio",   "label": "อัตราส่วน V-Taper","unit": "ratio","cadence": "derived","chart": "line",             "direction": "up",
+      "formula": "measure_shoulder / measure_waist", "target": 1.618, "note": "ตัวเลขเดียวที่สรุปเป้าหมายรูปร่างของโปรแกรมนี้ได้ตรงที่สุด" }
+  ],
+
+  "cardioTarget": { "sessionsPerWeek": [2, 3], "minutesPerSession": [25, 40], "modes": ["เดินเร็ว", "เดินชัน"] }
+}
