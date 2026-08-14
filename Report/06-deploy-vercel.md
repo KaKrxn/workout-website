@@ -358,6 +358,7 @@ feel it immediately.
 
 | Symptom | Cause | Fix |
 |---|---|---|
+| Build succeeds, **every** page returns 500 — including static ones | The auth guard runs before every route and throws when the Supabase env vars are missing | Set the variables and redeploy. The guard should also skip Supabase on public paths and return a readable 503 when unset, so one missing variable doesn't take the whole site down |
 | Build succeeds, runtime errors | An env var missing in that environment | Check the variable is ticked for Production / Preview / Development |
 | Changed an env var, nothing happened | Vercel inlines env vars at build time | **Redeploy** — a refresh isn't enough |
 | Login on preview redirects to localhost | Redirect URLs don't cover previews | Add `https://*-<team-slug>.vercel.app/**` in Supabase |
