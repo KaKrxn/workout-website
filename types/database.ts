@@ -594,6 +594,33 @@ export type Database = {
         Args: { p_date: string; p_user: string }
         Returns: undefined
       }
+      refresh_recent_daily_stats: { Args: { p_days?: number }; Returns: number }
+      search_exercises: {
+        Args: { q: string }
+        Returns: {
+          duration_max_s: number | null
+          duration_min_s: number | null
+          equipment: string[]
+          id: string
+          is_key_lift: boolean
+          is_public: boolean
+          kind: string
+          muscle: string
+          name: string
+          note: string | null
+          owner_id: string | null
+          per_side: boolean
+          rep_max: number | null
+          rep_min: number | null
+          secondary: string[]
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "exercises"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
     }
     Enums: {
       [_ in never]: never

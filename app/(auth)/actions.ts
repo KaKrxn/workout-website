@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+import { getSiteURL } from "@/lib/site-url";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -45,7 +45,7 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     ...parsed.data,
-    options: { emailRedirectTo: `${await siteURL()}/auth/callback` },
+    options: { emailRedirectTo: `${await getSiteURL()}/auth/callback` },
   });
 
   if (error) {
@@ -77,7 +77,7 @@ export async function signInWithGoogle(formData: FormData): Promise<void> {
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `${await siteURL()}/auth/callback?next=${encodeURIComponent(next)}` },
+    options: { redirectTo: `${await getSiteURL()}/auth/callback?next=${encodeURIComponent(next)}` },
   });
 
   if (error || !data.url) redirect("/login?error=google");
@@ -91,17 +91,3 @@ export async function signOut(): Promise<void> {
   redirect("/");
 }
 
-/**
- * Resolves the base URL for auth redirects across every environment.
- * See Report/06-deploy-vercel.md §5.
- */
-async function siteURL(): Promise<string> {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_VERCEL_URL;
-  if (configured) {
-    return configured.startsWith("http") ? configured : `https://${configured}`;
-  }
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
-  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  return `${proto}://${host}`;
-}
