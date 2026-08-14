@@ -256,6 +256,13 @@ export async function GET(request: Request) {
 Vercel attaches the `Authorization: Bearer <CRON_SECRET>` header automatically once that variable
 is set.
 
+> **The route guard has to let cron through.** A cron request carries no session cookie, so any
+> auth middleware that redirects unauthenticated requests will bounce the scheduler to `/login`
+> with a 307 and the job silently never runs. Exclude `/api/cron` from the guard's public-path
+> list — the handler's own `CRON_SECRET` check is what protects it.
+>
+> On Next.js 16 that guard lives in `proxy.ts`; the `middleware` file convention was renamed.
+
 ---
 
 ## 8. Project-specific gotchas
@@ -356,6 +363,8 @@ feel it immediately.
 | Login on preview redirects to localhost | Redirect URLs don't cover previews | Add `https://*-<team-slug>.vercel.app/**` in Supabase |
 | `NEXT_PUBLIC_*` is `undefined` on the client | Misspelled, or deployed before it was set | The prefix must be exactly `NEXT_PUBLIC_`, then redeploy |
 | Cron never fires | It's on a preview deployment | **Cron only runs on production deployments** |
+| Cron returns 307 to /login | The auth guard runs before the handler | Add `/api/cron` to the guard's public paths — cron has no session cookie |
+| Cron schedule silently downgraded | Hobby plans cap cron frequency and count | Check the current Hobby limits; both jobs here are ≤ daily, which is the safe side |
 | Cron fires at the wrong time | Thai time entered directly | Vercel uses UTC — subtract 7 hours |
 | A user sees someone else's data | Incomplete RLS, or a cached page | Audit the policies and add `dynamic = 'force-dynamic'` |
 | Service worker stuck on an old version | `sw.js` is being cached | Set `Cache-Control: max-age=0, must-revalidate` |

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["sin1"],
+  "crons": [
+    {
+      "path": "/api/cron/generate-sessions",
+      "schedule": "0 18 * * 0"
+    },
+    {
+      "path": "/api/cron/refresh-stats",
+      "schedule": "0 19 * * *"
+    }
+  ],
+  "functions": {
+    "app/api/**/*": { "maxDuration": 30 }
+  }
+}

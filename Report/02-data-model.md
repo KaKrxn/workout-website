@@ -283,6 +283,21 @@ security definer
 set search_path = public
 as $$
 begin
+  -- Deleting a user cascades users → sessions → session_sets, and every cascade step
+  -- fires these triggers. Without this guard the function re-inserts a daily_stats row
+  -- for the user being removed, the foreign key rejects it, and the whole delete aborts
+  -- with "Database error deleting user".
+  if not exists (select 1 from users u where u.id = p_user) then
+    return;
+  end if;
+
+  -- Nothing left on that date: drop the rollup row rather than leave a row of zeroes,
+  -- which the heatmap would otherwise draw as a logged-but-empty day.
+  if not exists (select 1 from sessions s where s.user_id = p_user and s.date = p_date) then
+    delete from daily_stats where user_id = p_user and date = p_date;
+    return;
+  end if;
+
   insert into daily_stats (user_id, date, session_count, total_volume_kg,
                            total_duration_s, cardio_minutes, sets_by_muscle,
                            was_planned, updated_at)
