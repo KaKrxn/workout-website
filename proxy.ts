@@ -15,6 +15,50 @@ const isPublic = (pathname: string) =>
   PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
 /**
+ * Returns a human-readable reason the Supabase config is unusable, or null.
+ *
+ * Worth the lines: every one of these mistakes otherwise surfaces as a bare 500
+ * from deep inside the Supabase client, on every page, with nothing in the
+ * response saying which variable is wrong.
+ */
+function describeConfigProblem(url?: string, key?: string): string | null {
+  if (!url) return "NEXT_PUBLIC_SUPABASE_URL is not set";
+  if (!key) return "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is not set";
+
+  if (url !== url.trim() || key !== key.trim()) {
+    return "a Supabase environment variable has leading or trailing whitespace";
+  }
+  if (key.startsWith("sb_secret_")) {
+    return "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY holds the SECRET key — rotate it now, it is public";
+  }
+  if (key.startsWith("http")) {
+    return "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY looks like a URL, not a key — the two values are swapped";
+  }
+
+  // Check the scheme before guessing at content. A project ref can begin with
+  // any letters — "eyzsmsaysddkripsfqdr" starts like a JWT but is a perfectly
+  // good hostname — so "looks like a key" must never be the first conclusion.
+  if (!url.includes("://")) {
+    return url.startsWith("sb_")
+      ? "NEXT_PUBLIC_SUPABASE_URL holds an API key, not a URL — the two values are swapped"
+      : `NEXT_PUBLIC_SUPABASE_URL is missing the scheme — use https://${url.slice(0, 40)}`;
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return `NEXT_PUBLIC_SUPABASE_URL is not a valid URL ("${url.slice(0, 40)}")`;
+  }
+  const isLocal = parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost";
+  if (parsed.protocol !== "https:" && !isLocal) {
+    return `NEXT_PUBLIC_SUPABASE_URL must use https:// (got ${parsed.protocol}//)`;
+  }
+
+  return null;
+}
+
+/**
  * Next.js 16 renamed the `middleware` convention to `proxy`.
  *
  * Two jobs: keep the Supabase session cookie fresh on every request, and gate
@@ -37,16 +81,16 @@ export async function proxy(request: NextRequest) {
   // Without this the Supabase client throws and every matched route returns a
   // bare 500 with nothing in it to diagnose — including pages that never needed
   // Supabase. Say what is actually wrong instead.
-  if (!url || !key) {
-    console.error(
-      "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY. " +
-        "Set them in the deployment's environment variables and redeploy — " +
-        "env vars are inlined at build time, so a redeploy is required.",
-    );
-    return new NextResponse(
-      "Server is not configured: Supabase environment variables are missing.",
-      { status: 503, headers: { "content-type": "text/plain; charset=utf-8" } },
-    );
+  const problem = describeConfigProblem(url, key);
+  // The `!url || !key` is redundant at runtime — describeConfigProblem already
+  // covers it — but it is what narrows both to `string` for the call below.
+  if (problem || !url || !key) {
+    const message = problem ?? "Supabase environment variables are missing";
+    console.error(`Supabase configuration problem: ${message}`);
+    return new NextResponse(`Server is not configured: ${message}`, {
+      status: 503,
+      headers: { "content-type": "text/plain; charset=utf-8" },
+    });
   }
 
   let response = NextResponse.next({ request });
@@ -70,9 +114,23 @@ export async function proxy(request: NextRequest) {
 
   // Must be getUser(), not getSession(): only getUser() revalidates the token
   // with the auth server. Do not put other logic between this and the response.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  //
+  // Wrapped because a URL that parses but points nowhere — a typo'd project ref,
+  // a paused free-tier project — throws here and would otherwise 500 every page
+  // with nothing explaining why.
+  let user: { id: string } | null = null;
+  try {
+    ({
+      data: { user },
+    } = await supabase.auth.getUser());
+  } catch (err) {
+    console.error("Could not reach Supabase auth:", err);
+    return new NextResponse(
+      `Cannot reach Supabase at ${url}. Check the project ref is correct and the ` +
+        `project is not paused, then redeploy.`,
+      { status: 503, headers: { "content-type": "text/plain; charset=utf-8" } },
+    );
+  }
 
   if (!user && !isPublic(pathname)) {
     const redirectUrl = request.nextUrl.clone();
