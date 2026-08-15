@@ -143,9 +143,10 @@ try {
   const { error: driftOk } = await boss.client.rpc("admin_stats_drift", { p_days: 7 });
   check("admin_stats_drift works for an admin", !driftOk, driftOk?.message);
 
-  // ── admin_users is not readable at all ──
-  expectEmptyRead("the admin roster is not readable through the API",
-    await boss.client.from("admin_users").select("user_id"));
+  // ── The roster is readable by admins (the admins page lists it) but by nobody
+  //    else. It was closed to everyone until 20260816000100 opened it up.
+  expectEmptyRead("a normal user cannot read the admin roster",
+    await plain.client.from("admin_users").select("user_id"));
 
   // ── Audit log is append-only and cannot be forged ──
   const { error: auditOk } = await boss.client
@@ -180,6 +181,46 @@ try {
   // ── No regression: plain users are still isolated from each other ──
   expectEmptyRead("a normal user still cannot see the admin's rows",
     await plain.client.from("sessions").select("id").eq("user_id", boss.id));
+
+  // ── The account list ──
+  const { error: listDenied } = await plain.client.rpc("admin_list_users");
+  check("admin_list_users rejects a normal user", !!listDenied,
+    listDenied ? "blocked" : "ALLOWED");
+
+  const { data: listed, error: listErr } = await boss.client.rpc("admin_list_users");
+  check("admin_list_users returns every account with its email",
+    !listErr && listed?.length >= 2 && listed.every((u) => !!u.email),
+    listErr?.message ?? `${listed?.length} rows`);
+  check("the list marks who is an admin",
+    listed?.find((u) => u.id === boss.id)?.is_admin === true &&
+      listed?.find((u) => u.id === plain.id)?.is_admin === false);
+
+  // ── Granting and revoking ──
+  const { error: plainGrantErr } = await plain.client
+    .from("admin_users").insert({ user_id: plain.id });
+  check("a normal user cannot make themselves an admin", !!plainGrantErr);
+
+  const { error: grantErr2 } = await boss.client
+    .from("admin_users").insert({ user_id: plain.id });
+  check("an admin can grant admin", !grantErr2, grantErr2?.message);
+
+  const { data: roster } = await boss.client.from("admin_users").select("user_id");
+  check("an admin can read the roster", roster?.length === 2, `${roster?.length} rows`);
+
+  const { error: revokeErr } = await boss.client
+    .from("admin_users").delete().eq("user_id", plain.id);
+  check("an admin can revoke admin", !revokeErr, revokeErr?.message);
+
+  // ── The lockout guard ──
+  const { error: lastErr } = await boss.client
+    .from("admin_users").delete().eq("user_id", boss.id);
+  check("the last administrator cannot be removed",
+    !!lastErr && /last administrator/i.test(lastErr.message ?? ""),
+    lastErr?.message ?? "ALLOWED — this would have locked everyone out");
+
+  const { data: stillThere } = await admin
+    .from("admin_users").select("user_id").eq("user_id", boss.id);
+  check("the last administrator is still in place", stillThere?.length === 1);
 } catch (err) {
   console.error(`\nERROR: ${err.message}`);
   failures++;

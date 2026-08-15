@@ -78,9 +78,19 @@ The database stays the boundary. An admin page bug then leaks nothing, because
 the page reads through the **user's own client** — an admin simply has policies
 that match more rows.
 
-**Granting admin is deliberately not in the UI.** It is one row inserted by hand
-in Studio. A privilege-escalation path that can be clicked is a privilege-
-escalation path that can be clicked by accident.
+> **Superseded.** This section first said granting admin must never be in the UI,
+> on the grounds that a clickable escalation path can be clicked by accident.
+> That was too strict — ordinary systems manage admins from an admin page, and
+> the real hazard is not the button but **locking every administrator out**.
+>
+> Granting and revoking now live in the console (§3.2b), with the lockout
+> prevented by a database trigger that refuses to delete the last remaining
+> administrator. The trigger allows the delete when it arrives as a cascade from
+> an account deletion, which it distinguishes by the parent row already being
+> gone — the same test the `refresh_daily_stats` guard uses.
+>
+> The first administrator is still bootstrapped by hand in Studio, because there
+> has to be one before anyone can grant another.
 
 ### 2.3 Where the service-role client is still needed
 
@@ -144,6 +154,23 @@ Row actions:
 **Not offered: editing another user's workout data.** There is no support case for
 it, and photos and body metrics are the most private rows in the database.
 Progress photos are never rendered in the admin console at all.
+
+### 3.2b Admins
+
+A separate section from §3.2, because the two answer different questions —
+"who signed up" and "who can see everything".
+
+- Current administrators, with a revoke button on each
+- The last remaining administrator shows why it cannot be revoked instead of a
+  button that would fail
+- Every other account listed with a grant button, behind a confirmation naming
+  what the role can do
+- No email invitations: an account has to exist before it can be promoted
+
+Email addresses live in `auth.users`, which PostgREST does not expose. Rather
+than copy them into `public.users` — where they would need a sync trigger and
+could go stale — `admin_list_users()` assembles the list in one security definer
+function that checks `is_admin()` itself.
 
 ### 3.3 Exercise library
 

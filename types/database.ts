@@ -684,6 +684,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_users: {
+        Args: never
+        Returns: {
+          active_plan_name: string
+          created_at: string
+          display_name: string
+          email: string
+          id: string
+          is_admin: boolean
+          last_session: string
+          last_sign_in_at: string
+          sessions_90d: number
+          upcoming_sessions: number
+        }[]
+      }
       admin_stats_drift: {
         Args: { p_days?: number }
         Returns: {

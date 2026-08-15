@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/admin";
+import { AdminNav } from "./admin-nav";
 
 /** Per-user data across every account — never cacheable. */
 export const dynamic = "force-dynamic";
@@ -18,6 +19,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
           สถานะระบบและเครื่องมือดูแลข้อมูล · สำหรับแก้ข้อมูลดิบใช้ Supabase Studio
         </p>
       </div>
+      <AdminNav />
       {children}
     </div>
   );
