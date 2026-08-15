@@ -10,7 +10,8 @@
     "seed:generate": "node scripts/generate-seed.mjs",
     "test:rls": "node scripts/test-rls.mjs",
     "types:generate": "supabase gen types typescript --local --schema public > types/database.ts",
-    "test:thai": "node scripts/test-thai.mjs"
+    "test:thai": "node scripts/test-thai.mjs",
+    "test:admin": "node scripts/test-admin.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

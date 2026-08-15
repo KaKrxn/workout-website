@@ -1,4 +1,5 @@
 import { authorizeCron } from "@/lib/cron";
+import { recordJobRun } from "@/lib/job-run";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
@@ -17,15 +18,15 @@ export async function GET(request: Request) {
   const denied = authorizeCron(request);
   if (denied) return denied;
 
-  const admin = createAdminClient();
+  const result = await recordJobRun("refresh-stats", async () => {
+    const admin = createAdminClient();
 
-  // service_role only — the function crosses every user's rows.
-  const { data, error } = await admin.rpc("refresh_recent_daily_stats", { p_days: 7 });
+    // service_role only — the function crosses every user's rows.
+    const { data, error } = await admin.rpc("refresh_recent_daily_stats", { p_days: 7 });
+    if (error) throw new Error(error.message);
 
-  if (error) {
-    console.error("refresh-stats:", error.message);
-    return Response.json({ ok: false, error: error.message }, { status: 500 });
-  }
+    return { refreshed: data ?? 0 };
+  });
 
-  return Response.json({ ok: true, refreshed: data });
+  return Response.json(result, { status: result.ok ? 200 : 500 });
 }

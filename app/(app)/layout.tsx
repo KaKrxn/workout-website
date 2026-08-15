@@ -5,6 +5,7 @@ import { provisionUser } from "@/lib/provision";
 import { TopTabs, BottomNav } from "@/components/app-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { signOut } from "@/app/(auth)/actions";
+import { isAdmin } from "@/lib/admin";
 
 /** Per-user data — must never be cached at the edge (Report/06-deploy-vercel.md §8.2). */
 export const dynamic = "force-dynamic";
@@ -59,6 +60,17 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           <TopTabs />
 
           <div className="flex-1" />
+
+          {/* Hidden for everyone else. The route itself 404s regardless — this
+              only keeps the link out of the way. */}
+          {(await isAdmin()) && (
+            <Link
+              href="/admin"
+              className="flex-none rounded-[9px] border border-border px-2.5 py-1.5 text-[12px] font-semibold text-text-2 transition hover:bg-surface-2 hover:text-text-1"
+            >
+              ผู้ดูแล
+            </Link>
+          )}
 
           <ThemeToggle />
 
