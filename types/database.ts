@@ -9,6 +9,70 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          detail: Json
+          id: string
+          target: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+          target?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+          target?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_audit_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_users: {
+        Row: {
+          granted_at: string
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_users_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       body_metrics: {
         Row: {
           date: string
@@ -149,6 +213,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      job_runs: {
+        Row: {
+          detail: Json
+          error: string | null
+          finished_at: string | null
+          id: string
+          job: string
+          ok: boolean | null
+          started_at: string
+        }
+        Insert: {
+          detail?: Json
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          job: string
+          ok?: boolean | null
+          started_at?: string
+        }
+        Update: {
+          detail?: Json
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          job?: string
+          ok?: boolean | null
+          started_at?: string
+        }
+        Relationships: []
       }
       plan_days: {
         Row: {
@@ -590,6 +684,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_stats_drift: {
+        Args: { p_days?: number }
+        Returns: {
+          actual: number
+          date: string
+          stored: number
+          user_id: string
+        }[]
+      }
+      is_admin: { Args: never; Returns: boolean }
       refresh_daily_stats: {
         Args: { p_date: string; p_user: string }
         Returns: undefined

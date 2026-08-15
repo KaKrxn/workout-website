@@ -75,13 +75,21 @@ create policy admin_update_stock on exercises for update
 
 -- ─────────────── Audit log ───────────────
 
+-- An audit log has to outlive the account it describes, which rules out both of
+-- the obvious foreign key behaviours: CASCADE would erase someone's trail by
+-- deleting them, and NO ACTION — the default, and what this table had first —
+-- makes an admin who has ever acted undeletable.
+--
+-- So: SET NULL on the reference, plus the actor's email captured as plain text
+-- at write time. The row survives, and it still says who did it.
 create table admin_audit_log (
-  id         uuid primary key default gen_random_uuid(),
-  actor_id   uuid not null references users(id),
-  action     text not null,
-  target     text,
-  detail     jsonb not null default '{}',
-  created_at timestamptz not null default now()
+  id          uuid primary key default gen_random_uuid(),
+  actor_id    uuid references users(id) on delete set null,
+  actor_email text default (auth.jwt() ->> 'email'),
+  action      text not null,
+  target      text,
+  detail      jsonb not null default '{}',
+  created_at  timestamptz not null default now()
 );
 
 create index admin_audit_recent_idx on admin_audit_log (created_at desc);
@@ -91,8 +99,15 @@ alter table admin_audit_log enable row level security;
 create policy admin_read on admin_audit_log for select
   using ((select is_admin()));
 
+-- actor_email is checked, not merely defaulted: a default can be overridden by
+-- supplying the column, and an audit log you can sign with someone else's name
+-- is worse than none.
 create policy admin_append on admin_audit_log for insert
-  with check ((select is_admin()) and actor_id = auth.uid());
+  with check (
+    (select is_admin())
+    and actor_id = auth.uid()
+    and actor_email is not distinct from (auth.jwt() ->> 'email')
+  );
 
 -- No update or delete policy exists, for anyone. The log cannot be rewritten
 -- from inside the application, only from Studio with service_role.

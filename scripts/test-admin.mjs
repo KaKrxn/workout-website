@@ -167,6 +167,16 @@ try {
     .from("admin_audit_log").delete().neq("action", "").select("id");
   check("nobody can delete audit entries", (wiped?.length ?? 0) === 0);
 
+  const { data: entry } = await boss.client
+    .from("admin_audit_log").select("actor_email").eq("action", "test").maybeSingle();
+  check("the log records who acted, not just their id",
+    entry?.actor_email === `admin-boss-${stamp}@example.com`, entry?.actor_email ?? "null");
+
+  const { error: forgedEmailErr } = await boss.client
+    .from("admin_audit_log")
+    .insert({ actor_id: boss.id, action: "x", actor_email: "someone-else@example.com" });
+  check("an entry cannot be signed with someone else's email", !!forgedEmailErr);
+
   // ── No regression: plain users are still isolated from each other ──
   expectEmptyRead("a normal user still cannot see the admin's rows",
     await plain.client.from("sessions").select("id").eq("user_id", boss.id));
@@ -174,13 +184,21 @@ try {
   console.error(`\nERROR: ${err.message}`);
   failures++;
 } finally {
-  for (const id of [plain?.id, boss?.id].filter(Boolean)) {
+  // Deleting the admin is itself a check: an audit log that blocks account
+  // deletion is how the actor_id foreign key was found to be wrong.
+  for (const [label, id] of [["plain", plain?.id], ["admin", boss?.id]]) {
+    if (!id) continue;
     const { error } = await admin.auth.admin.deleteUser(id);
-    if (error) {
-      console.error(`  WARN  could not delete test user ${id}: ${error.message}`);
-      failures++;
-    }
+    check(`the ${label} account can be deleted`, !error, error?.message);
   }
+
+  const { data: survived } = await admin
+    .from("admin_audit_log").select("actor_id, actor_email").eq("action", "test").maybeSingle();
+  check("the audit entry outlives the deleted admin",
+    survived != null && survived.actor_id === null && !!survived.actor_email,
+    survived ? `actor_id=${survived.actor_id}, email=${survived.actor_email}` : "row gone");
+
+  await admin.from("admin_audit_log").delete().neq("action", "");
   // Undo the library edit so the test leaves nothing behind.
   await admin.from("exercises").update({ note: null }).eq("id", "db_bench_press");
 }
