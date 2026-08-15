@@ -15,6 +15,7 @@ implementation can start without any further design decisions.
 | `05-implementation-plan.md` | You're starting work — phases, tasks, and definitions of done |
 | `06-deploy-vercel.md` | You're going live — env vars, cron, redirect URLs, pre-launch checklist |
 | `07-data-model-tidb.md` | **Alternative to 02** if you want TiDB instead of Postgres — pick one, not both |
+| `08-admin-spec.md` | You're building the admin console — added after the original design; **not implemented yet** |
 | `data/program-seed.json` | You're seeding the database — programs A/B as ready-to-use JSON |
 | `mockup/fittrack-mockup.html` | You want to see the real thing — open it in a browser, it's interactive |
 | `source/reportwebsite.md` | You want the original source document this design was derived from |
