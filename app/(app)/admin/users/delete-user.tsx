@@ -48,7 +48,7 @@ export function DeleteUser({ userId, email }: { userId: string; email: string | 
           onClick={() =>
             start(async () => setResult(await deleteUserAccount(userId, typed)))
           }
-          className="rounded-[9px] bg-s2 px-3 py-1.5 text-[12px] font-semibold text-white transition hover:brightness-110 disabled:opacity-40"
+          className="rounded-[9px] bg-s2 px-3 py-1.5 text-[12px] font-semibold text-text-1 transition hover:brightness-110 disabled:opacity-40"
         >
           {pending ? "กำลังลบ…" : "ลบถาวร"}
         </button>

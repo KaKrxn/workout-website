@@ -10,6 +10,7 @@
     "seed:generate": "node scripts/generate-seed.mjs",
     "test:rls": "node scripts/test-rls.mjs",
     "types:generate": "supabase gen types typescript --local --schema public > types/database.ts",
+    "test:progression": "node scripts/test-progression.mjs",
     "test:thai": "node scripts/test-thai.mjs",
     "test:admin": "node scripts/test-admin.mjs"
   },

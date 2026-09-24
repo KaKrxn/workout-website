@@ -4,12 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-/** Nav destinations. The starred three plus Body are the tabs (03-ui-spec.md §6). */
+/** Main mobile/desktop tabs. Keep this to routes that exist. */
 const TABS = [
-  { href: "/today", label: "วันนี้" },
-  { href: "/schedule", label: "ตาราง" },
-  { href: "/analytics", label: "สถิติ" },
-  { href: "/body", label: "ร่างกาย" },
+  { href: "/today", label: "Today" },
+  { href: "/schedule", label: "Schedule" },
+  { href: "/analytics", label: "Stats" },
+  { href: "/body", label: "Body" },
 ] as const;
 
 const ICONS: Record<string, React.ReactNode> = {
@@ -37,7 +37,10 @@ export function TopTabs() {
   const pathname = usePathname();
 
   return (
-    <nav role="tablist" className="hidden gap-0.5 rounded-[10px] bg-surface-2 p-[3px] min-[860px]:flex">
+    <nav
+      role="tablist"
+      className="hidden gap-1 rounded-[17px] bg-white/[0.08] p-1.5 text-[clamp(16px,2vw,27px)] font-extrabold text-[#b4c0b4] min-[860px]:flex"
+    >
       {TABS.map((tab) => {
         const active = isActive(pathname, tab.href);
         return (
@@ -47,10 +50,10 @@ export function TopTabs() {
             role="tab"
             aria-selected={active}
             className={cn(
-              "whitespace-nowrap rounded-[7px] px-[13px] py-1.5 text-[13px] transition",
+              "whitespace-nowrap rounded-[13px] px-[0.78em] py-[0.52em] leading-none transition",
               active
-                ? "bg-surface font-semibold text-text-1 shadow-[0_1px_2px_rgba(0,0,0,.06)]"
-                : "font-medium text-text-2 hover:text-text-1",
+                ? "bg-[#070d08]/70 text-white shadow-[0_1px_2px_rgba(0,0,0,.2)]"
+                : "hover:text-white",
             )}
           >
             {tab.label}
@@ -101,6 +104,7 @@ export function BottomNav() {
         {right.map((tab) => (
           <NavItem key={tab.href} {...tab} active={isActive(pathname, tab.href)} />
         ))}
+
       </div>
     </nav>
   );
@@ -121,7 +125,7 @@ function NavItem({
       aria-current={active ? "page" : undefined}
       className={cn(
         "flex min-h-[52px] flex-col items-center justify-center gap-1 text-[11px] transition",
-        active ? "font-semibold text-s1" : "text-text-2",
+        active ? "font-semibold text-[#5fd482]" : "text-text-2",
       )}
     >
       <svg

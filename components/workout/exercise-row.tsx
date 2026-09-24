@@ -5,19 +5,19 @@ import { cn } from "@/lib/utils";
 import type { TodayExercise } from "@/lib/queries/today";
 import { SetRow, type SetSlot } from "./set-row";
 
-/** `4 เซ็ต × 8–12 ครั้ง` / `3 เซ็ต × 30–60 วินาที` — the second line of the row. */
+/** `4 x 8-12` / `3 x 30-60 sec` — the second line of the row. */
 function targetLine(ex: TodayExercise): string {
-  const sets = `${ex.targetSets} เซ็ต`;
+  const sets = `${ex.targetSets}`;
   if (ex.kind === "duration" || ex.kind === "cardio") {
     const [a, b] = [ex.durationMinS, ex.durationMaxS];
     if (a == null) return sets;
-    const fmt = (s: number) => (s >= 120 ? `${Math.round(s / 60)} นาที` : `${s} วินาที`);
-    return `${sets} × ${a === b || b == null ? fmt(a) : `${fmt(a)}–${fmt(b)}`}`;
+    const fmt = (s: number) => (s >= 120 ? `${Math.round(s / 60)} minutes` : `${s} sec`);
+    return `${a === b || b == null ? fmt(a) : `${fmt(a)}-${fmt(b)}`}`;
   }
   const [a, b] = [ex.repMin, ex.repMax];
   if (a == null) return sets;
-  const range = a === b || b == null ? `${a}` : `${a}–${b}`;
-  return `${sets} × ${range} ครั้ง${ex.perSide ? " ต่อข้าง" : ""}`;
+  const range = a === b || b == null ? `${a}` : `${a}-${b}`;
+  return `${sets} x ${range}${ex.perSide ? " per side" : ""}`;
 }
 
 /** Right-hand summary of what has actually been logged so far. */
@@ -73,63 +73,81 @@ export function ExerciseRow({
   const lastWeightKg = exercise.sets.findLast((s) => s.weightKg != null)?.weightKg ?? null;
 
   return (
-    <div className="border-b border-border last:border-b-0">
+    <article
+      className={cn(
+        "rounded-[20px] border border-border bg-surface",
+        open && "bg-[#121a14]/95",
+      )}
+    >
       {/* Hit target is the full row, comfortably over 44px (03-ui-spec.md §8) */}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex w-full items-start gap-3 py-3 text-left"
+        className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-[clamp(12px,1.2vw,20px)] p-[clamp(14px,1.45vw,22px)] text-left"
       >
         <span
           className={cn(
-            "mt-0.5 grid size-[22px] flex-none place-items-center rounded-[7px] border-[1.8px] transition",
-            complete ? "border-good bg-good" : "border-axis",
+            "grid size-[clamp(38px,3.5vw,56px)] flex-none place-items-center rounded-[12px] border-[1.8px] transition",
+            complete ? "border-[#5fd482] bg-s1 text-on-accent" : "border-white/70 bg-surface-2 text-text-1",
           )}
         >
           <svg
             viewBox="0 0 24 24"
-            className={cn("size-3 transition-opacity", complete ? "opacity-100" : "opacity-0")}
+            className={cn("size-[54%] transition-opacity", complete ? "opacity-100" : "opacity-100")}
             fill="none"
-            stroke="#fff"
+            stroke="currentColor"
             strokeWidth={3}
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden="true"
           >
-            <path d="M4 12.5 9.5 18 20 6.5" />
+            {complete ? <path d="M4 12.5 9.5 18 20 6.5" /> : <circle cx="12" cy="12" r="7.5" strokeWidth={2} />}
           </svg>
         </span>
 
         <span className="min-w-0 flex-1">
-          <span className="flex items-center gap-1.5 text-[14px] font-semibold">
+          <span className="flex items-center gap-1.5 text-[clamp(17px,1.65vw,27px)] font-extrabold">
             {exercise.isKey && (
-              <span className="size-1.5 flex-none rounded-full bg-s1" aria-label="ท่าหลัก" />
+              <span className="size-2 flex-none rounded-full bg-s1" aria-label="ท่าหลัก" />
             )}
-            <span className={cn("truncate", complete && "text-label line-through")}>
+            <span className={cn("truncate", complete && "text-text-2")}>
               {exercise.name}
             </span>
           </span>
-          <span className="mt-px block text-[12px] tabular-nums text-label">
+          <span className="mt-1 block text-[clamp(14px,1.25vw,20px)] tabular-nums text-text-2">
             {targetLine(exercise)}
           </span>
           {exercise.note && (
-            <span className="mt-1 block text-[11.5px] leading-snug text-text-2">
+            <span className="mt-1 block text-[12px] leading-snug text-text-2">
               {exercise.note}
+            </span>
+          )}
+          {exercise.progression && (
+            <span className="mt-2 grid gap-1 text-[12px] leading-snug text-text-2 min-[640px]:grid-cols-2">
+              <span>
+                <b className="text-text-1">Last time</b>{" "}
+                {exercise.progression.lastLine ?? "No previous session"}
+              </span>
+              <span>
+                <b className="text-text-1">Today</b> {exercise.progression.todayLine}
+              </span>
             </span>
           )}
         </span>
 
-        <span className="flex-none pl-2 text-right text-[12px] tabular-nums text-text-2">
+        <span className="flex-none pl-2 text-right text-[clamp(14px,1.25vw,20px)] tabular-nums text-text-1">
+          {exercise.progression?.badge && (
+            <span className="mb-1 block rounded-full bg-[#eb6834]/15 px-2 py-1 text-[11px] font-extrabold text-[#ff946f]">
+              {exercise.progression.badge}
+            </span>
+          )}
           {summary ? (
             <>
-              <span className="block text-[10.5px] uppercase tracking-[0.06em] text-label">
-                บันทึกแล้ว
-              </span>
-              <b className="block text-text-1">{summary}</b>
+              <b className="block font-medium text-text-1">{summary}</b>
             </>
           ) : (
-            <span className="text-label">
+            <span className="text-text-2">
               {exercise.sets.length}/{expectedSlots}
             </span>
           )}
@@ -137,7 +155,7 @@ export function ExerciseRow({
       </button>
 
       {open && (
-        <div className="pb-3 pl-[34px] pr-1">
+        <div className="pb-[clamp(14px,1.4vw,22px)] pl-[clamp(58px,5vw,86px)] pr-[clamp(14px,1.45vw,22px)]">
           {slots.map((slot) => (
             <SetRow
               key={`${slot.setIndex}-${slot.side ?? "both"}`}
@@ -149,6 +167,6 @@ export function ExerciseRow({
           ))}
         </div>
       )}
-    </div>
+    </article>
   );
 }

@@ -61,20 +61,21 @@ if the app led with the scale, the user would conclude the program isn't working
 
 ## 5. The three defining features
 
-### 5.1 Per-day A / B program swap
+### 5.1 Per-day plan variants
 
-Every day in the schedule has an `A ⇄ B` toggle. The system already pairs days across the two
-programs by muscle focus:
+A weekday can hold more than one plan, and the user picks which one on the day itself. Monday might
+offer *"ดัมเบล"* and *"ไม่ใช้อุปกรณ์"*; the picker appears on the Today page only when that weekday
+has two or more.
 
-| Focus | Program B (primary) | Program A (fallback) |
-|---|---|---|
-| Chest + shoulders + triceps | Mon | Mon |
-| Back | Tue | Wed |
-| Legs | Wed / Sat | Tue / Sat |
-| Upper body | Fri | Fri |
+Whichever variant is chosen, it is still the same weekday — so nothing has to be reconciled across
+the week, and the streak is unaffected by definition. Logged sets belong to the session, not to the
+plan, so switching mid-workout keeps them.
 
-Tapping the toggle swaps the exercise list immediately, and **the streak does not break**, because
-the system counts "this muscle group was trained" rather than "this exercise was performed".
+Full spec, schema delta and edge cases: **`10-day-plan-variants.md`**.
+
+> An earlier version of this section described a swap between two whole *programs*, paired across
+> weekdays by muscle focus. That was a design invention, not a requirement, and it is withdrawn —
+> Program A and Program B are simply two plans a day can offer.
 
 ### 5.2 Progressive overload as a decision aid
 

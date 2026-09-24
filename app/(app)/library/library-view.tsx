@@ -1,0 +1,16 @@
+"use client";
+import { useActionState, useState } from "react";
+import { addExercise } from "./actions";
+type Exercise={id:string;name:string;muscle:string;kind:string;equipment:string[];rep_min:number|null;rep_max:number|null;duration_min_s:number|null;duration_max_s:number|null;per_side:boolean;owner_id:string|null};
+const groups=[["chest","Chest","อก"],["back_lat","Back","หลัง"],["shoulders","Shoulders","ไหล่"],["legs","Legs","ขา"],["arms","Arms","แขน"],["core","Core","แกนกลาง"],["cardio","Cardio","คาร์ดิโอ"]];
+export function LibraryView({exercises,locale}:{exercises:Exercise[];locale:"th"|"en"}) {
+ const [query,setQuery]=useState("");const [group,setGroup]=useState("");const [adding,setAdding]=useState(false);
+ const [state,action,pending]=useActionState(addExercise,{error:null,ok:false});const en=locale==="en";
+ const filtered=exercises.filter(e=>(!group||e.muscle===group)&&e.name.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+ return <div className="ft-page"><header className="ft-page-head"><div><h1>Library</h1><p className="ft-muted mt-1">{en?"Your exercise collection, ready for your next plan.":"คลังท่าออกกำลังกายสำหรับแผนของคุณ"}</p></div><button className="ft-button" onClick={()=>setAdding(!adding)} aria-expanded={adding}>＋ {en?"Add my exercise":"เพิ่มท่าของฉัน"}</button></header>
+ {adding&&<form action={action} className="ft-card mb-5"><div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]"><label>{en?"Name":"ชื่อท่า"}<input name="name" required maxLength={120} className="ft-input mt-2"/></label><label>{en?"Muscle group":"กลุ่มกล้ามเนื้อ"}<select name="muscle" className="ft-input mt-2">{groups.map(([id,e,t])=><option key={id} value={id}>{en?e:t}</option>)}</select></label><button disabled={pending} className="ft-button self-end">{pending?"…":en?"Save":"บันทึก"}</button></div>{(state.error||state.ok)&&<p role="status" className="mt-3">{state.error??(en?"Exercise saved":"บันทึกท่าแล้ว")}</p>}</form>}
+ <input className="ft-input mb-4 max-w-[320px]" aria-label="Search exercises" placeholder={en?"Search exercises":"ค้นหาท่า"} value={query} onChange={e=>setQuery(e.target.value)}/>
+ <div className="ft-segments mb-5 w-fit"><button aria-pressed={!group} onClick={()=>setGroup("")}>{en?"All":"ทั้งหมด"}</button>{groups.map(([id,e,t])=><button key={id} aria-pressed={group===id} onClick={()=>setGroup(id)}>{en?e:t}</button>)}</div><p className="ft-muted mb-3 text-xs">{filtered.length} {en?"exercises":"ท่า"}</p>
+ <div className="ft-library-grid">{filtered.map(e=><article key={e.id}><h2 className="font-extrabold text-base">{e.name}</h2><div className="flex flex-wrap gap-2 my-3"><span className="ft-tag">{groups.find(g=>g[0]===e.muscle)?.[en?1:2]??e.muscle}</span><span className="ft-tag ft-tag-outline">{e.kind}</span>{e.owner_id&&<span className="ft-tag text-good-text">{en?"Mine":"ของฉัน"}</span>}</div><p className="ft-muted text-xs">{e.rep_min!=null?`${e.rep_min}–${e.rep_max??e.rep_min} reps`:e.duration_min_s!=null?`${e.duration_min_s}–${e.duration_max_s??e.duration_min_s} sec`:"Time · Distance"}{e.per_side?" · L/R":""}</p><p className="ft-muted text-xs mt-1">{e.equipment.join(" · ")}</p></article>)}</div>{!filtered.length&&<p className="ft-empty">{en?"No exercises found. Try another name or add your own.":"ไม่พบท่า ลองเปลี่ยนคำค้นหรือเพิ่มท่าของคุณ"}</p>}
+ </div>;
+}

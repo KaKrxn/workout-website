@@ -26,7 +26,10 @@ const logSetSchema = z.object({
   inclinePct: z.number().min(0).max(100).nullable().default(null),
   rir: z.number().int().min(0).max(5).nullable().default(null),
   isWarmup: z.boolean().default(false),
-});
+}).refine(
+  (v) => v.reps != null || v.durationS != null || v.distanceM != null,
+  { message: "กรอกอย่างน้อยหนึ่งค่าก่อนบันทึก" },
+);
 
 export type LogSetInput = z.input<typeof logSetSchema>;
 
@@ -36,6 +39,25 @@ export async function logSet(input: LogSetInput): Promise<ActionResult> {
 
   const v = parsed.data;
   const supabase = await createClient();
+
+  const { data: exercise, error: exerciseError } = await supabase
+    .from("exercises")
+    .select("kind")
+    .eq("id", v.exerciseId)
+    .single();
+
+  if (exerciseError) return { ok: false, error: exerciseError.message };
+
+  const hasRequiredValue =
+    exercise.kind === "strength" || exercise.kind === "bodyweight"
+      ? v.reps != null
+      : exercise.kind === "duration"
+        ? v.durationS != null
+        : v.durationS != null || v.distanceM != null;
+
+  if (!hasRequiredValue) {
+    return { ok: false, error: "กรอกค่าที่จำเป็นของท่านี้ก่อนบันทึก" };
+  }
 
   // RLS checks the session belongs to the caller; no user_id needed here.
   const { error } = await supabase.from("session_sets").upsert(
@@ -92,6 +114,30 @@ export async function startSession(sessionId: string): Promise<ActionResult> {
 
   if (error) return { ok: false, error: error.message };
   revalidatePath("/today");
+  return { ok: true };
+}
+
+export async function switchSessionPlan(
+  sessionId: string,
+  planDayId: string,
+): Promise<ActionResult> {
+  const parsed = z
+    .object({
+      sessionId: z.string().uuid(),
+      planDayId: z.string().uuid(),
+    })
+    .safeParse({ sessionId, planDayId });
+  if (!parsed.success) return { ok: false, error: "invalid id" };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("switch_session_plan", {
+    p_session_id: parsed.data.sessionId,
+    p_plan_day_id: parsed.data.planDayId,
+  });
+
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/today");
+  revalidatePath("/schedule");
   return { ok: true };
 }
 

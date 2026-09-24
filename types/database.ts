@@ -256,6 +256,9 @@ export type Database = {
           note: string | null
           plan_id: string
           rest_note: string | null
+          is_default: boolean
+          variant_label: string
+          variant_order: number
         }
         Insert: {
           day_of_week?: number | null
@@ -268,6 +271,9 @@ export type Database = {
           note?: string | null
           plan_id: string
           rest_note?: string | null
+          is_default?: boolean
+          variant_label?: string
+          variant_order?: number
         }
         Update: {
           day_of_week?: number | null
@@ -280,6 +286,9 @@ export type Database = {
           note?: string | null
           plan_id?: string
           rest_note?: string | null
+          is_default?: boolean
+          variant_label?: string
+          variant_order?: number
         }
         Relationships: [
           {
@@ -599,6 +608,7 @@ export type Database = {
         Row: {
           active_plan_id: string | null
           length_unit: string
+          locale: string
           reminder_time: string | null
           rir_target_max: number
           rir_target_min: number
@@ -614,6 +624,7 @@ export type Database = {
         Insert: {
           active_plan_id?: string | null
           length_unit?: string
+          locale?: string
           reminder_time?: string | null
           rir_target_max?: number
           rir_target_min?: number
@@ -629,6 +640,7 @@ export type Database = {
         Update: {
           active_plan_id?: string | null
           length_unit?: string
+          locale?: string
           reminder_time?: string | null
           rir_target_max?: number
           rir_target_min?: number
@@ -714,6 +726,10 @@ export type Database = {
         Returns: undefined
       }
       refresh_recent_daily_stats: { Args: { p_days?: number }; Returns: number }
+      switch_session_plan: {
+        Args: { p_plan_day_id: string; p_session_id: string }
+        Returns: undefined
+      }
       search_exercises: {
         Args: { q: string }
         Returns: {
@@ -872,4 +888,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
