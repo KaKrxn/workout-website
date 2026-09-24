@@ -87,6 +87,11 @@ button:disabled { cursor:default; opacity:.5; }
 .ft-auth-panel button[type=submit] { min-height:64px; border-radius:15px; font-size:24px; font-weight:700; }
 .ft-auth-panel form.space-y-3>button { margin-top:28px; }
 .ft-auth-panel .ft-kicker { font-size:24px; }
+.ft-auth-panel button.ft-google-button { position:relative; display:grid; place-items:center; width:100%; min-height:70px; padding:10px 72px; border:1px solid var(--ft-google-line); border-radius:15px; background:var(--ft-google); color:var(--ft-google-text); font-size:clamp(26px,4vw,34px); font-weight:700; line-height:1.2; transition:filter .15s,transform .12s; }
+.ft-auth-panel button.ft-google-button:hover { filter:brightness(1.06); }
+.ft-auth-panel button.ft-google-button:active { transform:translateY(1px); }
+.ft-google-icon { position:absolute; left:clamp(14px,3vw,26px); top:50%; width:clamp(36px,5vw,47px); height:clamp(36px,5vw,47px); transform:translateY(-50%); }
+@media(max-width:420px) { .ft-auth-panel button.ft-google-button { padding-inline:54px; font-size:26px; } }
 .ft-auth-panel>div>svg { width:30px; }
 .ft-empty { padding:48px 24px; text-align:center; border:1px dashed var(--ft-accent-dash); border-radius:20px; color:var(--ft-muted); }
 .ft-library-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:2px; background:var(--ft-card-line); border:2px solid var(--ft-card-line); }
