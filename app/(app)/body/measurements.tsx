@@ -1,0 +1,8 @@
+"use client";
+import { useActionState, useState } from "react";
+import { logMeasurements } from "./actions";
+export function Measurements({today,locale}:{today:string;locale:"th"|"en"}) {
+ const [state,action,pending]=useActionState(logMeasurements,{ok:false,error:null});
+ const [shoulder,setShoulder]=useState("");const [waist,setWaist]=useState("");const en=locale==="en";
+ return <form action={action} className="ft-card"><p className="ft-kicker">MEASUREMENTS</p><h2 className="text-lg font-extrabold mb-4">{en?"Log measurements":"บันทึกสัดส่วน"}</h2><label className="block mb-4">{en?"Date":"วันที่"}<input type="date" name="date" required defaultValue={today} className="ft-input mt-2"/></label><div className="grid grid-cols-2 gap-3">{[["measure_shoulder",en?"Shoulder":"รอบไหล่","cm"],["measure_waist",en?"Waist":"รอบเอว","cm"],["weight",en?"Weight":"น้ำหนัก","kg"],["body_fat_pct",en?"Body fat":"ไขมัน","%"]].map(([id,label,unit])=><label key={id}>{label} ({unit})<input className="ft-input mt-2" name={id} type="number" min="0.1" max={id==="body_fat_pct"?100:1000} step="0.1" onChange={e=>{if(id==="measure_shoulder")setShoulder(e.target.value);if(id==="measure_waist")setWaist(e.target.value);}}/></label>)}</div><div className="flex justify-between items-end mt-5"><div><p className="ft-muted text-xs">V-Taper Ratio</p><strong className="text-2xl text-good-text">{Number(waist)>0&&Number(shoulder)>0?(Number(shoulder)/Number(waist)).toFixed(3):"—"}</strong></div><button className="ft-button" disabled={pending}>{pending?"…":en?"Save":"บันทึก"}</button></div>{(state.error||state.ok)&&<p role="status" className="mt-3">{state.error??(en?"Measurements saved":"บันทึกแล้ว")}</p>}</form>;
+}

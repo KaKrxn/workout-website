@@ -1,82 +1,22 @@
 import Link from "next/link";
-
-const FEATURES = [
-  {
-    title: "สลับโปรแกรม A ⇄ B รายวัน",
-    body: "วันไหนไม่สะดวกใช้ดัมเบล สลับเป็นโปรแกรมไม่ใช้อุปกรณ์ได้ในแตะเดียว โดย streak ไม่ขาด เพราะระบบนับว่าฝึกกลุ่มกล้ามเนื้อนี้แล้ว ไม่ได้นับว่าทำท่านี้แล้ว",
-  },
-  {
-    title: "บอกเป้าของวันนี้ให้เลย",
-    body: "ไม่ต้องเปิดประวัติเองว่าครั้งก่อนทำได้เท่าไหร่ ระบบคำนวณจาก double progression แล้วบอกว่ารอบนี้ควรทำกี่ครั้ง และพร้อมเพิ่มน้ำหนักหรือยัง",
-  },
-  {
-    title: "วัดที่รูปร่าง ไม่ใช่ตาชั่ง",
-    body: "V-Taper Ratio (ไหล่ ÷ เอว) เป็นตัวเลขหลัก เพราะระหว่างสร้างกล้ามพร้อมลดไขมัน น้ำหนักมักไม่ขยับแม้รูปร่างจะเปลี่ยนไปแล้ว",
-  },
-];
-
-export default function LandingPage() {
-  return (
-    <main className="mx-auto w-full max-w-[1120px] flex-1 px-5 pb-24">
-      <header className="flex items-center gap-3 py-5">
-        <span className="grid size-[26px] place-items-center rounded-[8px] bg-s1">
-          <svg viewBox="0 0 24 24" className="size-[15px]" aria-hidden="true">
-            <path
-              d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"
-              fill="none"
-              stroke="#fff"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-            />
-          </svg>
-        </span>
-        <span className="text-base font-bold tracking-[-0.02em]">FitTrack</span>
-      </header>
-
-      <section className="pt-10 pb-14 sm:pt-16">
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-label">
-          ออกกำลังกายที่บ้าน · ดัมเบล 25 kg · เบาะราบ · ลู่วิ่ง
-        </p>
-        <h1 className="mt-3 max-w-[18ch] text-4xl font-bold leading-[1.15] tracking-[-0.03em] sm:text-5xl">
-          ติดตามการฝึก ที่วัดผลเป็นรูปร่าง
-        </h1>
-        <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-text-2">
-          เว็บติดตามการออกกำลังกายสำหรับคนที่ฝึกเองที่บ้าน เป้าหมายคือลดไขมันและสร้างทรง
-          V-Taper จึงออกแบบให้เว็บทำหน้าที่แทนเทรนเนอร์ ไม่ใช่แค่สมุดจด
-        </p>
-        <div className="mt-8 flex flex-wrap items-center gap-3">
-          <Link
-            href="/signup"
-            className="rounded-[10px] bg-s1 px-4 py-2.5 text-[13px] font-semibold text-on-accent transition hover:brightness-110"
-          >
-            เริ่มใช้งาน
-          </Link>
-          <Link
-            href="/login"
-            className="rounded-[10px] border border-border bg-surface px-4 py-2.5 text-[13px] font-semibold transition hover:bg-surface-2"
-          >
-            เข้าสู่ระบบ
-          </Link>
-        </div>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-3">
-        {FEATURES.map((f) => (
-          <article
-            key={f.title}
-            className="rounded-card border border-border bg-surface p-[18px] shadow-card"
-          >
-            <h2 className="text-[15px] font-bold tracking-[-0.01em]">{f.title}</h2>
-            <p className="mt-2 text-[13px] leading-relaxed text-text-2">{f.body}</p>
-          </article>
-        ))}
-      </section>
-
-      <p className="mt-7 rounded-[12px] border border-dashed border-axis p-4 text-[12.5px] leading-relaxed text-text-2">
-        ไม่สามารถสั่งให้ร่างกายเผาผลาญไขมันเฉพาะจุดได้ ความชัดของแนวกรามมาจาก
-        <b className="text-text-1"> เปอร์เซ็นต์ไขมันรวมที่ลดลง </b>
-        ประกอบกับโครงสร้างกระดูก ปริมาณกล้ามเนื้อ และท่าทางของศีรษะ/คอ
-      </p>
-    </main>
-  );
+import { Brand } from "@/components/app-header";
+import { DesignControls } from "@/components/design-controls";
+import { getLocale } from "@/lib/i18n";
+export default async function LandingPage(){
+ const locale=await getLocale(),en=locale==="en";
+ const features=en?[
+ ["It remembers for you","Design a 7-day template once. FitTrack generates your schedule weeks ahead — open the app and today’s workout is already waiting."],
+ ["It decides with you","Every set shows last time and today’s target, and tells you when to add weight — no digging through history."],
+ ["It proves it to your eyes","A heatmap answers ‘am I consistent?’ in one glance — and V-Taper Ratio tracks progress the scale can’t show."]
+ ]:[
+ ["จำแทนคุณ","ออกแบบเทมเพลต 7 วันครั้งเดียว ระบบสร้างตารางล่วงหน้าให้เป็นเดือน เปิดเว็บมาก็รู้ทันทีว่าวันนี้ต้องทำอะไร"],
+ ["ตัดสินใจแทนคุณ","ทุกแถวบอกครั้งก่อนและเป้าวันนี้ พร้อมบอกว่าเมื่อไรควรเพิ่มน้ำหนัก โดยไม่ต้องเปิดประวัติเก่าอ่านเอง"],
+ ["พิสูจน์ให้เห็นด้วยตา","Heatmap ตอบคำถามว่าเราสม่ำเสมอไหมได้ในสายตาเดียว และวัดผลด้วย V-Taper Ratio ไม่ใช่น้ำหนักบนตาชั่ง"]];
+ const cta=en?"Start free":"เริ่มใช้งานฟรี";
+ return <><header className="ft-public-header pb-5 border-b border-border"><Brand href="/"/><div className="flex items-center gap-3 flex-wrap"><DesignControls locale={locale}/><Link href="/login" className="ft-button ft-secondary">{en?"Log in":"เข้าสู่ระบบ"}</Link><Link href="/signup" className="ft-button">{cta}</Link></div></header>
+ <main className="ft-landing"><section className="ft-landing-hero"><p className="ft-kicker tracking-[.14em]">HOME WORKOUT & BODY-COMPOSITION TRACKER</p><h1>{en?"A schedule you design once — it keeps running for you every month":"ตารางที่คุณออกแบบเอง วิ่งต่อให้เองทุกเดือน"}</h1><p className="text-[clamp(17px,2.4vw,22px)] mb-7">{en?"And proves you were actually consistent.":"และพิสูจน์ให้เห็นว่าคุณสม่ำเสมอจริง"}</p><div className="flex flex-wrap gap-3"><Link href="/signup" className="ft-button">{cta} →</Link><Link href="/today" className="ft-button ft-secondary">{en?"Open my workouts":"เปิดตารางของฉัน"}</Link></div></section>
+ <section className="ft-landing-stats">{[["4",en?"Exercise logging types":"ชนิดการบันทึกท่าออกกำลังกาย"],["7 → ∞",en?"A weekly template that keeps going":"เทมเพลต 7 วัน สร้างล่วงหน้าเป็นเดือน"],["A ⇄ B",en?"Switch plans to fit your day":"สลับแผนให้เหมาะกับวันของคุณ"]].map(([v,l])=><div key={v}><strong>{v}</strong><span className="ft-muted">{l}</span></div>)}</section>
+ <section className="pb-12">{features.map(([title,body],i)=><article className="ft-feature" key={title}><span className="ft-kicker">0{i+1}</span><div><h2>{title}</h2><p>{body}</p></div></article>)}</section>
+ <section className="pb-14"><h2 className="text-3xl font-bold mb-6">{en?"What a notebook can’t do":"สิ่งที่สมุดจดทำไม่ได้"}</h2><div className="grid sm:grid-cols-2 border-t border-l border-border">{(en?[["Template → auto-generation","Design once, it keeps running every month."],["Plan vs. actual","Measure adherence, not just rep counts."],["Multiple plans per day","Switch to bodyweight without editing your schedule."],["Room to rest","Planned rest days never count as a miss."]]:[["เทมเพลต → สร้างตารางอัตโนมัติ","ออกแบบครั้งเดียว วิ่งต่อให้เองทุกเดือน"],["แยกแผนกับสิ่งที่ทำจริง","วัดความสม่ำเสมอ มากกว่าการนับครั้ง"],["หลายแผนต่อวัน","สลับท่าไม่ใช้อุปกรณ์ได้โดยไม่ต้องแก้ตาราง"],["มีพื้นที่ให้พัก","วันพักตามแผนไม่นับว่าขาด"]]).map(([t,b])=><div key={t} className="p-5 border-b border-r border-border"><h3 className="font-extrabold mb-2">{t}</h3><p className="ft-muted">{b}</p></div>)}</div></section></main>
+ <section className="bg-s1 text-on-accent px-6 py-[72px]"><div className="max-w-[1120px] mx-auto"><h2 className="text-[clamp(32px,5vw,56px)] font-bold leading-tight max-w-[20ch] mb-6">{en?"A schedule you design, that proves you showed up.":"ตารางที่คุณออกแบบเอง และพิสูจน์ว่าคุณมาจริง"}</h2><Link href="/signup" className="ft-button bg-page text-good-text">{cta} →</Link></div></section><footer className="ft-landing py-6 text-xs ft-muted">FitTrack · Home Workout & Body-Composition Tracker</footer></>;
 }

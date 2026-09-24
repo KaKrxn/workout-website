@@ -9,6 +9,70 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          detail: Json
+          id: string
+          target: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+          target?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+          target?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_audit_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_users: {
+        Row: {
+          granted_at: string
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_users_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       body_metrics: {
         Row: {
           date: string
@@ -150,6 +214,36 @@ export type Database = {
           },
         ]
       }
+      job_runs: {
+        Row: {
+          detail: Json
+          error: string | null
+          finished_at: string | null
+          id: string
+          job: string
+          ok: boolean | null
+          started_at: string
+        }
+        Insert: {
+          detail?: Json
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          job: string
+          ok?: boolean | null
+          started_at?: string
+        }
+        Update: {
+          detail?: Json
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          job?: string
+          ok?: boolean | null
+          started_at?: string
+        }
+        Relationships: []
+      }
       plan_days: {
         Row: {
           day_of_week: number | null
@@ -162,6 +256,9 @@ export type Database = {
           note: string | null
           plan_id: string
           rest_note: string | null
+          is_default: boolean
+          variant_label: string
+          variant_order: number
         }
         Insert: {
           day_of_week?: number | null
@@ -174,6 +271,9 @@ export type Database = {
           note?: string | null
           plan_id: string
           rest_note?: string | null
+          is_default?: boolean
+          variant_label?: string
+          variant_order?: number
         }
         Update: {
           day_of_week?: number | null
@@ -186,6 +286,9 @@ export type Database = {
           note?: string | null
           plan_id?: string
           rest_note?: string | null
+          is_default?: boolean
+          variant_label?: string
+          variant_order?: number
         }
         Relationships: [
           {
@@ -505,6 +608,7 @@ export type Database = {
         Row: {
           active_plan_id: string | null
           length_unit: string
+          locale: string
           reminder_time: string | null
           rir_target_max: number
           rir_target_min: number
@@ -520,6 +624,7 @@ export type Database = {
         Insert: {
           active_plan_id?: string | null
           length_unit?: string
+          locale?: string
           reminder_time?: string | null
           rir_target_max?: number
           rir_target_min?: number
@@ -535,6 +640,7 @@ export type Database = {
         Update: {
           active_plan_id?: string | null
           length_unit?: string
+          locale?: string
           reminder_time?: string | null
           rir_target_max?: number
           rir_target_min?: number
@@ -590,11 +696,40 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_users: {
+        Args: never
+        Returns: {
+          active_plan_name: string
+          created_at: string
+          display_name: string
+          email: string
+          id: string
+          is_admin: boolean
+          last_session: string
+          last_sign_in_at: string
+          sessions_90d: number
+          upcoming_sessions: number
+        }[]
+      }
+      admin_stats_drift: {
+        Args: { p_days?: number }
+        Returns: {
+          actual: number
+          date: string
+          stored: number
+          user_id: string
+        }[]
+      }
+      is_admin: { Args: never; Returns: boolean }
       refresh_daily_stats: {
         Args: { p_date: string; p_user: string }
         Returns: undefined
       }
       refresh_recent_daily_stats: { Args: { p_days?: number }; Returns: number }
+      switch_session_plan: {
+        Args: { p_plan_day_id: string; p_session_id: string }
+        Returns: undefined
+      }
       search_exercises: {
         Args: { q: string }
         Returns: {
@@ -753,4 +888,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-

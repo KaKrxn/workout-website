@@ -1,19 +1,30 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { finishSession, startSession } from "./actions";
 
-export function StartButton({ sessionId }: { sessionId: string }) {
+export function StartButton({
+  sessionId,
+  autoStart = false,
+}: {
+  sessionId: string;
+  autoStart?: boolean;
+}) {
   const [pending, start] = useTransition();
+
+  useEffect(() => {
+    if (!autoStart) return;
+    start(() => void startSession(sessionId));
+  }, [autoStart, sessionId]);
 
   return (
     <button
       type="button"
       disabled={pending}
       onClick={() => start(() => void startSession(sessionId))}
-      className="rounded-[10px] bg-s1 px-4 py-2.5 text-[13px] font-semibold text-on-accent transition hover:brightness-110 disabled:opacity-60"
+      className="w-full max-w-[210px] rounded-[14px] bg-s1 px-4 py-[clamp(10px,1vw,16px)] text-center text-[clamp(24px,2.6vw,42px)] font-black leading-none text-on-accent transition hover:brightness-110 disabled:opacity-60"
     >
-      {pending ? "กำลังเริ่ม…" : "เริ่มเลย →"}
+      {pending ? "Starting" : "Start"}
     </button>
   );
 }
@@ -26,9 +37,38 @@ export function FinishButton({ sessionId }: { sessionId: string }) {
       type="button"
       disabled={pending}
       onClick={() => start(() => void finishSession(sessionId))}
-      className="w-full rounded-[10px] border border-border bg-surface px-4 py-2.5 text-[13px] font-semibold transition hover:bg-surface-2 disabled:opacity-60"
+      className="w-full rounded-[13px] bg-s1 px-4 py-4 text-[clamp(16px,1.5vw,24px)] font-black text-on-accent transition hover:brightness-110 disabled:opacity-60"
     >
-      {pending ? "กำลังบันทึก…" : "จบเวิร์คเอาท์"}
+      {pending ? "Saving..." : "Finish Workout"}
     </button>
   );
+}
+
+export function SessionTimer({
+  startedAt,
+  endedAt,
+}: {
+  startedAt: string | null;
+  endedAt: string | null;
+}) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!startedAt || endedAt) return;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [startedAt, endedAt]);
+
+  if (!startedAt) return "00:00:00";
+
+  const end = endedAt ? new Date(endedAt).getTime() : now;
+  return formatTimer(end - new Date(startedAt).getTime());
+}
+
+function formatTimer(ms: number) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const seconds = total % 60;
+  return [hours, minutes, seconds].map((n) => n.toString().padStart(2, "0")).join(":");
 }

@@ -9,7 +9,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * handler checks for itself. Without this the scheduler just gets a 307 to
  * /login and the job silently never runs.
  */
-const PUBLIC_PATHS = ["/", "/login", "/signup", "/auth", "/api/cron"];
+const PUBLIC_PATHS = ["/", "/login", "/signup", "/forgot-password", "/auth", "/api/cron"];
 
 const isPublic = (pathname: string) =>
   PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));

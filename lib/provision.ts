@@ -17,12 +17,7 @@ import { addDays, formatISODate, startOfWeekMonday } from "@/lib/date";
 export async function provisionUser(userId: string): Promise<void> {
   const admin = createAdminClient();
 
-  // Already done? `plans` is the marker — it is the last thing written.
-  const { count } = await admin
-    .from("plans")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", userId);
-  if ((count ?? 0) > 0) return;
+  if (await isProvisioned(admin, userId)) return;
 
   // 1. Equipment the user owns (profile.equipment)
   const equipment = SEED.profile.equipment.map((e) => ({
@@ -73,6 +68,31 @@ export async function provisionUser(userId: string): Promise<void> {
 
 type Admin = ReturnType<typeof createAdminClient>;
 
+async function isProvisioned(admin: Admin, userId: string): Promise<boolean> {
+  const { data: settings, error: settingsErr } = await admin
+    .from("user_settings")
+    .select("active_plan_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (settingsErr) throw new Error(`provisionUser/checkSettings: ${settingsErr.message}`);
+  if (!settings?.active_plan_id) return false;
+
+  const { data: days, error: daysErr } = await admin
+    .from("plan_days")
+    .select("id")
+    .eq("plan_id", settings.active_plan_id);
+  if (daysErr) throw new Error(`provisionUser/checkDays: ${daysErr.message}`);
+  if (!days?.length) return false;
+
+  const { count, error: itemErr } = await admin
+    .from("plan_items")
+    .select("id", { count: "exact", head: true })
+    .in("plan_day_id", days.map((day) => day.id));
+  if (itemErr) throw new Error(`provisionUser/checkItems: ${itemErr.message}`);
+
+  return (count ?? 0) > 0;
+}
+
 async function insertPlan(admin: Admin, userId: string, plan: SeedPlan): Promise<string> {
   const { data: planRow, error: planErr } = await admin
     .from("plans")
@@ -101,6 +121,9 @@ async function insertPlan(admin: Admin, userId: string, plan: SeedPlan): Promise
         is_priority_day: d.isPriorityDay ?? false,
         rest_note: d.restNote ?? null,
         note: d.note ?? null,
+        variant_label: plan.useWhen ?? plan.name,
+        variant_order: 1,
+        is_default: true,
       })),
     )
     .select("id, day_of_week");
@@ -154,7 +177,8 @@ export async function generatePlannedSessions(
   const { data: days, error } = await admin
     .from("plan_days")
     .select("id, day_of_week, focus, is_rest")
-    .eq("plan_id", planId);
+    .eq("plan_id", planId)
+    .eq("is_default", true);
   if (error) throw new Error(`generatePlannedSessions: ${error.message}`);
   if (!days?.length) return 0;
 
@@ -185,10 +209,25 @@ export async function generatePlannedSessions(
     }
   }
 
+  const dates = Array.from(new Set(rows.map((row) => row.date)));
+  const { data: existing, error: existingErr } = dates.length
+    ? await admin
+        .from("sessions")
+        .select("date")
+        .eq("user_id", userId)
+        .in("date", dates)
+        .not("plan_day_id", "is", null)
+    : { data: [], error: null };
+  if (existingErr) throw new Error(`generatePlannedSessions/existing: ${existingErr.message}`);
+
+  const occupiedDates = new Set((existing ?? []).map((row) => row.date));
+  const insertableRows = rows.filter((row) => !occupiedDates.has(row.date));
+  if (insertableRows.length === 0) return 0;
+
   // ignoreDuplicates so re-running never overwrites a session already completed.
   const { error: insErr, count } = await admin
     .from("sessions")
-    .upsert(rows, { onConflict: "user_id,date,plan_day_id", ignoreDuplicates: true, count: "exact" });
+    .upsert(insertableRows, { onConflict: "user_id,date,plan_day_id", ignoreDuplicates: true, count: "exact" });
   if (insErr) throw new Error(`generatePlannedSessions/insert: ${insErr.message}`);
 
   return count ?? 0;

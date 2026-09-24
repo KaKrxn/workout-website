@@ -17,6 +17,10 @@ implementation can start without any further design decisions.
 | `07-data-model-tidb.md` | **Alternative to 02** if you want TiDB instead of Postgres — pick one, not both |
 | `08-admin-spec.md` | You want to know what the admin console is for and how access is enforced — added after the original design; **not implemented yet** |
 | `09-admin-implementation-plan.md` | You're about to build the admin console — stage-by-stage instructions, migrations and tests |
+| `10-day-plan-variants.md` | You're building the schedule editor or the Today variant picker — **supersedes `01` §5.1** |
+| `11-end-to-end-plan.md` | **Start here to build.** Every surface from signup to admin: what exists, what is broken, what to change, in what order |
+| `12-i18n-spec.md` | You are writing any user-facing string — Thai + English, headings stay English |
+| `13-progression-spec.md` | You are building the thing that decides when training gets harder — reps, weight, day counter |
 | `data/program-seed.json` | You're seeding the database — programs A/B as ready-to-use JSON |
 | `mockup/fittrack-mockup.html` | You want to see the real thing — open it in a browser, it's interactive |
 | `source/reportwebsite.md` | You want the original source document this design was derived from |

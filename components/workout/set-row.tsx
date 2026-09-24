@@ -11,11 +11,23 @@ export interface SetSlot {
   logged: LoggedSet | null;
 }
 
-/** Placeholder shown before anything has been logged, taken from the plan's target range. */
-function suggest(exercise: TodayExercise) {
-  if (exercise.kind === "duration") return { field: "durationS", value: exercise.durationMinS };
-  if (exercise.kind === "cardio") return { field: "durationS", value: exercise.durationMinS };
-  return { field: "reps", value: exercise.repMin };
+/** Placeholder shown before anything has been logged, preferring the computed target. */
+function suggest(exercise: TodayExercise, slot: SetSlot) {
+  const index = exercise.perSide
+    ? (slot.setIndex - 1) * 2 + (slot.side === "right" ? 1 : 0)
+    : slot.setIndex - 1;
+
+  if (exercise.kind === "duration" || exercise.kind === "cardio") {
+    return {
+      field: "durationS",
+      value: exercise.progression?.targetDurationS?.[index] ?? exercise.durationMinS,
+    };
+  }
+
+  return {
+    field: "reps",
+    value: exercise.progression?.targetReps?.[index] ?? exercise.repMin,
+  };
 }
 
 const NumberField = ({
@@ -33,8 +45,8 @@ const NumberField = ({
   suffix?: string;
   placeholder?: string;
 }) => (
-  <label className="flex min-w-0 flex-1 flex-col gap-1">
-    <span className="text-[10.5px] uppercase tracking-[0.06em] text-label">{label}</span>
+  <label className="flex min-w-0 flex-1 flex-col gap-2">
+    <span className="text-[clamp(13px,1.15vw,19px)] font-medium text-text-2">{label}</span>
     <span className="flex items-center gap-1">
       <input
         type="number"
@@ -44,9 +56,9 @@ const NumberField = ({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full min-w-0 rounded-[9px] border border-border bg-surface-2 px-2 py-1.5 text-[13px] tabular-nums text-text-1"
+        className="w-full min-w-0 rounded-[9px] border border-white/[0.06] bg-surface-2 px-3 py-[clamp(9px,1vw,14px)] text-[clamp(16px,1.35vw,24px)] font-bold tabular-nums text-text-1"
       />
-      {suffix && <span className="flex-none text-[11px] text-label">{suffix}</span>}
+      {suffix && <span className="flex-none text-[clamp(11px,1vw,15px)] text-text-2">{suffix}</span>}
     </span>
   </label>
 );
@@ -63,7 +75,7 @@ export function SetRow({
   lastWeightKg: number | null;
 }) {
   const { logged } = slot;
-  const hint = suggest(exercise);
+  const hint = suggest(exercise, slot);
 
   const [reps, setReps] = useState(logged?.reps?.toString() ?? "");
   const [weight, setWeight] = useState(
@@ -109,17 +121,17 @@ export function SetRow({
   const done = logged !== null;
 
   return (
-    <div className="border-t border-border py-2.5 first:border-t-0">
-      <div className="flex items-end gap-2">
-        <span className="w-[52px] flex-none pb-1.5 text-[11.5px] font-semibold tabular-nums text-text-2">
-          {slot.side ? (slot.side === "left" ? "ซ้าย" : "ขวา") : `เซ็ต ${slot.setIndex}`}
+    <div className="border-t border-white/45 py-[clamp(12px,1.2vw,18px)] first:border-t-0">
+      <div className="flex items-end gap-[clamp(10px,1.1vw,18px)]">
+        <span className="w-[clamp(66px,6vw,110px)] flex-none pb-3 text-[clamp(13px,1.15vw,19px)] font-medium tabular-nums text-text-2">
+          {slot.side ? (slot.side === "left" ? "Left" : "Right") : `Set ${slot.setIndex}`}
         </span>
 
         {exercise.kind === "strength" && (
           <>
-            <NumberField label="น้ำหนัก" value={weight} onChange={setWeight} step={2.5} suffix="kg" />
+            <NumberField label="kg" value={weight} onChange={setWeight} step={2.5} />
             <NumberField
-              label="ครั้ง"
+              label="Reps"
               value={reps}
               onChange={setReps}
               placeholder={hint.value?.toString()}
@@ -129,7 +141,7 @@ export function SetRow({
 
         {exercise.kind === "bodyweight" && (
           <NumberField
-            label="ครั้ง"
+            label="Reps"
             value={reps}
             onChange={setReps}
             placeholder={hint.value?.toString()}
@@ -138,11 +150,11 @@ export function SetRow({
 
         {exercise.kind === "duration" && (
           <NumberField
-            label="เวลา"
+            label="Time"
             value={duration}
             onChange={setDuration}
             step={5}
-            suffix="วิ"
+            suffix="sec"
             placeholder={exercise.durationMinS?.toString()}
           />
         )}
@@ -150,15 +162,15 @@ export function SetRow({
         {exercise.kind === "cardio" && (
           <>
             <NumberField
-              label="เวลา"
+              label="Time"
               value={duration}
               onChange={setDuration}
               step={60}
-              suffix="วิ"
+              suffix="sec"
               placeholder={exercise.durationMinS?.toString()}
             />
-            <NumberField label="ระยะทาง" value={distance} onChange={setDistance} step={100} suffix="ม." />
-            <NumberField label="ความชัน" value={incline} onChange={setIncline} step={0.5} suffix="%" />
+            <NumberField label="Distance" value={distance} onChange={setDistance} step={100} suffix="m" />
+            <NumberField label="Incline" value={incline} onChange={setIncline} step={0.5} suffix="%" />
           </>
         )}
 
@@ -168,10 +180,10 @@ export function SetRow({
           disabled={pending}
           aria-label={done ? `บันทึกการแก้ไขเซ็ต ${slot.setIndex}` : `บันทึกเซ็ต ${slot.setIndex}`}
           className={cn(
-            "grid size-11 flex-none place-items-center rounded-[9px] border transition disabled:opacity-50",
+            "grid size-[clamp(48px,4.4vw,72px)] flex-none place-items-center rounded-[10px] border transition disabled:opacity-50",
             done
-              ? "border-good bg-good text-white"
-              : "border-border bg-surface hover:bg-surface-2",
+              ? "border-[#5fd482] bg-s1 text-on-accent"
+              : "border-[#5fd482] bg-s1 text-on-accent hover:brightness-110",
           )}
         >
           <svg
@@ -194,7 +206,7 @@ export function SetRow({
             onClick={remove}
             disabled={pending}
             aria-label={`ลบเซ็ต ${slot.setIndex}`}
-            className="grid size-11 flex-none place-items-center rounded-[9px] text-label transition hover:text-text-1 disabled:opacity-50"
+            className="grid size-[clamp(44px,3.8vw,62px)] flex-none place-items-center rounded-[9px] text-text-2 transition hover:text-text-1 disabled:opacity-50"
           >
             <svg
               viewBox="0 0 24 24"
@@ -212,7 +224,7 @@ export function SetRow({
       </div>
 
       {error && (
-        <p role="alert" className="mt-1.5 pl-[60px] text-[11.5px] text-text-1">
+        <p role="alert" className="mt-2 pl-[clamp(66px,6vw,110px)] text-[12px] text-text-1">
           บันทึกไม่สำเร็จ · {error}
         </p>
       )}

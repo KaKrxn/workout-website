@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -8,85 +9,86 @@
 */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-/* ─────────────── Light (the source of truth for every colour) ─────────────── */
-:root {
-  --page: #f9f9f7;
-  --surface: #fcfcfb;
-  --surface-2: #f2f1ed;
+/* FitTrack theme — from the user's Figma ("Design Website FitTrack.fig").
+   Dark is default (Figma); light is a derived variant. Also remaps the Modernist
+   tokens/classes so every page shares the FitTrack look. */
 
-  --text-1: #0b0b0b;
-  --text-2: #52514e;
-  --muted: #898781;
-
-  --grid: #e1e0d9;
-  --axis: #c3c2b7;
-  --border: rgba(11, 11, 11, 0.1);
-
-  /* Series colours. Identity, not rank — see 03-ui-spec.md §1 and 04-analytics-spec.md */
-  --s1: #2a78d6; /* strength / the primary tracked metric */
-  --s2: #eb6834; /* cardio, and load on the overload chart */
-  --s3: #1baf7a; /* reserved third series */
-
-  --good: #0ca30c;
-  --good-text: #006300;
-
-  /* Heatmap ramp — a single blue hue, light to dark */
-  --hm0: #eceae4;
-  --hm1: #b7d3f6;
-  --hm2: #6da7ec;
-  --hm3: #2a78d6;
-  --hm4: #184f95;
-
-  /* Text that sits on top of a filled --s1 / --good surface */
-  --on-accent: #ffffff;
-
-  --destructive: #c0392b;
-  --shadow-card: 0 1px 2px rgba(11, 11, 11, 0.05), 0 8px 24px rgba(11, 11, 11, 0.04);
-
-  --radius: 0.625rem; /* 10px — buttons */
-  --radius-card: 14px;
-
-  color-scheme: light;
+:root, [data-theme="dark"] {
+  --ft-bg: rgb(17,25,19);
+  --ft-glow: rgba(28,49,34,.9);
+  --ft-glow-soft: rgba(18,37,23,.8);
+  --ft-card: rgb(25,30,25);
+  --ft-card-line: rgb(49,55,48);
+  --ft-tile: rgb(34,42,34);
+  --ft-well: rgba(0,0,0,.5);
+  --ft-cell: rgb(24,30,25);
+  --ft-cell-line: rgb(39,46,39);
+  --ft-input: rgb(32,40,33);
+  --ft-line: rgb(45,53,46);
+  --ft-rule: rgb(50,55,49);
+  --ft-tabs: rgba(72,72,72,.32);
+  --ft-tab-active: rgba(0,0,0,.3);
+  --ft-chip: rgba(217,217,217,.1);
+  --ft-accent: rgb(102,217,141);
+  --ft-accent-strong: rgb(102,217,141);
+  --ft-accent-soft: rgb(29,44,33);
+  --ft-accent-dash: rgb(80,155,105);
+  --ft-on-accent: #000;
+  --ft-text: #fff;
+  --ft-muted: rgba(255,255,255,.7);
+  --ft-placeholder: rgb(131,130,130);
+  --ft-track: rgb(47,79,57);
+  --ft-thumb: rgb(27,48,33);
+  --ft-icon-filter: invert(1);
+  --ft-google: rgb(15,15,15); --ft-google-line: rgb(40,40,40); --ft-google-text: #fff;
+  --ft-liquid: #222c24; --ft-tab-hover: #c5f8d6;
+}
+[data-theme="light"] {
+  --ft-bg: #eaf0ea;
+  --ft-glow: rgba(102,217,141,.26);
+  --ft-glow-soft: rgba(102,217,141,.14);
+  --ft-card: #ffffff;
+  --ft-card-line: #d3ddd5;
+  --ft-tile: #eef3ee;
+  --ft-well: rgba(18,32,26,.05);
+  --ft-cell: #ffffff;
+  --ft-cell-line: #d3ddd5;
+  --ft-input: #f4f7f4;
+  --ft-line: #cfd9d1;
+  --ft-rule: #cfd9d1;
+  --ft-tabs: rgba(18,32,26,.07);
+  --ft-tab-active: #ffffff;
+  --ft-chip: rgba(18,32,26,.07);
+  --ft-accent: rgb(102,217,141);
+  --ft-accent-strong: rgb(34,140,78);
+  --ft-accent-soft: #dcf3e3;
+  --ft-accent-dash: rgb(60,170,100);
+  --ft-on-accent: #08110b;
+  --ft-text: #12201a;
+  --ft-muted: rgba(18,32,26,.64);
+  --ft-placeholder: #7c877e;
+  --ft-track: #c7d6ca;
+  --ft-thumb: #b9d9c3;
+  --ft-icon-filter: none;
+  --ft-google: #ffffff; --ft-google-line: #d3ddd5; --ft-google-text: #12201a;
+  --ft-liquid: #dce6de; --ft-tab-hover: rgb(34,140,78);
 }
 
-/* ─────────────── Dark ─────────────── */
-[data-theme="dark"] {
-  --page: #0d0d0d;
-  --surface: #1a1a19;
-  --surface-2: #232322;
 
-  --text-1: #ffffff;
-  --text-2: #c3c2b7;
-  --muted: #898781;
-
-  --grid: #2c2c2a;
-  --axis: #383835;
-  --border: rgba(255, 255, 255, 0.1);
-
-  --s1: #3987e5;
-  --s2: #d95926;
-  --s3: #199e70;
-
-  --good: #0ca30c;
-  --good-text: #0ca30c;
-
-  --hm0: #232322;
-  --hm1: #184f95;
-  --hm2: #256abf;
-  --hm3: #3987e5;
-  --hm4: #86b6ef;
-
-  --on-accent: #ffffff;
-
-  --destructive: #e06c5b;
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
-
-  color-scheme: dark;
+:root, [data-theme] {
+ --page:var(--ft-bg); --surface:var(--ft-card); --surface-2:var(--ft-input);
+ --text-1:var(--ft-text); --text-2:var(--ft-muted); --muted:var(--ft-placeholder);
+ --grid:var(--ft-line); --axis:var(--ft-rule); --border:var(--ft-card-line);
+ --s1:var(--ft-accent); --s2:#eb9860; --s3:#85b7d0;
+ --good:var(--ft-accent); --good-text:var(--ft-accent-strong); --on-accent:var(--ft-on-accent);
+ --hm0:var(--ft-tile); --hm1:#284f35; --hm2:#397849; --hm3:#51ac6f; --hm4:#66d98d;
+ --destructive:#e97870; --shadow-card:0 0 0 1px var(--ft-card-line);
+ --radius:.9375rem; --radius-card:20px;
 }
-
+[data-theme="light"] { --hm1:#d7efde; --hm2:#a8ddba; --hm3:#66bf83; --hm4:#25844a; }
 @theme inline {
   /* No display face — see 03-ui-spec.md §1 */
-  --font-sans: system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", sans-serif;
+  --font-sans: Inter, "Noto Sans Thai", system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-heading: var(--font-sans);
 

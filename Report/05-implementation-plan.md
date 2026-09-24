@@ -62,20 +62,21 @@ workout-website/
 
 ---
 
-## Phase 2 — Schedule and program switching
+## Phase 2 — Schedule and day plan variants
 
 **Goal:** the plan is there to follow; nothing has to be remembered.
 
 - [ ] `/schedule` — 7-column week view
 - [ ] Generate four weeks of `sessions` (`status = 'planned'`) ahead, from `plan_days`
-- [ ] **Per-day A ⇄ B toggle** plus the focus-based day pairing table
+- [ ] **Per-day plan variants** — add / rename / duplicate / set-default / delete a day's plans (`10-day-plan-variants.md` §6)
+- [ ] **Variant picker on Today**, plus the "นอกแผน" section for sets orphaned by a switch (§5)
 - [ ] Drag to reorder days (desktop + mobile)
 - [ ] Weekly goals (5 strength days / 3 cardio) with a progress ring
 - [ ] Templates: switch the active plan wholesale
 - [ ] `/library` — 41 exercises, filtered by the equipment the user owns
 
-**Definition of done:** opening the app immediately shows what today is, and switching to
-program A takes one tap.
+**Definition of done:** opening the app immediately shows what today is, and on a day that offers
+more than one plan, switching between them takes one tap.
 
 ---
 
