@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-6d50803f-0be1-4926-88ed-8707846947c5/styles.css">
+<link rel="stylesheet" href="ft-theme.css">
+</helmet>
+<div style="min-height:100vh">
+  <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}"><dc-import name="Nav" active="settings" hint-size="100%,110px"></dc-import></sc-if>
+  <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+  <main style="{{ mainStyle }}">
+    <header style="margin-bottom:24px"><h1 style="font-size:32px;margin:0 0 6px">Settings</h1><p class="text-muted" style="margin:0;font-size:14px">{{ sub }}</p></header>
+
+    <section style="border:2px solid var(--color-divider)">
+      <!-- profile -->
+      <div style="display:flex;align-items:center;gap:14px;padding:18px;border-bottom:2px solid var(--color-divider)">
+        <span style="width:48px;height:48px;background:var(--color-accent);color:var(--color-bg);display:grid;place-items:center;font-family:var(--font-heading);font-weight:800;font-size:20px">K</span>
+        <div><div style="font-family:var(--font-heading);font-weight:800;font-size:18px">Ken</div><div class="text-muted" style="font-size:13px">ken@fittrack.app · {{ goalValue }}</div></div>
+      </div>
+
+      <!-- rows -->
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px;border-bottom:2px solid var(--color-divider);flex-wrap:wrap">
+          <div style="min-width:0"><div style="font-family:var(--font-heading);font-weight:800;font-size:15px">{{ r.label }}</div><div class="text-muted" style="font-size:12px">{{ r.hint }}</div></div>
+          <div class="seg" role="group">
+            <sc-for list="{{ r.options }}" as="o" hint-placeholder-count="2"><label class="seg-opt" style="white-space:nowrap"><input type="radio" name="{{ r.name }}" checked="{{ o.active }}" onChange="{{ o.pick }}"><span>{{ o.label }}</span></label></sc-for>
+          </div>
+        </div>
+      </sc-for>
+
+      <!-- equipment -->
+      <div style="padding:18px">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:15px;margin-bottom:4px">{{ equipLabel }}</div>
+        <div class="text-muted" style="font-size:12px;margin-bottom:12px">{{ equipHint }}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <sc-for list="{{ equip }}" as="e" hint-placeholder-count="3"><span class="{{ e.cls }}">{{ e.label }}</span></sc-for>
+        </div>
+      </div>
+    </section>
+    <p class="text-muted" style="font-size:12px;margin-top:16px">{{ footNote }}</p>
+  </main>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:720}}">
+class Component extends DCLogic {
+  state = { ready: false, isMobile: false, theme: 'light', units: 'metric', goal: 'vtaper' };
+  async componentDidMount() {
+    const base = new URL('.', location.href).href;
+    this.d = await import(base + 'data.js');
+    this.app = await import(base + 'app.js'); window.addEventListener('ft-locale', e => this.setState({ locale: e.detail })); window.addEventListener('ft-theme', e => this.setState({ theme: e.detail }));
+    this.app.bootTheme();
+    this.unwatch = this.app.watchMobile(m => this.setState({ isMobile: m }));
+    this.setState({ ready: true, locale: this.app.getLocale(), theme: this.app.getTheme(), units: this.app.getUnits() });
+  }
+  componentWillUnmount() { this.unwatch && this.unwatch(); }
+  setTheme(v) { this.setState({ theme: v }); this.app.switchTheme(v); }
+  setLang(v) { if (v === this.state.locale) return; this.setState({ locale: v }); this.app.switchLocale(v); }
+  setUnits(v) { this.app.setUnits(v); this.setState({ units: v }); }
+  renderVals() {
+    if (!this.app) return { ready: false, standalone: !this.props.embedded };
+    const app = this.app; const t = app.makeT(this.state.locale); const en = this.state.locale === 'en'; const m = this.state.isMobile;
+    const opt = (label, active, pick) => ({ label, active, pick });
+    const rows = [
+      { label: t('set.theme'), name: 'theme', hint: en ? 'Light or dark. Applies instantly.' : 'สว่างหรือมืด · เปลี่ยนทันที', options: [opt(t('set.light'), this.state.theme === 'light', () => this.setTheme('light')), opt(t('set.dark'), this.state.theme === 'dark', () => this.setTheme('dark'))] },
+      { label: t('set.lang'), name: 'lang', hint: en ? 'Headings stay in English either way.' : 'หัวข้อเป็นอังกฤษเสมอทั้งสองภาษา', options: [opt('ไทย', this.state.locale === 'th', () => this.setLang('th')), opt('English', this.state.locale === 'en', () => this.setLang('en'))] },
+      { label: t('set.unitsys'), name: 'units', hint: en ? 'Weight shown across the app.' : 'หน่วยน้ำหนักทั้งเว็บ', options: [opt(t('set.metric'), this.state.units === 'metric', () => this.setUnits('metric')), opt(t('set.imperial'), this.state.units === 'imperial', () => this.setUnits('imperial'))] },
+      { label: t('set.goal'), name: 'goal', hint: en ? 'What you\u2019re training toward.' : 'เป้าหมายที่กำลังฝึก', options: [opt('V-Taper', this.state.goal === 'vtaper', () => this.setState({ goal: 'vtaper' })), opt(en ? 'Fat loss' : 'ลดไขมัน', this.state.goal === 'fatloss', () => this.setState({ goal: 'fatloss' }))] },
+    ];
+    const equip = [{ label: en ? 'Dumbbells up to 25 kg' : 'ดัมเบลถึง 25 กก.', cls: 'tag tag-accent' }, { label: en ? 'Bodyweight' : 'ตัวเปล่า', cls: 'tag tag-neutral' }, { label: en ? 'Jump rope' : 'เชือกกระโดด', cls: 'tag tag-neutral' }, { label: '＋ ' + (en ? 'Pull-up bar' : 'บาร์โหน'), cls: 'tag tag-outline' }];
+    return {
+      standalone: !this.props.embedded, ready: this.state.ready, isMobile: m,
+      mainStyle: { maxWidth: '760px', margin: '0 auto', padding: m ? '20px 16px 96px' : '32px 24px 48px' },
+      sub: en ? 'Profile, equipment, goal, units and theme.' : 'โปรไฟล์ อุปกรณ์ เป้าหมาย หน่วยวัด และธีม',
+      goalValue: this.state.goal === 'vtaper' ? 'V-Taper' : (en ? 'Fat loss' : 'ลดไขมัน'),
+      rows, equipLabel: t('set.equip'), equipHint: en ? 'Progressive overload caps at your heaviest dumbbell.' : 'ระบบเพิ่มน้ำหนักจะหยุดที่ดัมเบลหนักสุดของคุณ', equip,
+      footNote: en ? 'This is a mockup — settings persist in your browser only.' : 'นี่คือ mockup — ค่าตั้งค่าถูกเก็บในเบราว์เซอร์เท่านั้น',
+    };
+  }
+}
+</script>
+</body>
+</html>

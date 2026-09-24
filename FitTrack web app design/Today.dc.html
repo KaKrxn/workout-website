@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-6d50803f-0be1-4926-88ed-8707846947c5/styles.css">
+<link rel="stylesheet" href="ft-theme.css">
+</helmet>
+<div style="min-height:100vh">
+  <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}"><dc-import name="Nav" active="today" hint-size="100%,110px"></dc-import></sc-if>
+  <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+  <main style="{{ mainStyle }}">
+    <div style="{{ gridStyle }}">
+      <!-- LEFT -->
+      <div style="display:flex;flex-direction:column;gap:20px;min-width:0">
+        <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+            <div style="font-size:clamp(16px,1.25vw,24px);font-weight:500">{{ dateLine }}</div>
+            <h1 style="font-size:clamp(40px,3.4vw,64px);font-weight:800;line-height:1;margin:0">{{ dayName }}</h1>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <sc-for list="{{ groupTags }}" as="g" hint-placeholder-count="3">
+                <span style="padding:8px 10px;border-radius:10px;background:var(--ft-chip);font-size:clamp(16px,1.25vw,24px);font-weight:500">{{ g }}</span>
+              </sc-for>
+            </div>
+            <sc-if value="{{ hasAlt }}" hint-placeholder-val="{{ false }}">
+              <div class="seg" role="group" style="align-self:flex-start">
+                <label class="seg-opt"><input type="radio" name="plan" checked="{{ isB }}" onChange="{{ pickB }}"><span>Plan B · Dumbbell</span></label>
+                <label class="seg-opt"><input type="radio" name="plan" checked="{{ isA }}" onChange="{{ pickA }}"><span>Plan A · Bodyweight</span></label>
+              </div>
+            </sc-if>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px;flex:1 1 200px;max-width:260px;min-width:180px">
+            <button onClick="{{ startSession }}" style="{{ startStyle }}">{{ startLabel }}</button>
+            <div style="height:clamp(44px,2.8vw,54px);border-radius:15px;background:rgba(217,217,217,.3);display:grid;place-items:center;font-size:clamp(32px,2.5vw,48px);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.01em">{{ timer }}</div>
+          </div>
+        </header>
+
+        <!-- logged summary -->
+        <section style="display:flex;align-items:center;gap:22px;padding:clamp(22px,1.8vw,34px) clamp(28px,2.3vw,44px);border-radius:20px;background:var(--ft-card);box-shadow:0 0 0 2px var(--ft-card-line)">
+          <span style="font-size:clamp(48px,3.5vw,68px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums">{{ loggedCount }}</span>
+          <span style="display:flex;flex-direction:column;gap:4px;font-size:clamp(18px,1.25vw,24px);font-weight:500;line-height:1.25">
+            <span>{{ ofSets }}</span><span>{{ loggedLbl }}</span>
+          </span>
+          <div style="flex:1;min-width:80px;height:8px;border-radius:8px;background:var(--ft-input);overflow:hidden;margin-left:12px">
+            <div style="{{ barStyle }}"></div>
+          </div>
+        </section>
+
+        <!-- exercises -->
+        <sc-for list="{{ exercises }}" as="ex" hint-placeholder-count="4">
+          <section style="border-radius:20px;background:var(--ft-card);box-shadow:0 0 0 2px var(--ft-card-line);overflow:hidden">
+            <button onClick="{{ ex.toggle }}" aria-expanded="{{ ex.expanded }}" style="width:100%;display:flex;align-items:center;gap:clamp(16px,1.3vw,26px);padding:clamp(20px,2vw,38px) clamp(20px,2.9vw,56px) clamp(20px,2vw,38px) clamp(18px,1.4vw,26px);border:0;background:transparent;color:var(--ft-text);font-family:inherit;text-align:left;cursor:pointer">
+              <span style="{{ ex.statusStyle }}">
+                <sc-if value="{{ ex.done }}" hint-placeholder-val="{{ false }}"><span style="width:26px;height:26px;background:url(assets/check-icon.png) center/contain no-repeat"></span></sc-if>
+                <sc-if value="{{ ex.notDone }}" hint-placeholder-val="{{ true }}"><span style="width:31px;height:31px;border-radius:50%;box-shadow:inset 0 0 0 1px var(--ft-text)"></span></sc-if>
+              </span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+                <span style="font-size:clamp(18px,1.25vw,24px);font-weight:800">{{ ex.name }}</span>
+                <span style="font-size:clamp(17px,1.25vw,24px);font-weight:400;font-variant-numeric:tabular-nums;color:var(--ft-muted)">{{ ex.targetSummary }}</span>
+              </span>
+              <span style="font-size:clamp(17px,1.25vw,24px);font-weight:400;font-variant-numeric:tabular-nums;{{ ex.rightStyle }}">{{ ex.rightText }}</span>
+            </button>
+
+            <sc-if value="{{ ex.expanded }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:0 clamp(20px,2.9vw,56px) 28px clamp(18px,5.3vw,102px)">
+              <div style="height:1px;background:var(--ft-text);opacity:.8;margin-bottom:18px"></div>
+              <sc-if value="{{ ex.overload }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:12px 16px;border-radius:15px;background:var(--ft-accent-soft);color:var(--ft-accent-strong);font-size:15px;font-weight:600;margin-bottom:16px">{{ ex.overloadText }}</div>
+              </sc-if>
+              <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:14px;color:var(--ft-muted);margin-bottom:16px">
+                <span>{{ ex.prevLine }}</span><span style="color:var(--ft-accent-strong);font-weight:600">{{ ex.targetLine }}</span>
+              </div>
+              <div style="{{ ex.headStyle }}">
+                <sc-for list="{{ ex.heads }}" as="h" hint-placeholder-count="3"><span>{{ h }}</span></sc-for>
+                <span></span>
+              </div>
+              <sc-for list="{{ ex.sets }}" as="st" hint-placeholder-count="3">
+                <div style="{{ st.rowStyle }}">
+                  <div style="height:clamp(56px,4vw,78px);border-radius:10px;background:var(--ft-input);box-shadow:inset 0 0 0 1px var(--ft-line);display:flex;align-items:center;justify-content:center;padding:0 6px;font-size:clamp(18px,1.25vw,24px);font-weight:700">{{ st.num }}</div>
+                  <sc-for list="{{ st.fields }}" as="f" hint-placeholder-count="2">
+                    <input type="number" inputmode="decimal" value="{{ f.value }}" step="{{ f.step }}" onChange="{{ f.onChange }}" aria-label="{{ f.label }}" style="width:100%;min-width:0;height:clamp(56px,4vw,78px);border:0;border-radius:10px;background:var(--ft-input);box-shadow:inset 0 0 0 1px var(--ft-line);color:var(--ft-text);font-family:inherit;font-size:clamp(18px,1.25vw,24px);font-weight:700;padding:0 clamp(10px,1.2vw,22px);font-variant-numeric:tabular-nums">
+                  </sc-for>
+                  <button onClick="{{ st.save }}" aria-label="save set" style="{{ st.saveStyle }}"><span style="{{ st.checkStyle }}"></span></button>
+                </div>
+              </sc-for>
+            </div>
+            </sc-if>
+          </section>
+        </sc-for>
+      </div>
+
+      <!-- RIGHT -->
+      <aside style="{{ asideStyle }}">
+        <section style="border-radius:20px;background:var(--ft-card);box-shadow:0 0 0 2px var(--ft-card-line);padding:clamp(20px,1.3vw,26px);display:flex;flex-direction:column;gap:24px">
+          <div style="font-size:clamp(24px,1.7vw,32px);font-weight:700">Today</div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,1.3vw,25px)">
+            <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="3">
+              <div style="border-radius:15px;background:var(--ft-tile);padding:clamp(14px,1vw,20px);min-height:clamp(96px,6.8vw,130px);display:flex;flex-direction:column;justify-content:space-between;gap:10px">
+                <span style="font-size:clamp(24px,1.7vw,32px);font-weight:700;font-variant-numeric:tabular-nums">{{ t.value }}</span>
+                <span style="font-size:clamp(15px,1.25vw,24px);font-weight:400">{{ t.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="font-size:clamp(15px,1.25vw,24px);font-weight:400;color:var(--ft-muted)">{{ dataNote }}</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ recent }}" as="r" hint-placeholder-count="3">
+              <a href="App.dc.html#history" style="display:flex;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:15px;background:var(--ft-tile);color:var(--ft-text);font-size:15px">
+                <span style="font-weight:600">{{ r.name }}</span><span style="color:var(--ft-muted);font-variant-numeric:tabular-nums">{{ r.date }}</span>
+              </a>
+            </sc-for>
+          </div>
+        </section>
+        <button onClick="{{ finishSession }}" style="{{ finishStyle }}">{{ finishLabel }}</button>
+      </aside>
+    </div>
+  </main>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:1080}}">
+class Component extends DCLogic {
+  state = { ready: false, isMobile: false, plan: 'B', expanded: null, log: {}, started: false, done: false, elapsed: 0 };
+  async componentDidMount() {
+    const base = new URL('.', location.href).href;
+    this.d = await import(base + 'data.js');
+    this.app = await import(base + 'app.js'); window.addEventListener('ft-locale', e => this.setState({ locale: e.detail })); window.addEventListener('ft-theme', e => this.setState({ theme: e.detail }));
+    this.app.bootTheme();
+    this.unwatch = this.app.watchMobile((m, bp) => this.setState({ isMobile: m, bp }));
+    this.setState({ ready: true, locale: this.app.getLocale(), units: this.app.getUnits(), expanded: this.currentItems()[0]?.exId || null });
+  }
+  componentWillUnmount() { this.unwatch && this.unwatch(); clearInterval(this.tick); }
+  dayIdx() { return this.d.dowOf(this.d.TODAY); }
+  currentItems() {
+    if (!this.d) return [];
+    const idx = this.dayIdx();
+    if (this.state.plan === 'A' && this.d.PLAN_A[idx]) return this.d.PLAN_A[idx].items;
+    return this.d.TEMPLATE[idx].items;
+  }
+  key(exId, i) { return exId + ':' + i; }
+  start = () => { if (this.state.started || this.state.done) return; this.setState({ started: true }); this.tick = setInterval(() => this.setState(s => ({ elapsed: s.elapsed + 1 })), 1000); };
+  finish = () => { clearInterval(this.tick); this.setState({ done: true, started: false }); };
+  setField(k, field, v) { this.setState(s => ({ log: { ...s.log, [k]: { ...(s.log[k] || {}), [field]: v } } })); }
+  saveSet(k) { this.start(); this.setState(s => { const cur = s.log[k] || {}; return { log: { ...s.log, [k]: { ...cur, done: !cur.done } } }; }); }
+  toggle(exId) { this.setState(s => ({ expanded: s.expanded === exId ? null : exId })); }
+  progression(item) {
+    const e = this.d.EX_BY_ID[item.exId];
+    const last = this.d.lastResultFor(item.exId);
+    if (e.type === 'strength') {
+      if (!last) return { target: Array.from({ length: item.sets }, () => item.high), overload: false };
+      const reps = last.sets.map(s => s.reps);
+      const allTop = reps.every(r => r >= item.high);
+      const target = reps.map(r => Math.min(item.high, r + 1));
+      while (target.length < item.sets) target.push(item.low);
+      return { target: target.slice(0, item.sets), overload: allTop, weight: last.sets[0]?.weight };
+    }
+    if (e.type === 'bodyweight' || e.type === 'duration') {
+      if (!last) return { target: Array.from({ length: item.sets }, () => item.high) };
+      const vals = last.sets.map(s => e.type === 'duration' ? s.sec : s.reps);
+      return { target: vals.map(v => Math.min(item.high, v + 1)).slice(0, item.sets) };
+    }
+    return { target: [] };
+  }
+  fmtTime(s) { const z = n => String(n).padStart(2, '0'); return `${z(Math.floor(s / 3600))}:${z(Math.floor(s / 60) % 60)}:${z(s % 60)}`; }
+  renderVals() {
+    if (!this.d) return { ready: false, standalone: !this.props.embedded };
+    const { d, app } = this; const t = app.makeT(this.state.locale); const units = this.state.units; const en = this.state.locale === 'en'; const m = this.state.isMobile; const stack = this.state.bp !== 'desktop';
+    const idx = this.dayIdx(); const dayDef = d.TEMPLATE[idx];
+    const planDef = this.state.plan === 'A' && d.PLAN_A[idx] ? d.PLAN_A[idx] : dayDef;
+    const items = this.currentItems(); const loc = this.state.locale;
+    const gName = g => app.groupLabel(d.GROUPS, g, loc);
+    const totalSets = items.reduce((a, it) => a + it.sets, 0);
+    const log = this.state.log;
+    const loggedCount = Object.keys(log).filter(k => log[k] && log[k].done).length;
+    const pct = totalSets ? Math.round(loggedCount / totalSets * 100) : 0;
+    const exercises = items.map(item => {
+      const e = d.EX_BY_ID[item.exId]; const prog = this.progression(item); const last = d.lastResultFor(item.exId);
+      const doneSets = Array.from({ length: item.sets }).map((_, i) => log[this.key(item.exId, i)]).filter(x => x && x.done);
+      const doneN = doneSets.length; const allDone = doneN === item.sets; const expanded = this.state.expanded === item.exId;
+      let heads, mkFields;
+      const mk = (k, cur, label, field, fallback, step) => ({ label, step: String(step), value: cur[field] != null ? cur[field] : (fallback != null ? String(fallback) : ''), onChange: ev => this.setField(k, field, ev.target.value) });
+      if (e.type === 'strength') { heads = ['Sets', units === 'imperial' ? 'lb' : 'kg', 'Reps']; mkFields = (k, cur, i) => [mk(k, cur, 'kg', 'w', item.weight, 2.5), mk(k, cur, 'reps', 'r', prog.target[i], 1)]; }
+      else if (e.type === 'bodyweight') { heads = ['Sets', 'Reps']; mkFields = (k, cur, i) => [mk(k, cur, 'reps', 'r', prog.target[i], 1)]; }
+      else if (e.type === 'duration') { heads = ['Sets', 'Sec']; mkFields = (k, cur, i) => [mk(k, cur, 'sec', 'sec', prog.target[i], 5)]; }
+      else { heads = ['Sets', 'Min', 'Km']; mkFields = (k, cur) => [mk(k, cur, 'min', 'min', 20, 1), mk(k, cur, 'km', 'dist', 3, 0.5)]; }
+      const cols = m ? `52px repeat(${heads.length - 1},minmax(0,1fr)) 56px` : `minmax(0,1fr) repeat(${heads.length - 1},minmax(0,1fr)) clamp(56px,5.5vw,106px)`;
+      const sets = Array.from({ length: item.sets }).map((_, i) => {
+        const k = this.key(item.exId, i); const cur = log[k] || {}; const done = !!cur.done;
+        return {
+          num: i + 1, fields: mkFields(k, cur, i), save: () => this.saveSet(k),
+          rowStyle: { display: 'grid', gridTemplateColumns: cols, gap: 'clamp(10px,2vw,40px)', alignItems: 'center', marginBottom: '12px' },
+          saveStyle: { height: 'clamp(56px,4vw,78px)', border: 0, borderRadius: '10px', cursor: 'pointer', display: 'grid', placeItems: 'center', background: done ? 'rgb(94,208,130)' : 'var(--ft-input)', boxShadow: done ? 'inset 0 0 0 1px rgb(80,190,115)' : 'inset 0 0 0 1px var(--ft-line)' },
+          checkStyle: { width: '43px', height: '43px', maxWidth: '70%', background: 'url(assets/check-icon.png) center/contain no-repeat', opacity: done ? 1 : .35, filter: done ? 'none' : 'var(--ft-icon-filter)' },
+        };
+      });
+      const rightText = allDone ? doneSets.map(s => s.r ?? s.sec ?? s.min ?? '').join('/') : (doneN > 0 || (expanded && this.state.started) ? (en ? 'In progress' : 'กำลังทำ') : '');
+      const lastTxt = last ? last.sets.map(s => s.reps != null ? s.reps : (s.sec != null ? s.sec + 's' : s.min + 'm')).join('/') + (last.sets[0]?.weight ? ' @ ' + app.fmtWeight(last.sets[0].weight, units) : '') : '—';
+      return {
+        name: en ? e.en : e.th, toggle: () => this.toggle(item.exId), expanded, done: allDone, notDone: !allDone,
+        statusStyle: { width: 'clamp(46px,2.9vw,55px)', height: 'clamp(46px,2.9vw,55px)', borderRadius: '20px', flex: 'none', display: 'grid', placeItems: 'center', background: allDone ? 'rgb(94,208,130)' : 'rgb(35,42,35)' },
+        targetSummary: e.type === 'cardio' ? `${item.sets} × ${en ? 'session' : 'รอบ'}` : `${item.sets} × ${item.low}-${item.high}${e.type === 'duration' ? 's' : ''}${e.unilateral ? ' (L/R)' : ''}`,
+        rightText, rightStyle: allDone ? '' : 'color:var(--ft-muted)',
+        overload: !!prog.overload, overloadText: prog.overload ? `${t('today.overload')} → ${app.fmtWeight((prog.weight || 0) + 2.5, units)}` : '',
+        prevLine: `${t('today.prev')}: ${lastTxt}`, targetLine: prog.target.length ? `${t('today.target')}: ${prog.target.join('/')}` : '',
+        heads, headStyle: { display: 'grid', gridTemplateColumns: cols, gap: 'clamp(10px,2vw,40px)', fontSize: 'clamp(16px,1.25vw,24px)', fontWeight: 400, marginBottom: '12px' },
+        sets,
+      };
+    });
+    const td = d.TODAY; const wk = app.isoWeek(td);
+    const recent = [...d.HISTORY].slice(-3).reverse().map(s => ({ name: en ? s.name.en : s.name.th, date: app.fmtShortDate(s.date, loc) }));
+    const startActive = this.state.started;
+    return {
+      standalone: !this.props.embedded, ready: this.state.ready,
+      mainStyle: { maxWidth: '1880px', margin: '0 auto', padding: m ? '20px 14px 100px' : 'clamp(20px,1.6vw,32px) clamp(20px,2.2vw,42px) 48px' },
+      gridStyle: { display: 'grid', gridTemplateColumns: stack ? '1fr' : 'minmax(0,1.2fr) minmax(0,1fr)', gap: 'clamp(24px,3vw,60px)', alignItems: 'start' },
+      asideStyle: { display: 'flex', flexDirection: 'column', gap: '32px', position: stack ? 'static' : 'sticky', top: '130px', display: stack && !m ? 'grid' : 'flex', gridTemplateColumns: '1.4fr 1fr' },
+      dateLine: en ? `${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][td.getDay()]} ${td.getDate()}th · Week ${wk}` : app.fmtLongDate(td, loc) + ' · สัปดาห์ที่ ' + wk,
+      dayName: en ? planDef.name.en : planDef.name.th,
+      groupTags: (planDef.groups || []).map(gName),
+      hasAlt: !!d.PLAN_A[idx], isA: this.state.plan === 'A', isB: this.state.plan === 'B',
+      pickA: () => this.setState({ plan: 'A', expanded: d.PLAN_A[idx].items[0]?.exId, log: {} }), pickB: () => this.setState({ plan: 'B', expanded: d.TEMPLATE[idx].items[0]?.exId, log: {} }),
+      startSession: this.start, startLabel: this.state.done ? (en ? 'Done' : 'เสร็จ') : (startActive ? (en ? 'Live' : 'กำลังฝึก') : 'Start'),
+      startStyle: { height: 'clamp(70px,4.7vw,90px)', border: 0, borderRadius: '20px', background: startActive ? 'var(--ft-accent-soft)' : 'var(--ft-accent)', color: startActive ? 'var(--ft-accent-strong)' : '#000', boxShadow: startActive ? 'inset 0 0 0 2px var(--ft-accent)' : 'none', fontFamily: 'inherit', fontSize: startActive || this.state.done ? 'clamp(30px,2.3vw,44px)' : 'clamp(44px,3.4vw,64px)', fontWeight: 800, cursor: 'pointer', lineHeight: 1 },
+      timer: this.fmtTime(this.state.elapsed),
+      loggedCount, ofSets: en ? `of ${totalSets} sets` : `จาก ${totalSets} เซ็ต`, loggedLbl: en ? 'Logged' : 'บันทึกแล้ว',
+      barStyle: { width: pct + '%', height: '100%', background: 'var(--ft-accent)', transition: 'width .3s', borderRadius: '8px' },
+      exercises,
+      tiles: [{ value: String(items.length), label: en ? 'Workouts' : 'ท่า' }, { value: String(totalSets), label: en ? 'Sets' : 'เซ็ต' }, { value: pct + '%', label: en ? 'Progress' : 'ความคืบหน้า' }],
+      dataNote: en ? 'Workout data from today and earlier' : 'ข้อมูลการฝึกวันนี้และก่อนหน้า', recent,
+      finishSession: this.finish, finishLabel: this.state.done ? (en ? '✓ Workout finished' : '✓ จบเวิร์คเอาท์แล้ว') : 'Finish Workout',
+      finishStyle: { minHeight: m ? '110px' : stack ? '100%' : 'clamp(200px,18vw,346px)', border: 0, borderRadius: '20px', background: this.state.done ? 'var(--ft-accent)' : 'var(--ft-card)', color: this.state.done ? '#000' : 'var(--ft-text)', boxShadow: '0 0 0 2px var(--ft-card-line)', fontFamily: 'inherit', fontSize: 'clamp(24px,1.7vw,32px)', fontWeight: 700, cursor: 'pointer' },
+    };
+  }
+}
+</script>
+</body>
+</html>

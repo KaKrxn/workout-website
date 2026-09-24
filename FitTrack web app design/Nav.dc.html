@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="ft-theme.css">
+</helmet>
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+<div>
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+  <header style="position:sticky;top:0;z-index:40;display:grid;grid-template-columns:minmax(max-content,1fr) minmax(0,700px) minmax(max-content,1fr);align-items:center;gap:24px;padding:18px clamp(20px,2.2vw,42px);border-bottom:1px solid var(--ft-rule);background:color-mix(in srgb, var(--ft-bg) 80%, transparent);backdrop-filter:blur(12px)">
+    <a href="App.dc.html#today" style="display:flex;align-items:center;gap:clamp(12px,1.2vw,22px);color:var(--ft-text);justify-self:start">
+      <span style="width:clamp(44px,3.4vw,65px);height:clamp(44px,3.4vw,65px);border-radius:15px;background:var(--ft-accent);flex:none"></span>
+      <span style="font-size:clamp(24px,1.9vw,36px);font-weight:700">FitTrack</span>
+    </a>
+
+    <nav ref="{{ navRef }}" aria-label="Main navigation" style="position:relative;isolation:isolate;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;height:88px;padding:0 12px;border-radius:28px;background:var(--ft-liquid);overflow:hidden">
+      <sc-for list="{{ mainNav }}" as="it" hint-placeholder-count="4">
+        <a class="ft-ltab" ref="{{ it.ref }}" href="{{ it.href }}" onClick="{{ it.onClick }}" aria-current="{{ it.cur }}" style="font-size:clamp(18px,2vw,30px)">{{ it.label }}</a>
+      </sc-for>
+      <span ref="{{ waveRef }}" aria-hidden="true" style="position:absolute;z-index:1;left:0;bottom:0;width:70px;height:18px;pointer-events:none;will-change:transform;opacity:0;transition:opacity .15s">
+        <svg ref="{{ shapeRef }}" viewBox="0 0 100 24" preserveAspectRatio="none" style="display:block;width:100%;height:100%;fill:var(--ft-accent);transform-origin:center bottom"><path d="M0 24 C18 24 23 0 50 0 C77 0 82 24 100 24 Z"></path></svg>
+      </span>
+    </nav>
+
+    <div style="display:flex;align-items:center;gap:12px;justify-self:end">
+      <div role="group" aria-label="language" style="position:relative;display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:50px;background:var(--ft-input);box-shadow:inset 0 0 0 1px var(--ft-line)"><span aria-hidden="true" style="{{ langIndStyle }}"><span ref="{{ langBlobRef }}" style="display:block;width:100%;height:100%;border-radius:50px;background:var(--ft-accent)"></span></span>
+        <button onClick="{{ setTh }}" style="{{ thStyle }}">TH</button>
+        <button onClick="{{ setEn }}" style="{{ enStyle }}">EN</button>
+      </div>
+      <button onClick="{{ toggleTheme }}" aria-label="toggle theme" style="display:flex;align-items:center;gap:10px;height:44px;padding:0 8px 0 14px;border:0;border-radius:50px;background:var(--ft-input);box-shadow:inset 0 0 0 1px var(--ft-line);color:var(--ft-text);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">
+        <span>{{ themeLabel }}</span>
+        <span style="position:relative;width:50px;height:28px;border-radius:50px;background:var(--ft-track);flex:none">
+          <span ref="{{ knobRef }}" style="position:absolute;top:3px;left:{{ knobLeft }};width:22px;height:22px;border-radius:50%;background:var(--ft-accent);box-shadow:0 2px 6px rgba(0,0,0,.28);transition:left .55s cubic-bezier(.34,1.56,.64,1)"><svg viewBox="0 0 24 24" fill="#0b1a10" style="{{ moonStyle }}"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg><svg viewBox="0 0 24 24" fill="none" stroke="#0b1a10" stroke-width="2.6" stroke-linecap="round" style="{{ sunStyle }}"><circle cx="12" cy="12" r="4.2" fill="#0b1a10" stroke="none"></circle><path d="M12 1.8v2.6M12 19.6v2.6M1.8 12h2.6M19.6 12h2.6M4.8 4.8l1.8 1.8M17.4 17.4l1.8 1.8M4.8 19.2l1.8-1.8M17.4 6.6l1.8-1.8"></path></svg></span>
+        </span>
+      </button>
+      <div style="position:relative">
+        <button class="ft-avatar" data-ft-avatar="1" aria-haspopup="menu" aria-expanded="{{ menuOpen }}" onClick="{{ toggleMenu }}" aria-label="account menu" style="width:clamp(48px,3.6vw,68px);height:clamp(48px,3.6vw,68px);border:0;border-radius:50%;cursor:pointer;padding:0;background:url(assets/user-icon.png) center/cover no-repeat"></button>
+        <div data-ft-menu="1" role="menu" aria-hidden="{{ menuHidden }}" style="{{ menuAbs }}">
+          <sc-for list="{{ moreNav }}" as="it" hint-placeholder-count="4"><a class="ft-mitem" role="menuitem" tabindex="{{ menuTab }}" href="{{ it.href }}" style="{{ it.menuStyle }}">{{ it.label }}</a></sc-for>
+          <div style="{{ menuRuleStyle }}"></div>
+          <a class="ft-mitem" role="menuitem" tabindex="{{ menuTab }}" href="Login.dc.html" style="{{ logoutStyle }}">{{ logoutLabel }}</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  </sc-if>
+
+  <sc-if value="{{ isTablet }}" hint-placeholder-val="{{ false }}">
+  <header style="position:sticky;top:0;z-index:40;display:flex;flex-direction:column;align-items:center;gap:14px;padding:16px 24px;border-bottom:1px solid var(--ft-rule);background:color-mix(in srgb, var(--ft-bg) 82%, transparent);backdrop-filter:blur(12px)">
+    <div style="display:flex;align-items:center;gap:12px;width:100%">
+      <a href="App.dc.html#today" style="display:flex;align-items:center;gap:14px;color:var(--ft-text);margin-right:auto">
+        <span style="width:48px;height:48px;border-radius:13px;background:var(--ft-accent);flex:none"></span>
+        <span style="font-size:28px;font-weight:700">FitTrack</span>
+      </a>
+      <div role="group" aria-label="language" style="position:relative;display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:50px;background:var(--ft-input);box-shadow:inset 0 0 0 1px var(--ft-line)"><span aria-hidden="true" style="{{ langIndStyle }}"><span ref="{{ langBlobRef }}" style="display:block;width:100%;height:100%;border-radius:50px;background:var(--ft-accent)"></span></span>
+        <button onClick="{{ setTh }}" style="{{ thStyle }}">TH</button>
+        <button onClick="{{ setEn }}" style="{{ enStyle }}">EN</button>
+      </div>
+      <button onClick="{{ toggleTheme }}" aria-label="toggle theme" style="display:flex;align-items:center;gap:10px;height:44px;padding:0 8px 0 14px;border:0;border-radius:50px;background:var(--ft-input);box-shadow:inset 0 0 0 1px var(--ft-line);color:var(--ft-text);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">
+        <span>{{ themeLabel }}</span>
+        <span style="position:relative;width:50px;height:28px;border-radius:50px;background:var(--ft-track);flex:none">
+          <span ref="{{ knobRef }}" style="position:absolute;top:3px;left:{{ knobLeft }};width:22px;height:22px;border-radius:50%;background:var(--ft-accent);box-shadow:0 2px 6px rgba(0,0,0,.28);transition:left .55s cubic-bezier(.34,1.56,.64,1)"><svg viewBox="0 0 24 24" fill="#0b1a10" style="{{ moonStyle }}"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg><svg viewBox="0 0 24 24" fill="none" stroke="#0b1a10" stroke-width="2.6" stroke-linecap="round" style="{{ sunStyle }}"><circle cx="12" cy="12" r="4.2" fill="#0b1a10" stroke="none"></circle><path d="M12 1.8v2.6M12 19.6v2.6M1.8 12h2.6M19.6 12h2.6M4.8 4.8l1.8 1.8M17.4 17.4l1.8 1.8M4.8 19.2l1.8-1.8M17.4 6.6l1.8-1.8"></path></svg></span>
+        </span>
+      </button>
+      <div style="position:relative">
+        <button class="ft-avatar" data-ft-avatar="1" aria-haspopup="menu" aria-expanded="{{ menuOpen }}" onClick="{{ toggleMenu }}" aria-label="account menu" style="width:48px;height:48px;border:0;border-radius:50%;cursor:pointer;padding:0;background:url(assets/user-icon.png) center/cover no-repeat"></button>
+        <div data-ft-menu="1" role="menu" aria-hidden="{{ menuHidden }}" style="{{ menuAbs }}">
+          <sc-for list="{{ moreNav }}" as="it" hint-placeholder-count="4"><a class="ft-mitem" role="menuitem" tabindex="{{ menuTab }}" href="{{ it.href }}" style="{{ it.menuStyle }}">{{ it.label }}</a></sc-for>
+          <div style="{{ menuRuleStyle }}"></div>
+          <a class="ft-mitem" role="menuitem" tabindex="{{ menuTab }}" href="Login.dc.html" style="{{ logoutStyle }}">{{ logoutLabel }}</a>
+        </div>
+      </div>
+    </div>
+    <nav ref="{{ navRef }}" aria-label="Main navigation" style="position:relative;isolation:isolate;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;max-width:700px;height:76px;padding:0 10px;border-radius:26px;background:var(--ft-liquid);overflow:hidden">
+      <sc-for list="{{ mainNav }}" as="it" hint-placeholder-count="4">
+        <a class="ft-ltab" ref="{{ it.ref }}" href="{{ it.href }}" onClick="{{ it.onClick }}" aria-current="{{ it.cur }}" style="font-size:22px">{{ it.label }}</a>
+      </sc-for>
+      <span ref="{{ waveRef }}" aria-hidden="true" style="position:absolute;z-index:1;left:0;bottom:0;width:70px;height:17px;pointer-events:none;will-change:transform;opacity:0;transition:opacity .15s">
+        <svg ref="{{ shapeRef }}" viewBox="0 0 100 24" preserveAspectRatio="none" style="display:block;width:100%;height:100%;fill:var(--ft-accent);transform-origin:center bottom"><path d="M0 24 C18 24 23 0 50 0 C77 0 82 24 100 24 Z"></path></svg>
+      </span>
+    </nav>
+  </header>
+  </sc-if>
+
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+  <div>
+    <header style="position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--ft-rule);background:color-mix(in srgb, var(--ft-bg) 85%, transparent);backdrop-filter:blur(12px)">
+      <a href="App.dc.html#today" style="display:flex;align-items:center;gap:10px;color:var(--ft-text);margin-right:auto">
+        <span style="width:40px;height:40px;border-radius:11px;background:var(--ft-accent)"></span>
+        <span style="font-size:22px;font-weight:700">FitTrack</span>
+      </a>
+      <button onClick="{{ toggleLang }}" style="height:38px;padding:0 12px;border:0;border-radius:50px;background:var(--ft-input);box-shadow:inset 0 0 0 1px var(--ft-line);color:var(--ft-text);font-family:inherit;font-weight:700;cursor:pointer">{{ langLabel }}</button>
+      <button onClick="{{ toggleTheme }}" aria-label="toggle theme" style="position:relative;width:50px;height:28px;border:0;border-radius:50px;background:var(--ft-track);cursor:pointer;padding:0">
+        <span ref="{{ knobRef }}" style="position:absolute;top:3px;left:{{ knobLeft }};width:22px;height:22px;border-radius:50%;background:var(--ft-accent);box-shadow:0 2px 6px rgba(0,0,0,.28);transition:left .55s cubic-bezier(.34,1.56,.64,1)"><svg viewBox="0 0 24 24" fill="#0b1a10" style="{{ moonStyle }}"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg><svg viewBox="0 0 24 24" fill="none" stroke="#0b1a10" stroke-width="2.6" stroke-linecap="round" style="{{ sunStyle }}"><circle cx="12" cy="12" r="4.2" fill="#0b1a10" stroke="none"></circle><path d="M12 1.8v2.6M12 19.6v2.6M1.8 12h2.6M19.6 12h2.6M4.8 4.8l1.8 1.8M17.4 17.4l1.8 1.8M4.8 19.2l1.8-1.8M17.4 6.6l1.8-1.8"></path></svg></span>
+      </button>
+      <button class="ft-avatar" data-ft-avatar="1" aria-haspopup="menu" aria-expanded="{{ menuOpen }}" onClick="{{ toggleMenu }}" aria-label="account menu" style="width:44px;height:44px;border:0;border-radius:50%;cursor:pointer;padding:0;background:url(assets/user-icon.png) center/cover no-repeat"></button>
+    </header>
+    <div data-ft-menu="1" role="menu" aria-hidden="{{ menuHidden }}" style="{{ menuFixed }}">
+        <sc-for list="{{ moreNav }}" as="it" hint-placeholder-count="4"><a class="ft-mitem" role="menuitem" tabindex="{{ menuTab }}" href="{{ it.href }}" style="{{ it.menuStyle }}">{{ it.label }}</a></sc-for>
+        <div style="{{ menuRuleStyle }}"></div>
+        <a class="ft-mitem" role="menuitem" tabindex="{{ menuTab }}" href="Login.dc.html" style="{{ logoutStyle }}">{{ logoutLabel }}</a>
+        </div>
+    <nav ref="{{ navRef }}" aria-label="Main navigation" style="position:fixed;left:10px;right:10px;bottom:10px;z-index:50;isolation:isolate;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));height:68px;padding:0 4px;border-radius:22px;background:var(--ft-liquid);box-shadow:0 8px 24px rgba(0,0,0,.35);overflow:hidden">
+      <sc-for list="{{ mainNav }}" as="it" hint-placeholder-count="4">
+        <a class="ft-ltab" ref="{{ it.ref }}" href="{{ it.href }}" onClick="{{ it.onClick }}" aria-current="{{ it.cur }}" style="font-size:15px;padding:0 2px 4px">{{ it.label }}</a>
+      </sc-for>
+      <span ref="{{ waveRef }}" aria-hidden="true" style="position:absolute;z-index:1;left:0;bottom:0;width:52px;height:13px;pointer-events:none;will-change:transform;opacity:0;transition:opacity .15s">
+        <svg ref="{{ shapeRef }}" viewBox="0 0 100 24" preserveAspectRatio="none" style="display:block;width:100%;height:100%;fill:var(--ft-accent);transform-origin:center bottom"><path d="M0 24 C18 24 23 0 50 0 C77 0 82 24 100 24 Z"></path></svg>
+      </span>
+    </nav>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:130},&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;today&quot;,&quot;options&quot;:[&quot;today&quot;,&quot;schedule&quot;,&quot;analytics&quot;,&quot;body&quot;,&quot;history&quot;,&quot;library&quot;,&quot;settings&quot;,&quot;admin&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;showAdmin&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;spa&quot;:{&quot;editor&quot;:null,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { ready: false, bp: 'desktop', menuOpen: false, locale: 'th', theme: 'dark' };
+  // liquid wave (guide §4, §6, §8) — DOM-driven so React never re-renders per frame
+  DURATION = 460;
+  tabEls = [];
+  currentX = 0;
+  frameId = null;
+  placed = false;
+  entryDone = false;
+  reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  async componentDidMount() {
+    this.app = await import(new URL('app.js', location.href).href); window.addEventListener('ft-locale', e => this.setState({ locale: e.detail })); window.addEventListener('ft-theme', e => this.setState({ theme: e.detail }));
+    this.app.bootTheme();
+    this.unwatch = this.app.watchBP(bp => this.setState({ bp, menuOpen: false }));
+    this.onReduced = () => this.moveWave(this.activeIdx(), false);
+    this.reduced.addEventListener('change', this.onReduced);
+    this.onDocDown = e => { if (!this.state.menuOpen) return; const p = e.composedPath ? e.composedPath() : []; if (p.some(x => x && x.dataset && (x.dataset.ftMenu || x.dataset.ftAvatar))) return; this.setState({ menuOpen: false }); };
+    this.onKey = e => { if (e.key === 'Escape' && this.state.menuOpen) this.setState({ menuOpen: false }); };
+    document.addEventListener('pointerdown', this.onDocDown, true);
+    document.addEventListener('keydown', this.onKey);
+    this.setState({ ready: true, locale: this.app.getLocale(), theme: this.app.getTheme() });
+  }
+  componentWillUnmount() {
+    this.unwatch && this.unwatch();
+    if (this.frameId !== null) cancelAnimationFrame(this.frameId);
+    this.ro && this.ro.disconnect();
+    this.reduced.removeEventListener('change', this.onReduced);
+    document.removeEventListener('pointerdown', this.onDocDown, true);
+    document.removeEventListener('keydown', this.onKey);
+  }
+
+  activeIdx() { if (!this.app) return -1; return this.app.MAIN_NAV.findIndex(n => n.id === (this.props.active || 'today')); }
+
+  // refs — one nav is mounted at a time (desktop / tablet / mobile)
+  navRef = el => {
+    if (this.ro) { this.ro.disconnect(); this.ro = null; }
+    this.navEl = el; this.placed = false;
+    if (!el) return;
+    this.ro = new ResizeObserver(() => { if (this.placed) this.moveWave(this.activeIdx(), false); });
+    this.ro.observe(el);
+    requestAnimationFrame(() => this.place());
+  };
+  waveRef = el => { this.waveEl = el; };
+  shapeRef = el => { this.shapeEl = el; };
+
+  targetX(i) {
+    const tab = this.tabEls[i];
+    if (!tab || !this.waveEl) return 0;
+    return tab.offsetLeft + tab.offsetWidth / 2 - this.waveEl.offsetWidth / 2;
+  }
+  draw(x, stretch = 1, height = 1) {
+    this.currentX = x;
+    if (this.waveEl) this.waveEl.style.transform = `translateX(${x}px)`;
+    if (this.shapeEl) this.shapeEl.style.transform = `scale(${stretch}, ${height})`;
+  }
+  moveWave(index, animate = true) {
+    if (this.frameId !== null) cancelAnimationFrame(this.frameId);
+    this.frameId = null;
+    if (index < 0 || !this.waveEl) return;
+    const destination = this.targetX(index);
+    if (!animate || this.reduced.matches) { this.draw(destination); return; }
+    const origin = this.currentX;
+    const distance = destination - origin;
+    const amplitude = Math.min(Math.abs(distance) / 260, 0.65);
+    const startedAt = performance.now();
+    const tick = now => {
+      const t = Math.min((now - startedAt) / this.DURATION, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const bulge = Math.sin(Math.PI * t);
+      this.draw(origin + distance * eased, 1 + amplitude * bulge, 1 - 0.2 * bulge);
+      if (t < 1) this.frameId = requestAnimationFrame(tick);
+      else { this.draw(destination); this.frameId = null; }
+    };
+    this.frameId = requestAnimationFrame(tick);
+  }
+
+  // first placement: wait for fonts, then either slide in from the tab we left (cross-page) or snap
+  async place() {
+    if (!this.navEl || !this.waveEl) return;
+    try { await Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 400))]); } catch (e) {}
+    if (!this.navEl) return;
+    const idx = this.activeIdx();
+    if (idx < 0) { this.waveEl.style.opacity = '0'; this.placed = true; return; }
+    let from = null;
+    if (!this.entryDone) {
+      this.entryDone = true;
+      const raw = sessionStorage.getItem('ft_nav_from');
+      sessionStorage.removeItem('ft_nav_from');
+      if (raw !== null) from = Number(raw);
+    }
+    this.waveEl.style.opacity = '1';
+    if (from !== null && from >= 0 && from < 4 && from !== idx && !this.reduced.matches) {
+      this.draw(this.targetX(from));
+      this.moveWave(idx, true);
+    } else {
+      this.draw(this.targetX(idx));
+    }
+    this.placed = true;
+  }
+
+  // SPA mode: App passes a new `active` — slide the wave without a reload
+  componentDidUpdate(prev) {
+    if (prev.active === this.props.active) return;
+    if (this.state.menuOpen) this.setState({ menuOpen: false });
+    const idx = this.activeIdx();
+    if (!this.waveEl) return;
+    if (idx < 0) { this.waveEl.style.opacity = '0'; return; }
+    if (this.waveEl.style.opacity === '0') { this.waveEl.style.opacity = '1'; this.draw(this.targetX(idx)); }
+    else this.moveWave(idx, true);
+  }
+
+  onTab(i) {
+    if (this.props.spa) return;
+    const cur = this.activeIdx();
+    if (i === cur) return;
+    if (cur >= 0) sessionStorage.setItem('ft_nav_from', String(cur));
+    this.moveWave(i, true); // immediate feedback; navigation is not delayed (guide §8)
+  }
+
+
+
+  knobRef = el => { this.knobEl = el; };
+  langBlobRef = el => { this.langBlob = el; };
+  pulseEl(el, sx) {
+    if (!el || !el.animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    el.animate([{ transform: 'scale(1,1)' }, { transform: 'scale(' + sx + ',' + (2 - sx * 0.75) + ')', offset: .45 }, { transform: 'scale(1,1)' }], { duration: 520, easing: 'cubic-bezier(.3,.7,.3,1)' });
+  }
+  toggleStyles(en, dark) {
+    const spring = 'cubic-bezier(.34,1.56,.64,1)';
+    const ic = on => ({ position: 'absolute', inset: 0, margin: 'auto', width: '14px', height: '14px', opacity: on ? 1 : 0, transform: on ? 'rotate(0deg) scale(1)' : 'rotate(-120deg) scale(.3)', transition: 'opacity .25s, transform .55s ' + spring });
+    return {
+      langIndStyle: { position: 'absolute', top: '4px', bottom: '4px', left: '4px', width: 'calc(50% - 4px)', transform: en ? 'translateX(100%)' : 'translateX(0)', transition: 'transform .55s ' + spring, pointerEvents: 'none', zIndex: 0 },
+      moonStyle: ic(dark), sunStyle: ic(!dark), knobRef: this.knobRef, langBlobRef: this.langBlobRef,
+    };
+  }
+  toggleTheme = (e) => { const t = this.state.theme === 'dark' ? 'light' : 'dark'; this.pulseEl(this.knobEl, 1.5); this.setState({ theme: t }); this.app.switchTheme(t, e && e.currentTarget); };
+  setLang(l) { if (l === this.state.locale) return; this.pulseEl(this.langBlob, 1.4); this.setState({ locale: l }); this.app.switchLocale(l); }
+  pill(active) { return { position: 'relative', zIndex: 1, height: '36px', minWidth: '46px', padding: '0 12px', border: 0, borderRadius: '50px', background: 'transparent', color: active ? 'var(--ft-on-accent)' : 'var(--ft-muted)', fontFamily: 'inherit', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'color .3s' }; }
+  menuStyles(open, count) {
+    const rm = this.reduced.matches; const ease = 'cubic-bezier(.2,.9,.25,1.15)';
+    const box = extra => Object.assign({ width: '230px', padding: '8px', borderRadius: '20px', background: 'var(--ft-card)', boxShadow: '0 0 0 2px var(--ft-card-line), var(--shadow-md)', display: 'flex', flexDirection: 'column', zIndex: 60, transformOrigin: 'calc(100% - 28px) -10px',
+      opacity: open ? 1 : 0, transform: open ? 'translateY(0) scale(1)' : 'translateY(-10px) scale(.86)', filter: open ? 'blur(0)' : 'blur(3px)', visibility: open ? 'visible' : 'hidden', pointerEvents: open ? 'auto' : 'none',
+      transition: rm ? 'none' : (open ? 'opacity .22s ease, transform .42s ' + ease + ', filter .25s ease, visibility 0s' : 'opacity .16s ease, transform .2s ease-in, filter .16s ease, visibility 0s linear .2s') }, extra);
+    const item = (i, extra) => Object.assign({ padding: '11px 14px', borderRadius: '12px', fontWeight: 600, fontSize: '15px', display: 'block',
+      opacity: open ? 1 : 0, transform: open ? 'translateX(0)' : 'translateX(10px)',
+      transition: rm ? 'none' : (open ? 'opacity .28s ease ' + (70 + i * 45) + 'ms, transform .38s ' + ease + ' ' + (70 + i * 45) + 'ms, background .15s, color .15s' : 'opacity .1s, transform .1s, background .15s') }, extra);
+    return {
+      menuAbs: box({ position: 'absolute', right: 0, top: 'calc(100% + 10px)' }),
+      menuFixed: box({ position: 'fixed', right: '12px', top: '70px', width: '220px' }),
+      item, menuHidden: open ? 'false' : 'true', menuTab: open ? '0' : '-1',
+      menuRuleStyle: { height: '1px', background: 'var(--ft-line)', margin: '6px 4px', transformOrigin: 'left', transform: open ? 'scaleX(1)' : 'scaleX(0)', transition: rm ? 'none' : (open ? 'transform .4s ease ' + (70 + count * 45) + 'ms' : 'transform .1s') },
+      logoutStyle: item(count + 1, { color: 'var(--ft-text)' }),
+    };
+  }
+
+  renderVals() {
+    const app = this.app; if (!app) return { ready: false };
+    const en = this.state.locale === 'en'; const dark = this.state.theme === 'dark';
+    const active = this.props.active || 'today';
+    const labels = { today: 'Today', schedule: 'Schedule', analytics: 'Stats', body: 'Body' };
+    const mainNav = app.MAIN_NAV.map((n, i) => ({
+      href: n.href, label: labels[n.id], cur: n.id === active ? 'page' : null,
+      ref: el => { this.tabEls[i] = el; },
+      onClick: () => this.onTab(i),
+    }));
+    const showAdmin = this.props.showAdmin !== false;
+    const t = app.makeT(this.state.locale);
+    const moreItems = app.MORE_NAV.filter(n => showAdmin || n.id !== 'admin');
+    const ms = this.menuStyles(this.state.menuOpen, moreItems.length);
+    const moreNav = moreItems.map((n, i) => ({ href: n.href, label: t('nav.' + n.id), menuStyle: ms.item(i, { color: n.id === active ? 'var(--ft-accent-strong)' : 'var(--ft-text)', background: n.id === active ? 'var(--ft-accent-soft)' : 'transparent' }) }));
+    const bp = this.state.bp;
+    return { ...this.toggleStyles(en, dark), menuAbs: ms.menuAbs, menuFixed: ms.menuFixed, menuHidden: ms.menuHidden, menuTab: ms.menuTab, menuRuleStyle: ms.menuRuleStyle, logoutStyle: ms.logoutStyle,
+      ready: this.state.ready, isMobile: bp === 'mobile', isTablet: bp === 'tablet', isDesktop: bp === 'desktop',
+      mainNav, moreNav, navRef: this.navRef, waveRef: this.waveRef, shapeRef: this.shapeRef,
+      menuOpen: this.state.menuOpen, toggleMenu: () => this.setState({ menuOpen: !this.state.menuOpen }),
+      thStyle: this.pill(!en), enStyle: this.pill(en), setTh: () => this.setLang('th'), setEn: () => this.setLang('en'),
+      toggleLang: (e) => { const b = e.currentTarget; if (b.animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) b.animate([{ transform: 'perspective(200px) rotateX(0deg)' }, { transform: 'perspective(200px) rotateX(90deg)', offset: .5 }, { transform: 'perspective(200px) rotateX(0deg)' }], { duration: 380, easing: 'ease-in-out' }); setTimeout(() => this.setLang(en ? 'th' : 'en'), 190); }, langLabel: en ? 'TH' : 'EN',
+      toggleTheme: this.toggleTheme, themeLabel: dark ? (en ? 'Dark' : 'มืด') : (en ? 'Light' : 'สว่าง'), knobLeft: dark ? '25px' : '3px',
+      logoutLabel: t('nav.logout'),
+    };
+  }
+}
+</script>
+</body>
+</html>

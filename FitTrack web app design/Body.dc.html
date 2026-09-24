@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-6d50803f-0be1-4926-88ed-8707846947c5/styles.css">
+<link rel="stylesheet" href="ft-theme.css">
+</helmet>
+<div style="min-height:100vh">
+  <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}"><dc-import name="Nav" active="body" hint-size="100%,110px"></dc-import></sc-if>
+  <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+  <main style="{{ mainStyle }}">
+    <header style="margin-bottom:16px">
+      <h1 style="font-size:32px;margin:0 0 6px">Body</h1>
+      <p class="text-muted" style="margin:0;font-size:14px">{{ note }}</p>
+    </header>
+
+    <!-- tiles -->
+    <div style="display:grid;grid-template-columns:{{ tileCols }};gap:2px;background:var(--color-divider);border:2px solid var(--color-divider);margin-bottom:24px">
+      <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="4">
+        <div style="background:var(--color-surface);padding:16px">
+          <div class="text-muted" style="font-size:12px;margin-bottom:8px">{{ t.label }}</div>
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1;font-variant-numeric:tabular-nums">{{ t.value }}</div>
+          <div style="font-size:11px;margin-top:6px;{{ t.deltaStyle }}">{{ t.delta }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:grid;grid-template-columns:{{ twoCol }};gap:16px;margin-bottom:24px">
+      <!-- log form -->
+      <section class="card elev-sm">
+        <div class="card-kicker">{{ logKicker }}</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:17px;margin-bottom:6px">{{ logTitle }}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="field"><label>{{ lblShoulder }} ({{ unitCm }})</label><input class="input" type="number" step="0.5" value="{{ fShoulder }}" onChange="{{ setShoulder }}" style="min-height:44px;font-variant-numeric:tabular-nums"></div>
+          <div class="field"><label>{{ lblWaist }} ({{ unitCm }})</label><input class="input" type="number" step="0.5" value="{{ fWaist }}" onChange="{{ setWaist }}" style="min-height:44px;font-variant-numeric:tabular-nums"></div>
+          <div class="field"><label>{{ lblWeight }} ({{ unitKg }})</label><input class="input" type="number" step="0.1" value="{{ fWeight }}" onChange="{{ setWeight }}" style="min-height:44px;font-variant-numeric:tabular-nums"></div>
+          <div class="field"><label>{{ lblBf }} (%)</label><input class="input" type="number" step="0.1" value="{{ fBf }}" onChange="{{ setBf }}" style="min-height:44px;font-variant-numeric:tabular-nums"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:10px">
+          <div style="flex:1">
+            <div class="text-muted" style="font-size:11px">{{ liveLabel }}</div>
+            <div style="font-family:var(--font-heading);font-weight:800;font-size:22px;color:var(--color-accent);font-variant-numeric:tabular-nums">{{ liveVtaper }}</div>
+          </div>
+          <button class="btn btn-primary" onClick="{{ save }}" style="justify-content:center;min-height:44px">{{ saveLabel }}</button>
+        </div>
+        <sc-if value="{{ justSaved }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:var(--color-accent-700);margin-top:6px">{{ savedMsg }}</div></sc-if>
+      </section>
+
+      <!-- vtaper chart -->
+      <section class="card elev-sm">
+        <div class="card-kicker">{{ chartKicker }}</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:17px;margin-bottom:6px">{{ chartTitle }}</div>
+        <div style="margin-top:8px">{{ chartSvg }}</div>
+        <div class="text-muted" style="font-size:11px;margin-top:8px">{{ chartNote }}</div>
+      </section>
+    </div>
+
+    <!-- history table -->
+    <section class="card elev-sm">
+      <div class="card-kicker">{{ tableKicker }}</div>
+      <div style="overflow-x:auto">
+        <table class="table">
+          <thead><tr><th>Date</th><th>Shoulder</th><th>Waist</th><th>V-Taper</th><th>Weight</th><th>BF%</th></tr></thead>
+          <tbody>
+            <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+              <tr><td>{{ r.date }}</td><td style="font-variant-numeric:tabular-nums">{{ r.shoulder }}</td><td style="font-variant-numeric:tabular-nums">{{ r.waist }}</td><td style="font-variant-numeric:tabular-nums;color:var(--color-accent);font-weight:600">{{ r.vtaper }}</td><td style="font-variant-numeric:tabular-nums">{{ r.weight }}</td><td style="font-variant-numeric:tabular-nums">{{ r.bf }}</td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:1000}}">
+class Component extends DCLogic {
+  state = { ready: false, isMobile: false, metrics: null, form: null, justSaved: false };
+  async componentDidMount() {
+    const base = new URL('.', location.href).href;
+    this.d = await import(base + 'data.js');
+    this.app = await import(base + 'app.js'); window.addEventListener('ft-locale', e => this.setState({ locale: e.detail })); window.addEventListener('ft-theme', e => this.setState({ theme: e.detail }));
+    this.app.bootTheme();
+    this.unwatch = this.app.watchMobile(m => this.setState({ isMobile: m }));
+    const last = this.d.BODY_METRICS[this.d.BODY_METRICS.length - 1];
+    this.setState({ ready: true, locale: this.app.getLocale(), metrics: [...this.d.BODY_METRICS], form: { shoulder: last.shoulder, waist: last.waist, weight: last.weight, bf: last.bf } });
+  }
+  componentWillUnmount() { this.unwatch && this.unwatch(); }
+  setF(k, v) { this.setState({ form: { ...this.state.form, [k]: v }, justSaved: false }); }
+  save = () => {
+    const f = this.state.form; const vt = +(f.shoulder / f.waist).toFixed(3);
+    const z = n => String(n).padStart(2, '0'); const dt = this.d.TODAY;
+    const entry = { date: `${dt.getFullYear()}-${z(dt.getMonth() + 1)}-${z(dt.getDate())}`, shoulder: +f.shoulder, waist: +f.waist, weight: +f.weight, bf: +f.bf, vtaper: vt };
+    this.setState({ metrics: [...this.state.metrics, entry], justSaved: true });
+  };
+  lineChart(vals, labels) {
+    const W = 320, H = 160, pad = 26; const min = Math.min(...vals), max = Math.max(...vals), rng = max - min || 1;
+    const xy = (v, i) => [pad + i / (vals.length - 1) * (W - pad * 2), H - pad - (v - min) / rng * (H - pad * 2)];
+    const pts = vals.map((v, i) => xy(v, i)); const dd = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+    const area = dd + ` L ${pts[pts.length - 1][0].toFixed(1)} ${H - pad} L ${pad} ${H - pad} Z`;
+    const dots = pts.map((p, i) => React.createElement('circle', { key: i, cx: p[0], cy: p[1], r: 2.5, fill: 'var(--color-accent)' }));
+    const labs = labels.map((l, i) => i % 2 === 0 ? React.createElement('text', { key: 'l' + i, x: xy(vals[i], i)[0], y: H - 8, fontSize: 8, fill: 'var(--color-neutral-600)', textAnchor: 'middle' }, l) : null);
+    return React.createElement('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', height: 'auto', style: { display: 'block' } }, [React.createElement('path', { key: 'a', d: area, fill: 'var(--color-accent-100)' }), React.createElement('line', { key: 'ax', x1: pad, x2: W - pad, y1: H - pad, y2: H - pad, stroke: 'var(--color-divider)' }), React.createElement('path', { key: 'p', d: dd, fill: 'none', stroke: 'var(--color-accent)', strokeWidth: 2 }), ...dots, ...labs]);
+  }
+  renderVals() {
+    if (!this.d || !this.state.metrics) return { ready: false, standalone: !this.props.embedded };
+    const { d, app } = this; const t = app.makeT(this.state.locale); const en = this.state.locale === 'en'; const m = this.state.isMobile;
+    const M = this.state.metrics; const cur = M[M.length - 1]; const first = M[0]; const f = this.state.form;
+    const liveVt = f.waist ? (f.shoulder / f.waist).toFixed(3) : '—';
+    const tiles = [
+      { label: t('body.vtaper'), value: cur.vtaper.toFixed(3), delta: '+' + (cur.vtaper - first.vtaper).toFixed(3), deltaStyle: 'color:var(--color-accent-700);font-weight:600' },
+      { label: t('body.shoulder'), value: cur.shoulder + ' cm', delta: '+' + (cur.shoulder - first.shoulder).toFixed(1), deltaStyle: 'color:var(--color-accent-700);font-weight:600' },
+      { label: t('body.waist'), value: cur.waist + ' cm', delta: (cur.waist - first.waist).toFixed(1), deltaStyle: 'color:var(--color-accent-700);font-weight:600' },
+      { label: t('body.bf'), value: cur.bf.toFixed(1) + '%', delta: (cur.bf - first.bf).toFixed(1) + ' pts', deltaStyle: 'color:var(--color-accent-700);font-weight:600' },
+    ];
+    const rows = [...M].reverse().map(x => ({ date: app.fmtShortDate(x.date, this.state.locale), shoulder: x.shoulder, waist: x.waist, vtaper: x.vtaper.toFixed(3), weight: x.weight, bf: x.bf.toFixed(1) }));
+    return {
+      standalone: !this.props.embedded, ready: this.state.ready, isMobile: m,
+      mainStyle: { maxWidth: '1000px', margin: '0 auto', padding: m ? '20px 16px 96px' : '32px 24px 48px' },
+      note: t('body.note'), tileCols: 'repeat(auto-fit,minmax(min(100%,160px),1fr))', tiles, twoCol: 'repeat(auto-fit,minmax(min(100%,400px),1fr))',
+      logKicker: en ? 'LOG' : 'บันทึก', logTitle: t('body.log'),
+      lblShoulder: t('body.shoulder'), lblWaist: t('body.waist'), lblWeight: t('body.weight'), lblBf: t('body.bf'), unitCm: 'cm', unitKg: 'kg',
+      fShoulder: String(f.shoulder), fWaist: String(f.waist), fWeight: String(f.weight), fBf: String(f.bf),
+      setShoulder: e => this.setF('shoulder', +e.target.value), setWaist: e => this.setF('waist', +e.target.value), setWeight: e => this.setF('weight', +e.target.value), setBf: e => this.setF('bf', +e.target.value),
+      liveLabel: en ? 'V-Taper (live)' : 'V-Taper (ทันที)', liveVtaper: liveVt, save: this.save, saveLabel: t('cta.save'),
+      justSaved: this.state.justSaved, savedMsg: en ? 'Saved. Ratio and chart updated.' : 'บันทึกแล้ว อัปเดตค่าและกราฟให้แล้ว',
+      chartKicker: en ? 'TREND' : 'แนวโน้ม', chartTitle: t('body.vtaper'), chartSvg: this.lineChart(M.map(x => x.vtaper), M.map((_, i) => 'W' + (i + 1))),
+      chartNote: en ? 'Shoulder ÷ waist. Rising means a wider V-taper.' : 'รอบไหล่ ÷ รอบเอว · ค่าสูงขึ้น = ทรง V ชัดขึ้น',
+      tableKicker: en ? 'MEASUREMENTS' : 'ประวัติการวัด', rows,
+    };
+  }
+}
+</script>
+</body>
+</html>

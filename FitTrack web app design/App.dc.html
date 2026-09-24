@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-6d50803f-0be1-4926-88ed-8707846947c5/styles.css">
+<link rel="stylesheet" href="ft-theme.css">
+</helmet>
+<div style="min-height:100vh">
+  <dc-import name="Nav" active="{{ route }}" spa="{{ true }}" hint-size="100%,110px"></dc-import>
+
+  <sc-if value="{{ v.today }}" hint-placeholder-val="{{ true }}"><div style="{{ s.today }}"><dc-import name="Today" embedded="{{ true }}" hint-size="100%,900px"></dc-import></div></sc-if>
+  <sc-if value="{{ v.schedule }}" hint-placeholder-val="{{ false }}"><div style="{{ s.schedule }}"><dc-import name="Schedule" embedded="{{ true }}" hint-size="100%,900px"></dc-import></div></sc-if>
+  <sc-if value="{{ v.analytics }}" hint-placeholder-val="{{ false }}"><div style="{{ s.analytics }}"><dc-import name="Analytics" embedded="{{ true }}" hint-size="100%,900px"></dc-import></div></sc-if>
+  <sc-if value="{{ v.body }}" hint-placeholder-val="{{ false }}"><div style="{{ s.body }}"><dc-import name="Body" embedded="{{ true }}" hint-size="100%,900px"></dc-import></div></sc-if>
+  <sc-if value="{{ v.history }}" hint-placeholder-val="{{ false }}"><div style="{{ s.history }}"><dc-import name="History" embedded="{{ true }}" hint-size="100%,900px"></dc-import></div></sc-if>
+  <sc-if value="{{ v.library }}" hint-placeholder-val="{{ false }}"><div style="{{ s.library }}"><dc-import name="Library" embedded="{{ true }}" hint-size="100%,900px"></dc-import></div></sc-if>
+  <sc-if value="{{ v.settings }}" hint-placeholder-val="{{ false }}"><div style="{{ s.settings }}"><dc-import name="Settings" embedded="{{ true }}" hint-size="100%,700px"></dc-import></div></sc-if>
+  <sc-if value="{{ v.admin }}" hint-placeholder-val="{{ false }}"><div style="{{ s.admin }}"><dc-import name="Admin" embedded="{{ true }}" hint-size="100%,900px"></dc-import></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  ROUTES = ['today', 'schedule', 'analytics', 'body', 'history', 'library', 'settings', 'admin'];
+  FILES = { 'Today.dc.html': 'today', 'Schedule.dc.html': 'schedule', 'Analytics.dc.html': 'analytics', 'Body.dc.html': 'body', 'History.dc.html': 'history', 'Library.dc.html': 'library', 'Settings.dc.html': 'settings', 'Admin.dc.html': 'admin' };
+  parseHash(h) { const r = (h || '').replace(/^#/, ''); return this.ROUTES.includes(r) ? r : 'today'; }
+  state = (() => { const r = this.parseHash(location.hash); return { route: r, visited: { [r]: true } }; })();
+
+  componentDidMount() {
+    this.onHash = () => this.go(this.parseHash(location.hash));
+    window.addEventListener('hashchange', this.onHash);
+    // keep every in-app link inside the SPA (no document reload)
+    this.onClick = e => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = e.composedPath().find(n => n && n.tagName === 'A' && n.getAttribute && n.getAttribute('href'));
+      if (!a || a.target === '_blank') return;
+      const href = a.getAttribute('href');
+      const [file, hash] = href.split('#');
+      const name = (file || '').split('/').pop();
+      let route = null;
+      if (!name || name === 'App.dc.html') route = hash && this.ROUTES.includes(hash) ? hash : null;
+      else route = this.FILES[name] || null;
+      if (!route) return;
+      e.preventDefault();
+      if (location.hash !== '#' + route) history.pushState(null, '', '#' + route);
+      this.go(route);
+    };
+    this.onPop = () => this.go(this.parseHash(location.hash));
+    document.addEventListener('click', this.onClick, true);
+    window.addEventListener('popstate', this.onPop);
+    if (!location.hash) history.replaceState(null, '', '#' + this.state.route);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('hashchange', this.onHash);
+    window.removeEventListener('popstate', this.onPop);
+    document.removeEventListener('click', this.onClick, true);
+  }
+  go(route) {
+    if (route === this.state.route) return;
+    this.setState(s => ({ route, visited: { ...s.visited, [route]: true } }));
+    window.scrollTo(0, 0);
+  }
+  renderVals() {
+    const v = {}, s = {};
+    for (const r of this.ROUTES) { v[r] = !!this.state.visited[r]; s[r] = { display: r === this.state.route ? 'block' : 'none' }; }
+    return { route: this.state.route, v, s };
+  }
+}
+</script>
+</body>
+</html>

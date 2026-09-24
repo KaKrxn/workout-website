@@ -1,0 +1,200 @@
+/* FitTrack theme — from the user's Figma ("Design Website FitTrack.fig").
+   Dark is default (Figma); light is a derived variant. Also remaps the Modernist
+   tokens/classes so every page shares the FitTrack look. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap');
+
+:root, [data-ft-theme="dark"] {
+  --ft-bg: rgb(17,25,19);
+  --ft-glow: rgba(36,66,45,.95);
+  --ft-glow-soft: rgba(18,37,23,.8);
+  --ft-card: rgb(25,30,25);
+  --ft-card-line: rgb(49,55,48);
+  --ft-tile: rgb(34,42,34);
+  --ft-well: rgba(0,0,0,.5);
+  --ft-cell: rgb(24,30,25);
+  --ft-cell-line: rgb(39,46,39);
+  --ft-input: rgb(32,40,33);
+  --ft-line: rgb(45,53,46);
+  --ft-rule: rgb(50,55,49);
+  --ft-tabs: rgba(72,72,72,.32);
+  --ft-tab-active: rgba(0,0,0,.3);
+  --ft-chip: rgba(217,217,217,.1);
+  --ft-accent: rgb(102,217,141);
+  --ft-accent-strong: rgb(102,217,141);
+  --ft-accent-soft: rgb(29,44,33);
+  --ft-accent-dash: rgb(80,155,105);
+  --ft-on-accent: #000;
+  --ft-text: #fff;
+  --ft-muted: rgba(255,255,255,.7);
+  --ft-placeholder: rgb(131,130,130);
+  --ft-track: rgb(47,79,57);
+  --ft-thumb: rgb(27,48,33);
+  --ft-icon-filter: invert(1);
+  --ft-google: rgb(15,15,15); --ft-google-line: rgb(40,40,40); --ft-google-text: #fff;
+  --ft-liquid: #222c24; --ft-tab-hover: #c5f8d6;
+  --ft-glow-accent: rgba(102,217,141,.13);
+}
+[data-ft-theme="light"] {
+  --ft-bg: #eaf0ea;
+  --ft-glow: rgba(102,217,141,.26);
+  --ft-glow-soft: rgba(102,217,141,.14);
+  --ft-card: #ffffff;
+  --ft-card-line: #d3ddd5;
+  --ft-tile: #eef3ee;
+  --ft-well: rgba(18,32,26,.05);
+  --ft-cell: #ffffff;
+  --ft-cell-line: #d3ddd5;
+  --ft-input: #f4f7f4;
+  --ft-line: #cfd9d1;
+  --ft-rule: #cfd9d1;
+  --ft-tabs: rgba(18,32,26,.07);
+  --ft-tab-active: #ffffff;
+  --ft-chip: rgba(18,32,26,.07);
+  --ft-accent: rgb(102,217,141);
+  --ft-accent-strong: rgb(34,140,78);
+  --ft-accent-soft: #dcf3e3;
+  --ft-accent-dash: rgb(60,170,100);
+  --ft-on-accent: #08110b;
+  --ft-text: #12201a;
+  --ft-muted: rgba(18,32,26,.64);
+  --ft-placeholder: #7c877e;
+  --ft-track: #c7d6ca;
+  --ft-thumb: #b9d9c3;
+  --ft-icon-filter: none;
+  --ft-google: #ffffff; --ft-google-line: #d3ddd5; --ft-google-text: #12201a;
+  --ft-liquid: #dce6de; --ft-tab-hover: rgb(34,140,78);
+  --ft-glow-accent: rgba(102,217,141,.30);
+}
+
+/* remap Modernist tokens → FitTrack */
+:root, [data-ft-theme] {
+  --color-bg: var(--ft-bg);
+  --color-surface: var(--ft-card);
+  --color-text: var(--ft-text);
+  --color-divider: var(--ft-card-line);
+  --color-accent: var(--ft-accent);
+  --color-accent-100: var(--ft-accent-soft);
+  --color-accent-200: color-mix(in srgb, var(--ft-accent) 30%, var(--ft-card));
+  --color-accent-400: color-mix(in srgb, var(--ft-accent) 55%, var(--ft-card));
+  --color-accent-500: color-mix(in srgb, var(--ft-accent) 78%, var(--ft-card));
+  --color-accent-600: var(--ft-accent);
+  --color-accent-700: var(--ft-accent-strong);
+  --color-accent-800: var(--ft-accent-strong);
+  --color-neutral-100: var(--ft-tile);
+  --color-neutral-200: var(--ft-input);
+  --color-neutral-400: color-mix(in srgb, var(--ft-text) 35%, transparent);
+  --color-neutral-500: color-mix(in srgb, var(--ft-text) 45%, transparent);
+  --color-neutral-600: var(--ft-muted);
+  --color-neutral-800: var(--ft-text);
+  --color-neutral-900: #000;
+  --font-heading: Inter, 'Noto Sans Thai', sans-serif;
+  --font-body: Inter, 'Noto Sans Thai', sans-serif;
+  --shadow-sm: none; --shadow-md: 0 8px 24px rgba(0,0,0,.35); --shadow-lg: 0 16px 48px rgba(0,0,0,.45);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+html, body { margin: 0; padding: 0; background: var(--ft-bg); overflow-x: hidden; color: var(--ft-text); font-family: Inter, 'Noto Sans Thai', sans-serif; }
+/* Ambient glow orbs — drift between positions and pulse (reduced-motion: static) */
+html::before, body::before, body::after {
+  content: ''; position: fixed; pointer-events: none; z-index: 0; border-radius: 50%;
+  will-change: transform, opacity;
+}
+body::before {
+  width: 900px; height: 900px; left: -300px; top: -260px;
+  background: radial-gradient(closest-side, var(--ft-glow), transparent 100%);
+  animation: ft-orb-a 26s ease-in-out infinite alternate, ft-orb-pulse 6.5s ease-in-out infinite;
+}
+body::after {
+  width: 980px; height: 980px; right: -340px; bottom: -360px;
+  background: radial-gradient(closest-side, var(--ft-glow), transparent 100%);
+  animation: ft-orb-b 31s ease-in-out infinite alternate, ft-orb-pulse 8s ease-in-out -3s infinite;
+}
+html::before {
+  width: 620px; height: 620px; left: 45%; top: 35%;
+  background: radial-gradient(closest-side, var(--ft-glow-accent), transparent 100%);
+  animation: ft-orb-c 19s ease-in-out infinite alternate, ft-orb-pulse 4.2s ease-in-out -1.5s infinite;
+}
+@keyframes ft-orb-a {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(55vw, 18vh) scale(1.15); }
+  66%  { transform: translate(20vw, 55vh) scale(.9); }
+  100% { transform: translate(70vw, 60vh) scale(1.08); }
+}
+@keyframes ft-orb-b {
+  0%   { transform: translate(0, 0) scale(1); }
+  30%  { transform: translate(-50vw, -30vh) scale(.92); }
+  65%  { transform: translate(-15vw, -62vh) scale(1.18); }
+  100% { transform: translate(-68vw, -48vh) scale(1); }
+}
+@keyframes ft-orb-c {
+  0%   { transform: translate(-50%, -50%) translate(0, 0) scale(1); }
+  25%  { transform: translate(-50%, -50%) translate(-32vw, -22vh) scale(1.25); }
+  50%  { transform: translate(-50%, -50%) translate(28vw, -12vh) scale(.85); }
+  75%  { transform: translate(-50%, -50%) translate(-12vw, 28vh) scale(1.15); }
+  100% { transform: translate(-50%, -50%) translate(30vw, 24vh) scale(1); }
+}
+@keyframes ft-orb-pulse {
+  0%, 100% { opacity: .55; }
+  45% { opacity: 1; }
+  60% { opacity: .8; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html::before, body::before, body::after { animation: none; }
+}
+body > * { position: relative; z-index: 1; }
+a { color: var(--ft-accent-strong); text-decoration: none; }
+a:hover { opacity: .85; }
+::placeholder { color: var(--ft-placeholder); opacity: 1; }
+:focus-visible { outline: 2px solid var(--ft-accent); outline-offset: 2px; }
+input[type=number]::-webkit-inner-spin-button { opacity: .4; }
+
+/* Modernist class overrides → FitTrack shapes */
+.card { border-radius: 20px; background: var(--ft-card); box-shadow: 0 0 0 2px var(--ft-card-line); padding: 24px; }
+.card.elev-sm { box-shadow: 0 0 0 2px var(--ft-card-line); }
+.card-kicker { color: var(--ft-accent-strong); font-weight: 700; }
+.btn { border-radius: 15px; font-family: Inter, 'Noto Sans Thai', sans-serif; font-weight: 700; padding: 10px 16px; min-height: 40px; }
+.btn-primary { background: var(--ft-accent); color: var(--ft-on-accent); }
+.btn-primary:hover { background: var(--ft-accent); filter: brightness(1.06); }
+.btn-primary:active { background: var(--ft-accent); filter: brightness(.94); }
+.btn-secondary { background: var(--ft-input); border: 1px solid var(--ft-line); color: var(--ft-text); }
+.btn-ghost { color: var(--ft-accent-strong); }
+.btn-icon { width: 40px; height: 40px; padding: 0; }
+.input { border-radius: 15px; background: var(--ft-input); border: 1px solid var(--ft-line); color: var(--ft-text); min-height: 44px; padding: 8px 16px; font-size: 15px; }
+.input:focus-visible { border-color: var(--ft-accent); outline: none; }
+.field > label { color: var(--ft-text); font-weight: 700; font-size: 14px; }
+.seg { border-radius: 15px; border: 0; background: var(--ft-tabs); padding: 5px; gap: 4px; }
+.seg-opt { border-radius: 11px; padding: 8px 14px; font-size: 14px; font-weight: 500; }
+.seg-opt + .seg-opt { border-left: 0; }
+.seg-opt:has(input:checked) { background: var(--ft-tab-active); color: var(--ft-text); box-shadow: 0 0 0 1px var(--ft-line); }
+.tag { border-radius: 10px; padding: 5px 11px; font-size: 13px; font-weight: 500; }
+.tag-neutral { background: var(--ft-chip); color: var(--ft-text); }
+.tag-accent { background: var(--ft-accent-soft); color: var(--ft-accent-strong); }
+.tag-outline { border: 1px solid var(--ft-accent); color: var(--ft-accent-strong); }
+.table th { color: var(--ft-muted); border-bottom: 1px solid var(--ft-line); }
+.table td { border-bottom: 1px solid var(--ft-line); }
+.nav { border-bottom: 1px solid var(--ft-rule); }
+.dialog { border-radius: 20px; background: var(--ft-card); box-shadow: 0 0 0 2px var(--ft-card-line), var(--shadow-lg); }
+.hr { height: 1px; background: var(--ft-rule); }
+.text-muted { color: var(--ft-muted); }
+
+/* Liquid navbar tabs (FitTrack_Liquid_Navbar_Guide.md) */
+.ft-ltab {
+  position: relative; z-index: 2; min-width: 0;
+  display: grid; place-items: center; padding: 0 8px 6px;
+  color: var(--ft-text); font-weight: 700; text-decoration: none; white-space: nowrap;
+  transition: color 180ms ease;
+}
+.ft-ltab:hover { color: var(--ft-tab-hover); opacity: 1; }
+.ft-ltab[aria-current="page"] { color: var(--ft-accent-strong); }
+.ft-ltab:focus-visible { outline: 2px solid var(--ft-accent); outline-offset: -8px; border-radius: 20px; }
+@media (prefers-reduced-motion: reduce) { .ft-ltab { transition: none; } }
+
+/* Avatar + account menu */
+.ft-avatar { transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease; box-shadow: 0 0 0 0 var(--ft-accent); }
+.ft-avatar:hover { transform: scale(1.06); }
+.ft-avatar:active { transform: scale(.92); }
+.ft-avatar[aria-expanded="true"] { transform: scale(.94); box-shadow: 0 0 0 3px var(--ft-bg), 0 0 0 5px var(--ft-accent); }
+.ft-mitem:hover { background: var(--ft-tile) !important; }
+.ft-mitem[href="Login.dc.html"]:hover { color: var(--ft-accent-strong) !important; }
+@media (prefers-reduced-motion: reduce) { .ft-avatar { transition: none; } }

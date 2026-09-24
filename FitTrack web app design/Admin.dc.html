@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-6d50803f-0be1-4926-88ed-8707846947c5/styles.css">
+<link rel="stylesheet" href="ft-theme.css">
+</helmet>
+<div style="min-height:100vh">
+  <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}"><dc-import name="Nav" active="admin" hint-size="100%,110px"></dc-import></sc-if>
+  <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+  <main style="{{ mainStyle }}">
+    <header style="margin-bottom:20px">
+      <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-accent);font-family:var(--font-heading);font-weight:800;margin-bottom:6px">ADMIN ONLY</div>
+      <h1 style="font-size:32px;margin:0 0 6px">Admin console</h1>
+      <p class="text-muted" style="margin:0;font-size:14px">{{ sub }}</p>
+    </header>
+
+    <!-- health tiles -->
+    <div style="display:grid;grid-template-columns:{{ tileCols }};gap:2px;background:var(--color-divider);border:2px solid var(--color-divider);margin-bottom:24px">
+      <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="4">
+        <div style="background:var(--color-surface);padding:18px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="{{ t.dotStyle }}"></span><span class="text-muted" style="font-size:12px">{{ t.label }}</span></div>
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1;font-variant-numeric:tabular-nums">{{ t.value }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- cron -->
+    <section class="card elev-sm" style="margin-bottom:24px">
+      <div class="card-kicker">{{ cronKicker }}</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:17px;margin-bottom:8px">{{ cronTitle }}</div>
+      <div style="overflow-x:auto">
+        <table class="table">
+          <thead><tr><th>Job</th><th>Schedule</th><th>Last run</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <sc-for list="{{ crons }}" as="c" hint-placeholder-count="2">
+              <tr>
+                <td style="font-family:var(--font-heading);font-weight:600">{{ c.job }}</td>
+                <td class="text-muted" style="font-size:13px">{{ c.schedule }}</td>
+                <td style="font-variant-numeric:tabular-nums">{{ c.last }}</td>
+                <td><span class="{{ c.badgeCls }}">{{ c.status }}</span></td>
+                <td style="text-align:right"><button class="btn btn-secondary" onClick="{{ c.run }}" style="white-space:nowrap">{{ runLabel }}</button></td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+      <sc-if value="{{ ranMsg }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:var(--color-accent-700);margin-top:8px">{{ ranMsg }}</div></sc-if>
+    </section>
+
+    <div style="display:grid;grid-template-columns:{{ twoCol }};gap:16px">
+      <!-- users -->
+      <section class="card elev-sm">
+        <div class="card-kicker">{{ usersKicker }}</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:17px;margin-bottom:8px">{{ usersTitle }}</div>
+        <table class="table">
+          <thead><tr><th>User</th><th>Sessions ahead</th><th>Role</th></tr></thead>
+          <tbody>
+            <sc-for list="{{ users }}" as="u" hint-placeholder-count="4">
+              <tr><td>{{ u.name }}</td><td style="font-variant-numeric:tabular-nums"><span class="{{ u.aheadCls }}">{{ u.ahead }}</span></td><td>{{ u.role }}</td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </section>
+      <!-- audit -->
+      <section class="card elev-sm">
+        <div class="card-kicker">{{ logsKicker }}</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:17px;margin-bottom:8px">{{ logsTitle }}</div>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ logs }}" as="l" hint-placeholder-count="5">
+            <div style="display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--color-divider);font-size:13px">
+              <span class="text-muted" style="font-variant-numeric:tabular-nums;flex:none;width:64px">{{ l.time }}</span>
+              <span style="flex:1">{{ l.text }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </div>
+    <p class="text-muted" style="font-size:12px;margin-top:16px">{{ footNote }}</p>
+  </main>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { ready: false, isMobile: false, ran: null };
+  async componentDidMount() {
+    const base = new URL('.', location.href).href;
+    this.app = await import(base + 'app.js'); window.addEventListener('ft-locale', e => this.setState({ locale: e.detail })); window.addEventListener('ft-theme', e => this.setState({ theme: e.detail }));
+    this.app.bootTheme();
+    this.unwatch = this.app.watchMobile(m => this.setState({ isMobile: m }));
+    this.setState({ ready: true, locale: this.app.getLocale() });
+  }
+  componentWillUnmount() { this.unwatch && this.unwatch(); }
+  renderVals() {
+    if (!this.app) return { ready: false, standalone: !this.props.embedded };
+    const app = this.app; const t = app.makeT(this.state.locale); const en = this.state.locale === 'en'; const m = this.state.isMobile;
+    const ok = 'var(--color-accent)';
+    const tiles = [
+      { label: en ? 'DB status' : 'สถานะฐานข้อมูล', value: 'OK', dotStyle: { width: '9px', height: '9px', background: ok } },
+      { label: en ? 'Active users' : 'ผู้ใช้ที่ใช้งาน', value: '5', dotStyle: { width: '9px', height: '9px', background: ok } },
+      { label: en ? 'Sessions generated' : 'เซสชันที่สร้างล่วงหน้า', value: '140', dotStyle: { width: '9px', height: '9px', background: ok } },
+      { label: en ? 'Cron failures (7d)' : 'Cron ล้มเหลว (7 วัน)', value: '0', dotStyle: { width: '9px', height: '9px', background: ok } },
+    ];
+    const crons = [
+      { job: 'generate-sessions', schedule: en ? 'Mon 01:00 ICT' : 'จันทร์ 01:00', last: '18 Aug 01:00', status: 'success', badgeCls: 'tag tag-accent', run: () => this.setState({ ran: 'generate-sessions' }) },
+      { job: 'refresh-stats', schedule: en ? 'Daily 02:00 ICT' : 'ทุกวัน 02:00', last: '23 Sep 02:00', status: 'success', badgeCls: 'tag tag-accent', run: () => this.setState({ ran: 'refresh-stats' }) },
+    ];
+    const users = [
+      { name: 'Ken', ahead: 28, aheadCls: 'tag tag-neutral', role: 'user' },
+      { name: 'Mint', ahead: 26, aheadCls: 'tag tag-neutral', role: 'user' },
+      { name: 'Krit', ahead: 28, aheadCls: 'tag tag-neutral', role: 'admin' },
+      { name: 'Aof', ahead: 3, aheadCls: 'tag tag-outline', role: 'user' },
+      { name: 'Bee', ahead: 14, aheadCls: 'tag tag-neutral', role: 'user' },
+    ];
+    const logs = [
+      { time: '02:00', text: en ? 'refresh-stats completed · 5 users' : 'refresh-stats เสร็จ · 5 ผู้ใช้' },
+      { time: 'Mon', text: en ? 'generate-sessions added 35 sessions' : 'generate-sessions เพิ่ม 35 เซสชัน' },
+      { time: '17 Sep', text: en ? 'admin role granted to Krit' : 'ให้สิทธิ์ admin แก่ Krit' },
+      { time: '15 Sep', text: en ? 'Aof signed up · provisioned' : 'Aof สมัคร · provision แล้ว' },
+      { time: '12 Sep', text: en ? 'exercise library edited (+2)' : 'แก้คลังท่า (+2)' },
+    ];
+    return {
+      standalone: !this.props.embedded, ready: this.state.ready, isMobile: m,
+      mainStyle: { maxWidth: '1120px', margin: '0 auto', padding: m ? '20px 16px 96px' : '32px 24px 48px' },
+      sub: en ? 'System health at a glance — catch a silent cron before users do.' : 'ดูสุขภาพระบบในสายตาเดียว จับ cron ที่เงียบก่อนผู้ใช้เจอ',
+      tileCols: 'repeat(auto-fit,minmax(min(100%,180px),1fr))', tiles, twoCol: 'repeat(auto-fit,minmax(min(100%,440px),1fr))',
+      cronKicker: en ? 'JOBS' : 'งาน', cronTitle: t('admin.cron'), crons, runLabel: t('admin.run'),
+      ranMsg: this.state.ran ? (en ? `Re-ran ${this.state.ran} — success.` : `รัน ${this.state.ran} ซ้ำแล้ว — สำเร็จ`) : null,
+      usersKicker: en ? 'USERS' : 'ผู้ใช้', usersTitle: t('admin.users'),
+      users, logsKicker: en ? 'AUDIT' : 'บันทึก', logsTitle: t('admin.logs'), logs,
+      footNote: en ? 'Non-admins get a 404 here — not a 403 — so the route is never confirmed to exist.' : 'ผู้ใช้ทั่วไปเข้าหน้านี้จะได้ 404 ไม่ใช่ 403 เพื่อไม่ยืนยันว่าเส้นทางมีอยู่',
+    };
+  }
+}
+</script>
+</body>
+</html>

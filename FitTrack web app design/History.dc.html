@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-6d50803f-0be1-4926-88ed-8707846947c5/styles.css">
+<link rel="stylesheet" href="ft-theme.css">
+</helmet>
+<div style="min-height:100vh">
+  <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}"><dc-import name="Nav" active="history" hint-size="100%,110px"></dc-import></sc-if>
+  <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+  <main style="{{ mainStyle }}">
+    <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px">
+      <div>
+        <h1 style="font-size:32px;margin:0 0 6px">History</h1>
+        <p class="text-muted" style="margin:0;font-size:14px">{{ sub }}</p>
+      </div>
+      <div class="seg" role="group">
+        <sc-for list="{{ filters }}" as="f" hint-placeholder-count="3"><label class="seg-opt" style="white-space:nowrap"><input type="radio" name="f" checked="{{ f.active }}" onChange="{{ f.pick }}"><span>{{ f.label }}</span></label></sc-for>
+      </div>
+    </header>
+
+    <div style="display:grid;grid-template-columns:{{ layoutCols }};gap:20px;align-items:start">
+      <!-- list -->
+      <section style="border:2px solid var(--color-divider)">
+        <sc-for list="{{ sessions }}" as="s" hint-placeholder-count="8">
+          <button onClick="{{ s.select }}" style="{{ s.rowStyle }}">
+            <span style="display:flex;flex-direction:column;gap:4px;text-align:left;min-width:0">
+              <span style="font-family:var(--font-heading);font-weight:800;font-size:14px">{{ s.name }}</span>
+              <span class="text-muted" style="font-size:12px">{{ s.date }}</span>
+            </span>
+            <span style="display:flex;align-items:center;gap:10px;flex:none">
+              <span style="font-size:12px;font-variant-numeric:tabular-nums" class="text-muted">{{ s.vol }}</span>
+              <span class="{{ s.badgeClass }}" style="font-size:10px">{{ s.badge }}</span>
+            </span>
+          </button>
+        </sc-for>
+      </section>
+
+      <!-- detail -->
+      <section class="card elev-sm" style="position:sticky;top:130px">
+        <sc-if value="{{ hasDetail }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div class="card-kicker">{{ detailDate }}</div>
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;margin-bottom:4px">{{ detailName }}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"><sc-for list="{{ detailTags }}" as="tg" hint-placeholder-count="2"><span class="tag tag-neutral">{{ tg }}</span></sc-for></div>
+          <div style="display:flex;gap:20px;font-size:13px;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid var(--color-divider)">
+            <div><span class="text-muted">{{ volLabel }}</span> <b style="font-variant-numeric:tabular-nums">{{ detailVol }}</b></div>
+            <div><span class="text-muted">{{ setsLabel }}</span> <b style="font-variant-numeric:tabular-nums">{{ detailSets }}</b></div>
+          </div>
+          <sc-for list="{{ detailItems }}" as="it" hint-placeholder-count="5">
+            <div style="padding:10px 0;border-bottom:1px solid var(--color-divider)">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="{{ it.dotStyle }}"></span><span style="font-weight:600;font-size:14px">{{ it.name }}</span></div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;padding-left:20px">
+                <sc-for list="{{ it.sets }}" as="st" hint-placeholder-count="4"><span style="font-size:12px;font-variant-numeric:tabular-nums;padding:3px 8px;background:var(--color-neutral-100);border:1px solid var(--color-divider)">{{ st }}</span></sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+        <sc-if value="{{ noDetail }}" hint-placeholder-val="{{ false }}"><p class="text-muted" style="font-size:14px">{{ pickMsg }}</p></sc-if>
+      </section>
+    </div>
+  </main>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { ready: false, isMobile: false, selected: null, filter: 'all' };
+  async componentDidMount() {
+    const base = new URL('.', location.href).href;
+    this.d = await import(base + 'data.js');
+    this.app = await import(base + 'app.js'); window.addEventListener('ft-locale', e => this.setState({ locale: e.detail })); window.addEventListener('ft-theme', e => this.setState({ theme: e.detail }));
+    this.app.bootTheme();
+    this.unwatch = this.app.watchMobile(m => this.setState({ isMobile: m }));
+    const list = [...this.d.HISTORY].reverse();
+    this.setState({ ready: true, locale: this.app.getLocale(), selected: list[0]?.id || null });
+  }
+  componentWillUnmount() { this.unwatch && this.unwatch(); }
+  fmtSet(exId, st, en) {
+    const e = this.d.EX_BY_ID[exId]; const u = this.app.getUnits();
+    if (e.type === 'strength') return `${this.app.fmtWeight(st.weight, u)} × ${st.reps}`;
+    if (e.type === 'bodyweight') return `${st.reps} ${en ? 'reps' : 'ครั้ง'}`;
+    if (e.type === 'duration') return `${st.sec}s`;
+    return `${st.min}m · ${st.dist}km`;
+  }
+  renderVals() {
+    if (!this.d) return { ready: false, standalone: !this.props.embedded };
+    const { d, app } = this; const t = app.makeT(this.state.locale); const en = this.state.locale === 'en'; const m = this.state.isMobile;
+    let list = [...d.HISTORY].reverse();
+    if (this.state.filter === 'completed') list = list.filter(s => s.status === 'completed');
+    const gName = g => app.groupLabel(d.GROUPS, g, this.state.locale);
+    const sessions = list.map(s => ({
+      name: en ? s.name.en : s.name.th, date: app.fmtShortDate(s.date, this.state.locale) + ' · ' + app.fmtLongDate(new Date(s.date), this.state.locale).split(en ? ' ' : 'ที่ ')[0],
+      vol: (en ? 'vol ' : '') + s.vol, badge: t('hist.completed'), badgeClass: 'tag tag-accent',
+      select: () => this.setState({ selected: s.id }),
+      rowStyle: { width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '13px 15px', border: 0, borderBottom: '1px solid var(--color-divider)', background: this.state.selected === s.id ? 'var(--color-accent-100)' : 'transparent', cursor: 'pointer', fontFamily: 'var(--font-body)', color: 'var(--color-text)' },
+    }));
+    const sel = d.HISTORY.find(s => s.id === this.state.selected);
+    let detail = {};
+    if (sel) {
+      detail = {
+        hasDetail: true, noDetail: false,
+        detailDate: app.fmtLongDate(new Date(sel.date), this.state.locale), detailName: en ? sel.name.en : sel.name.th,
+        detailTags: sel.groups.map(gName), detailVol: sel.vol, detailSets: sel.items.reduce((a, i) => a + i.sets.length, 0),
+        detailItems: sel.items.map(it => { const e = d.EX_BY_ID[it.exId]; return { name: en ? e.en : e.th, dotStyle: { width: '9px', height: '9px', flex: 'none', background: e.group === 'cardio' ? 'var(--color-neutral-500)' : 'var(--color-accent)' }, sets: it.sets.map(st => this.fmtSet(it.exId, st, en)) }; }),
+      };
+    } else detail = { hasDetail: false, noDetail: true };
+    const filters = [['all', t('lib.all')], ['completed', t('hist.completed')]].map(([v, l]) => ({ label: l, active: this.state.filter === v, pick: () => this.setState({ filter: v }) }));
+    return {
+      standalone: !this.props.embedded, ready: this.state.ready, isMobile: m,
+      mainStyle: { maxWidth: '1120px', margin: '0 auto', padding: m ? '20px 16px 96px' : '32px 24px 48px' },
+      sub: en ? 'Every workout you\u2019ve logged.' : 'ทุกเวิร์คเอาท์ที่คุณบันทึก',
+      filters, layoutCols: 'repeat(auto-fit,minmax(min(100%,420px),1fr))', sessions,
+      volLabel: t('hist.vol'), setsLabel: t('today.sets'), pickMsg: en ? 'Pick a session to see its sets.' : 'เลือกเซสชันเพื่อดูรายละเอียด',
+      ...detail,
+    };
+  }
+}
+</script>
+</body>
+</html>

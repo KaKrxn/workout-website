@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;700;800&family=Noto+Sans+Thai:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ft-theme.css">
+<style>
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+  [data-ft-theme="dark"] {
+    --ft-bg: rgb(17,25,19); --ft-glow: rgba(36,66,45,.95); --ft-glow-soft: rgba(28,49,34,.55); --ft-glow-accent: rgba(102,217,141,.13);
+    --ft-panel: rgba(23,28,24,.71); --ft-line: rgb(45,53,46); --ft-input: rgb(32,40,33);
+    --ft-accent: rgb(102,217,141); --ft-accent-strong: rgb(102,217,141); --ft-on-accent: #000;
+    --ft-text: #ffffff; --ft-placeholder: rgb(131,130,130); --ft-muted: rgba(255,255,255,.72);
+    --ft-google: rgb(15,15,15); --ft-google-line: rgb(40,40,40); --ft-google-text: #fff;
+    --ft-track: rgb(47,79,57); --ft-eye-filter: invert(1);
+  }
+  [data-ft-theme="light"] {
+    --ft-bg: #eaf0ea; --ft-glow: rgba(102,217,141,.28); --ft-glow-soft: rgba(102,217,141,.16); --ft-glow-accent: rgba(102,217,141,.30);
+    --ft-panel: rgba(255,255,255,.82); --ft-line: #d3ddd5; --ft-input: #ffffff;
+    --ft-accent: rgb(102,217,141); --ft-accent-strong: rgb(40,150,84); --ft-on-accent: #08110b;
+    --ft-text: #12201a; --ft-placeholder: #7c877e; --ft-muted: rgba(18,32,26,.66);
+    --ft-google: #ffffff; --ft-google-line: #d3ddd5; --ft-google-text: #12201a;
+    --ft-track: #c7d6ca; --ft-eye-filter: none;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: rgb(17,25,19); }
+  a { color: var(--ft-accent-strong); text-decoration: none; }
+  a:hover { opacity: .82; }
+  .ft-input::placeholder { color: var(--ft-placeholder); opacity: 1; }
+  .ft-input:focus { outline: none; box-shadow: inset 0 0 0 1px var(--ft-accent); }
+  .ft-input { transition: box-shadow .15s; }
+  .ft-btn { transition: transform .12s, filter .15s, background .15s; }
+  .ft-btn:hover { filter: brightness(1.06); }
+  .ft-btn:active { transform: translateY(1px); }
+  .ft-pill { transition: background .15s, color .15s; }
+</style>
+</helmet>
+<div style="position:relative;min-height:100vh;width:100%;overflow:hidden;font-family:Inter,'Noto Sans Thai',sans-serif;color:var(--ft-text)">
+
+  <!-- header -->
+  <header style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:clamp(16px,3vw,36px) clamp(16px,4vw,59px) 0;flex-wrap:wrap;row-gap:14px">
+    <a href="Landing.dc.html" style="display:flex;align-items:center;gap:20px;color:var(--ft-text)">
+      <span style="width:clamp(44px,6vw,64px);height:clamp(44px,6vw,64px);border-radius:clamp(11px,1.4vw,15px);background:var(--ft-accent);flex:none"></span>
+      <span style="font-size:clamp(30px,3.4vw,44px);font-weight:700;letter-spacing:-.01em">FitTrack</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:clamp(8px,1.2vw,14px);flex-wrap:wrap">
+      <!-- language toggle -->
+      <div role="group" aria-label="language" style="position:relative;display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:50px;background:var(--ft-input);box-shadow:inset 0 0 0 1px var(--ft-line)"><span aria-hidden="true" style="{{ langIndStyle }}"><span ref="{{ langBlobRef }}" style="display:block;width:100%;height:100%;border-radius:50px;background:var(--ft-accent)"></span></span>
+        <button onClick="{{ setTh }}" style="{{ thStyle }}">TH</button>
+        <button onClick="{{ setEn }}" style="{{ enStyle }}">EN</button>
+      </div>
+      <!-- theme toggle -->
+      <button onClick="{{ toggleTheme }}" aria-label="toggle theme" title="{{ themeTitle }}" style="display:flex;align-items:center;gap:10px;height:44px;padding:0 8px 0 16px;border:0;border-radius:50px;background:var(--ft-input);box-shadow:inset 0 0 0 1px var(--ft-line);color:var(--ft-text);font-family:inherit;font-size:15px;font-weight:700;cursor:pointer">
+        <span>{{ themeLabel }}</span>
+        <span style="position:relative;width:52px;height:28px;border-radius:50px;background:var(--ft-track);flex:none">
+          <span ref="{{ knobRef }}" style="position:absolute;top:3px;left:{{ knobLeft }};width:22px;height:22px;border-radius:50%;background:var(--ft-accent);box-shadow:0 2px 6px rgba(0,0,0,.28);transition:left .55s cubic-bezier(.34,1.56,.64,1)"><svg viewBox="0 0 24 24" fill="#0b1a10" style="{{ moonStyle }}"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg><svg viewBox="0 0 24 24" fill="none" stroke="#0b1a10" stroke-width="2.6" stroke-linecap="round" style="{{ sunStyle }}"><circle cx="12" cy="12" r="4.2" fill="#0b1a10" stroke="none"></circle><path d="M12 1.8v2.6M12 19.6v2.6M1.8 12h2.6M19.6 12h2.6M4.8 4.8l1.8 1.8M17.4 17.4l1.8 1.8M4.8 19.2l1.8-1.8M17.4 6.6l1.8-1.8"></path></svg></span>
+        </span>
+      </button>
+      <a href="Landing.dc.html" style="font-size:22px;font-weight:700;color:var(--ft-text);margin-left:4px">{{ homeLabel }}</a>
+    </div>
+  </header>
+
+  <!-- panel -->
+  <main style="position:relative;z-index:2;display:flex;justify-content:center;padding:clamp(24px,6vh,72px) clamp(12px,3vw,20px) 60px">
+    <section style="width:100%;max-width:650px;border-radius:20px;background:var(--ft-panel);box-shadow:inset 0 0 0 1px var(--ft-line);padding:36px clamp(24px,6vw,75px) 44px">
+      <div style="font-size:24px;font-weight:700;color:var(--ft-accent-strong)">CHECK IN</div>
+      <h1 style="font-size:clamp(32px,5vw,48px);font-weight:700;text-align:center;margin:clamp(24px,4vw,40px) 0 clamp(32px,5vw,56px)">Welcome Back</h1>
+
+      <form onSubmit="{{ submit }}" style="display:flex;flex-direction:column">
+        <label style="font-size:16px;font-weight:700;margin-bottom:8px">Email</label>
+        <input class="ft-input" type="email" placeholder="Enter Email" value="ken@fittrack.app" style="width:100%;height:50px;border:0;border-radius:15px;background:var(--ft-input);box-shadow:inset 0 0 0 1px var(--ft-line);color:var(--ft-text);font-size:16px;font-family:inherit;font-weight:500;padding:0 27px">
+
+        <label style="font-size:16px;font-weight:700;margin:32px 0 8px">Password</label>
+        <div style="position:relative">
+          <input class="ft-input" type="{{ pwType }}" placeholder="Enter Password" value="workout123" style="width:100%;height:50px;border:0;border-radius:15px;background:var(--ft-input);box-shadow:inset 0 0 0 1px var(--ft-line);color:var(--ft-text);font-size:16px;font-family:inherit;font-weight:500;padding:0 56px 0 27px">
+          <button type="button" onClick="{{ toggleEye }}" aria-label="show password" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;background:transparent;cursor:pointer;padding:0;opacity:.8;background-image:url(assets/eye-icon.png);background-size:100% 100%;background-repeat:no-repeat;filter:var(--ft-eye-filter)"></button>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin:22px 2px 32px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:14px;cursor:pointer">
+            <button type="button" role="switch" aria-checked="{{ remember }}" onClick="{{ toggleRemember }}" style="position:relative;width:58px;height:26px;border:0;border-radius:50px;background:var(--ft-track);box-shadow:inset 0 0 0 1px var(--ft-line);cursor:pointer;padding:0;flex:none">
+              <span style="position:absolute;top:1.5px;left:{{ rememberLeft }};width:23px;height:23px;border-radius:50%;background:var(--ft-accent);transition:left .18s"></span>
+            </button>
+            <span style="font-size:16px;font-weight:700">Remember Me</span>
+          </label>
+          <a href="Login.dc.html" style="font-size:16px;font-weight:700">Forgot Password ?</a>
+        </div>
+
+        <button class="ft-btn" type="submit" style="height:70px;border:0;border-radius:15px;background:var(--ft-accent);color:var(--ft-on-accent);font-family:inherit;font-size:clamp(26px,4vw,34px);font-weight:700;cursor:pointer">Log in</button>
+      </form>
+
+      <div style="display:flex;align-items:center;gap:16px;margin:18px 0">
+        <span style="flex:1;height:1px;background:var(--ft-text);opacity:.5"></span>
+        <span style="font-size:24px;font-weight:700">OR</span>
+        <span style="flex:1;height:1px;background:var(--ft-text);opacity:.5"></span>
+      </div>
+
+      <a class="ft-btn" href="App.dc.html#today" style="display:flex;align-items:center;justify-content:center;position:relative;height:70px;border-radius:15px;background:var(--ft-google);box-shadow:inset 0 0 0 1px var(--ft-google-line);color:var(--ft-google-text)">
+        <span style="position:absolute;left:clamp(14px,3vw,26px);top:50%;transform:translateY(-50%);width:clamp(36px,5vw,47px);height:clamp(36px,5vw,47px);background:url(assets/google-icon.png) center/contain no-repeat"></span>
+        <span style="font-size:clamp(26px,4vw,34px);font-weight:700">Google</span>
+      </a>
+
+      <p style="text-align:center;margin:26px 0 0;font-size:16px;font-weight:700">{{ noAccount }} <a href="Signup.dc.html">Sign UP</a></p>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:1080}}">
+class Component extends DCLogic {
+  state = { ready: false, theme: 'dark', locale: 'th', showPw: false, remember: true };
+  async componentDidMount() {
+    this.app = await import(new URL('app.js', location.href).href); this.app.bootTheme(); window.addEventListener('ft-locale', e => this.setState({ locale: e.detail })); window.addEventListener('ft-theme', e => this.setState({ theme: e.detail }));
+    this.setState({ ready: true, theme: this.app.getTheme(), locale: this.app.getLocale() });
+  }
+  toggleEye = () => this.setState({ showPw: !this.state.showPw });
+  toggleRemember = () => this.setState({ remember: !this.state.remember });
+  submit = (e) => { e.preventDefault(); location.href = 'App.dc.html#today'; };
+
+  knobRef = el => { this.knobEl = el; };
+  langBlobRef = el => { this.langBlob = el; };
+  pulseEl(el, sx) {
+    if (!el || !el.animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    el.animate([{ transform: 'scale(1,1)' }, { transform: 'scale(' + sx + ',' + (2 - sx * 0.75) + ')', offset: .45 }, { transform: 'scale(1,1)' }], { duration: 520, easing: 'cubic-bezier(.3,.7,.3,1)' });
+  }
+  toggleStyles(en, dark) {
+    const spring = 'cubic-bezier(.34,1.56,.64,1)';
+    const ic = on => ({ position: 'absolute', inset: 0, margin: 'auto', width: '14px', height: '14px', opacity: on ? 1 : 0, transform: on ? 'rotate(0deg) scale(1)' : 'rotate(-120deg) scale(.3)', transition: 'opacity .25s, transform .55s ' + spring });
+    return {
+      langIndStyle: { position: 'absolute', top: '4px', bottom: '4px', left: '4px', width: 'calc(50% - 4px)', transform: en ? 'translateX(100%)' : 'translateX(0)', transition: 'transform .55s ' + spring, pointerEvents: 'none', zIndex: 0 },
+      moonStyle: ic(dark), sunStyle: ic(!dark), knobRef: this.knobRef, langBlobRef: this.langBlobRef,
+    };
+  }
+  toggleTheme = (e) => { const t = this.state.theme === 'dark' ? 'light' : 'dark'; this.pulseEl(this.knobEl, 1.5); this.setState({ theme: t }); this.app.switchTheme(t, e && e.currentTarget); };
+  setLang(l) { if (l === this.state.locale) return; this.pulseEl(this.langBlob, 1.4); this.setState({ locale: l }); this.app.switchLocale(l); }
+  pill(active) { return { position: 'relative', zIndex: 1, height: '36px', minWidth: '46px', padding: '0 12px', border: 0, borderRadius: '50px', background: 'transparent', color: active ? 'var(--ft-on-accent)' : 'var(--ft-muted)', fontFamily: 'inherit', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'color .3s' }; }
+  renderVals() {
+    const en = this.state.locale === 'en'; const dark = this.state.theme === 'dark';
+    return { ...this.toggleStyles(en, dark),
+      ready: this.state.ready, theme: this.state.theme,
+      thStyle: this.pill(!en), enStyle: this.pill(en), setTh: () => this.setLang('th'), setEn: () => this.setLang('en'),
+      toggleTheme: this.toggleTheme, themeLabel: dark ? (en ? 'Dark' : 'มืด') : (en ? 'Light' : 'สว่าง'),
+      themeTitle: en ? 'Toggle light / dark' : 'สลับธีมสว่าง/มืด', knobLeft: dark ? '26px' : '4px',
+      homeLabel: en ? 'Home' : 'หน้าแรก',
+      pwType: this.state.showPw ? 'text' : 'password', toggleEye: this.toggleEye,
+      remember: this.state.remember, toggleRemember: this.toggleRemember, rememberLeft: this.state.remember ? '33px' : '1.5px',
+      submit: this.submit, noAccount: en ? "Don't have an account ?" : 'ยังไม่มีบัญชี ?',
+    };
+  }
+}
+</script>
+</body>
+</html>

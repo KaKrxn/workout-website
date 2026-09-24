@@ -22,7 +22,7 @@ export function StartButton({
       type="button"
       disabled={pending}
       onClick={() => start(() => void startSession(sessionId))}
-      className="w-full max-w-[210px] rounded-[14px] bg-s1 px-4 py-[clamp(10px,1vw,16px)] text-center text-[clamp(24px,2.6vw,42px)] font-black leading-none text-on-accent transition hover:brightness-110 disabled:opacity-60"
+      className="grid min-h-[70px] w-full place-items-center rounded-[20px] bg-s1 px-4 py-3 text-center text-[clamp(30px,3.4vw,64px)] font-black leading-none text-on-accent transition hover:brightness-110 disabled:opacity-60"
     >
       {pending ? "Starting" : "Start"}
     </button>
@@ -37,7 +37,7 @@ export function FinishButton({ sessionId }: { sessionId: string }) {
       type="button"
       disabled={pending}
       onClick={() => start(() => void finishSession(sessionId))}
-      className="w-full rounded-[13px] bg-s1 px-4 py-4 text-[clamp(16px,1.5vw,24px)] font-black text-on-accent transition hover:brightness-110 disabled:opacity-60"
+      className="ft-finish-button transition hover:brightness-110 disabled:opacity-60"
     >
       {pending ? "Saving..." : "Finish Workout"}
     </button>

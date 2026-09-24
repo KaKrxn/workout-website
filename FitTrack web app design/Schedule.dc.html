@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-6d50803f-0be1-4926-88ed-8707846947c5/styles.css">
+<link rel="stylesheet" href="ft-theme.css">
+</helmet>
+<div style="min-height:100vh">
+  <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}"><dc-import name="Nav" active="schedule" hint-size="100%,110px"></dc-import></sc-if>
+  <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+  <main style="{{ mainStyle }}">
+
+    <!-- ===== CALENDAR (month) ===== -->
+    <sc-if value="{{ isMonth }}" hint-placeholder-val="{{ true }}">
+    <div>
+      <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="font-size:clamp(16px,1.25vw,24px);font-weight:500">Calendar</div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <h1 style="font-size:clamp(40px,3.4vw,64px);font-weight:800;line-height:1;margin:0">{{ monthTitle }}</h1>
+            <button onClick="{{ prevMonth }}" aria-label="previous month" style="width:44px;height:44px;border:0;border-radius:12px;background:var(--ft-tabs);color:var(--ft-text);font-size:22px;cursor:pointer">‹</button>
+            <button onClick="{{ nextMonth }}" aria-label="next month" style="width:44px;height:44px;border:0;border-radius:12px;background:var(--ft-tabs);color:var(--ft-text);font-size:22px;cursor:pointer">›</button>
+          </div>
+        </div>
+        <div style="display:flex;padding:6px;border-radius:15px;background:var(--ft-tabs);gap:4px">
+          <button onClick="{{ goMonth }}" style="{{ tabCalStyle }}">Schedule</button>
+          <button onClick="{{ goPlan }}" style="{{ tabPlanStyle }}">7 Day Plan</button>
+        </div>
+      </header>
+      <div style="{{ dowRowStyle }}">
+        <sc-for list="{{ dowHeads }}" as="h" hint-placeholder-count="7"><span style="text-align:center">{{ h }}</span></sc-for>
+      </div>
+      <div style="border-radius:10px;background:var(--ft-well);padding:clamp(14px,2.7vw,52px) clamp(10px,3.8vw,72px)">
+        <div style="{{ monthGridStyle }}">
+          <sc-for list="{{ monthCells }}" as="c" hint-placeholder-count="35">
+            <button onClick="{{ c.pick }}" style="{{ c.style }}">
+              <span style="{{ c.numStyle }}">{{ c.num }}</span>
+              <span style="{{ c.labelStyle }}">{{ c.label }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== CALENDAR SELECT (week of chosen date) ===== -->
+    <sc-if value="{{ isWeek }}" hint-placeholder-val="{{ false }}">
+    <div style="{{ splitStyle }}">
+      <div style="display:flex;flex-direction:column;gap:24px;min-width:0">
+        <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <button onClick="{{ goMonth }}" style="align-self:flex-start;border:0;background:transparent;color:var(--ft-text);font-family:inherit;font-size:clamp(16px,1.25vw,24px);font-weight:500;cursor:pointer;padding:0">‹ Calendar</button>
+            <h1 style="font-size:clamp(40px,3.4vw,64px);font-weight:800;line-height:1;margin:0">{{ monthTitle }}</h1>
+          </div>
+          <div style="display:flex;padding:6px;border-radius:15px;background:var(--ft-tabs);gap:4px">
+            <button onClick="{{ goMonth }}" style="{{ tabCalStyle }}">Schedule</button>
+            <button onClick="{{ goPlan }}" style="{{ tabPlanStyle }}">7 Day Plan</button>
+          </div>
+        </header>
+        <div style="border-radius:10px;background:var(--ft-well);padding:clamp(16px,2vw,40px) clamp(14px,2vw,40px);display:flex;flex-direction:column;gap:clamp(20px,2vw,40px)">
+          <div style="{{ weekGridStyle }}">
+            <sc-for list="{{ weekCells }}" as="w" hint-placeholder-count="7">
+              <button onClick="{{ w.pick }}" style="{{ w.style }}">
+                <span style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px 10px;width:100%">
+                  <span style="font-size:clamp(14px,1.05vw,20px);font-weight:400;color:var(--ft-muted)">{{ w.dow }}</span>
+                  <span style="font-size:clamp(28px,1.9vw,36px);font-weight:600;line-height:1">{{ w.num }}</span>
+                </span>
+                <span style="font-size:13px;font-weight:600;text-align:left;line-height:1.3;{{ w.labelStyle }}">{{ w.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <div style="padding:clamp(18px,1.4vw,28px);border-radius:20px;background:var(--ft-cell);box-shadow:0 0 0 2px var(--ft-cell-line);display:flex;flex-direction:column;gap:8px">
+            <span style="font-size:14px;color:var(--ft-muted)">{{ selDateLong }}</span>
+            <span style="font-size:clamp(22px,1.6vw,30px);font-weight:800">{{ selPlanName }}</span>
+            <div style="display:flex;gap:10px;flex-wrap:wrap"><sc-for list="{{ selTags }}" as="g" hint-placeholder-count="2"><span style="padding:6px 10px;border-radius:10px;background:var(--ft-chip);font-size:15px;font-weight:500">{{ g }}</span></sc-for></div>
+          </div>
+          <div style="padding:clamp(18px,1.4vw,28px);border-radius:20px;background:var(--ft-cell);box-shadow:0 0 0 2px var(--ft-cell-line);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <span style="display:flex;gap:28px;font-size:16px">
+              <span><b style="font-size:24px;font-variant-numeric:tabular-nums">{{ selExCount }}</b> <span style="color:var(--ft-muted)">{{ exLbl }}</span></span>
+              <span><b style="font-size:24px;font-variant-numeric:tabular-nums">{{ selSetCount }}</b> <span style="color:var(--ft-muted)">{{ setsLbl }}</span></span>
+              <span><b style="font-size:24px;font-variant-numeric:tabular-nums">~{{ selMin }}</b> <span style="color:var(--ft-muted)">min</span></span>
+            </span>
+            <a href="App.dc.html#today" style="height:52px;padding:0 26px;border-radius:15px;background:var(--ft-accent);color:#000;font-weight:800;font-size:18px;display:flex;align-items:center">{{ openLbl }}</a>
+          </div>
+        </div>
+      </div>
+      <aside style="border-radius:10px;background:var(--ft-well);padding:clamp(18px,1.7vw,34px);display:flex;flex-direction:column;gap:clamp(14px,1.2vw,22px);max-height:{{ asideMax }};overflow:auto">
+        <sc-for list="{{ selItems }}" as="it" hint-placeholder-count="5">
+          <div style="min-height:clamp(96px,7.8vw,150px);padding:clamp(18px,1.4vw,28px);border-radius:20px;background:var(--ft-cell);box-shadow:0 0 0 2px var(--ft-cell-line);display:flex;align-items:center;gap:20px">
+            <span style="{{ it.dotStyle }}"></span>
+            <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:clamp(18px,1.25vw,24px);font-weight:800">{{ it.name }}</span>
+              <span style="font-size:clamp(15px,1.05vw,20px);color:var(--ft-muted);font-variant-numeric:tabular-nums">{{ it.detail }}</span>
+            </span>
+            <span style="padding:6px 10px;border-radius:10px;background:var(--ft-chip);font-size:14px">{{ it.group }}</span>
+          </div>
+        </sc-for>
+        <sc-if value="{{ selRest }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:40px 20px;border-radius:20px;border:1px dashed var(--ft-accent-dash);text-align:center;color:var(--ft-muted);font-size:18px">{{ restNote }}</div>
+        </sc-if>
+      </aside>
+    </div>
+    </sc-if>
+
+    <!-- ===== 7 DAY PLAN ===== -->
+    <sc-if value="{{ isPlan }}" hint-placeholder-val="{{ false }}">
+    <div style="{{ splitPlanStyle }}">
+      <div style="display:flex;flex-direction:column;gap:24px;min-width:0">
+        <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="font-size:clamp(16px,1.25vw,24px);font-weight:500">7 Day Plan</div>
+            <h1 style="font-size:clamp(40px,3.4vw,64px);font-weight:800;line-height:1;margin:0">Schedule</h1>
+          </div>
+          <div style="display:flex;padding:6px;border-radius:15px;background:var(--ft-tabs);gap:4px">
+            <button onClick="{{ goMonth }}" style="{{ tabCalStyle }}">Calendar</button>
+            <button onClick="{{ goPlan }}" style="{{ tabPlanStyle }}">7 Day Plan</button>
+          </div>
+        </header>
+        <div style="border-radius:15px;background:rgb(18,26,19);background:color-mix(in srgb, var(--ft-bg) 60%, var(--ft-well));box-shadow:0 0 0 2px var(--ft-cell-line);padding:clamp(24px,3.1vw,60px) clamp(18px,3.8vw,72px)">
+          <div style="{{ dayGridStyle }}">
+            <sc-for list="{{ planDays }}" as="d" hint-placeholder-count="7">
+              <button onClick="{{ d.select }}" style="{{ d.style }}">
+                <span style="font-size:clamp(16px,1.05vw,20px);font-weight:400">{{ d.dow }}</span>
+                <span style="font-size:14px;font-weight:600;line-height:1.3;{{ d.nameStyle }}">{{ d.name }}</span>
+                <span style="font-size:12px;color:var(--ft-muted)">{{ d.meta }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <section style="border-radius:15px;background:color-mix(in srgb, var(--ft-bg) 70%, var(--ft-card));box-shadow:0 0 0 2px var(--ft-cell-line);padding:clamp(18px,1.25vw,24px);display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+          <h2 style="font-size:clamp(34px,2.5vw,48px);font-weight:400;margin:0;line-height:1.1">{{ edDay }}</h2>
+          <button onClick="{{ saveTpl }}" style="display:flex;align-items:center;justify-content:center;gap:22px;width:clamp(200px,17.7vw,340px);height:clamp(60px,4.2vw,80px);border:0;border-radius:15px;background:var(--ft-accent);box-shadow:0 0 0 2px rgb(92,195,127);color:#000;font-family:inherit;font-size:clamp(18px,1.25vw,24px);font-weight:800;cursor:pointer">
+            <span style="width:34px;height:34px;background:url(assets/save-icon.png) center/contain no-repeat"></span>{{ saveLbl }}
+          </button>
+        </div>
+        <sc-if value="{{ saved }}" hint-placeholder-val="{{ false }}"><div style="padding:10px 14px;border-radius:12px;background:var(--ft-accent-soft);color:var(--ft-accent-strong);font-weight:600;font-size:15px">{{ savedMsg }}</div></sc-if>
+
+        <label style="font-size:clamp(18px,1.25vw,24px);font-weight:500">ประเภท</label>
+        <div style="position:relative">
+          <select value="{{ edType }}" onChange="{{ setType }}" style="appearance:none;-webkit-appearance:none;width:100%;height:clamp(60px,4.2vw,80px);border:0;border-radius:15px;background:var(--ft-input);box-shadow:0 0 0 1px var(--ft-line);color:var(--ft-text);font-family:inherit;font-size:clamp(17px,1.15vw,22px);font-weight:500;padding:0 90px 0 24px;cursor:pointer">
+            <sc-for list="{{ typeOpts }}" as="o" hint-placeholder-count="6"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+          </select>
+          <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);width:clamp(44px,3.3vw,63px);height:clamp(44px,3.3vw,63px);background:url(assets/chevron-down.png) center/contain no-repeat;filter:var(--ft-icon-filter);pointer-events:none"></span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:{{ nameAddCols }};gap:28px;align-items:end">
+          <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+            <label style="font-size:clamp(18px,1.25vw,24px);font-weight:500">Name</label>
+            <input value="{{ edName }}" onChange="{{ setName }}" placeholder="Upper A" style="width:100%;height:clamp(60px,4.2vw,80px);border:0;border-radius:15px;background:var(--ft-input);box-shadow:0 0 0 1px var(--ft-line);color:var(--ft-text);font-family:inherit;font-size:clamp(17px,1.15vw,22px);font-weight:500;padding:0 24px">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+            <label style="font-size:clamp(18px,1.25vw,24px);font-weight:500">Add Plan</label>
+            <sc-if value="{{ notPicking }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ startPick }}" style="height:clamp(60px,4.2vw,80px);border:0;border-radius:15px;background:var(--ft-accent-soft);outline:1px dashed var(--ft-accent-dash);color:var(--ft-accent-strong);font-family:inherit;font-size:clamp(18px,1.25vw,24px);font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px"><span style="font-size:clamp(30px,2vw,40px);font-weight:700;line-height:1">+</span>ADD</button>
+            </sc-if>
+            <sc-if value="{{ picking }}" hint-placeholder-val="{{ false }}">
+              <select onChange="{{ addExercise }}" value="" style="width:100%;height:clamp(60px,4.2vw,80px);border:0;border-radius:15px;background:var(--ft-accent-soft);outline:1px dashed var(--ft-accent-dash);color:var(--ft-text);font-family:inherit;font-size:16px;padding:0 16px;cursor:pointer">
+                <option value="">{{ pickPh }}</option>
+                <sc-for list="{{ addOptions }}" as="o" hint-placeholder-count="6"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+              </select>
+            </sc-if>
+          </div>
+        </div>
+
+        <label style="font-size:clamp(18px,1.25vw,24px);font-weight:500">Plan</label>
+        <div style="border-radius:15px;background:color-mix(in srgb, var(--ft-accent-soft) 70%, transparent);box-shadow:0 0 0 1px var(--ft-line);padding:clamp(14px,1.3vw,25px);display:flex;flex-direction:column;gap:12px;max-height:420px;overflow:auto">
+          <sc-for list="{{ edItems }}" as="it" hint-placeholder-count="3">
+            <div style="min-height:clamp(84px,6.3vw,120px);border-radius:15px;background:var(--ft-input);box-shadow:0 0 0 1px var(--ft-line);padding:14px clamp(14px,1.2vw,22px);display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+              <span style="{{ it.dotStyle }}"></span>
+              <span style="flex:1;min-width:140px;display:flex;flex-direction:column;gap:4px">
+                <span style="font-size:clamp(17px,1.1vw,21px);font-weight:700">{{ it.name }}</span>
+                <span style="font-size:14px;color:var(--ft-muted);font-variant-numeric:tabular-nums">{{ it.detail }}</span>
+              </span>
+              <span style="display:flex;align-items:center;gap:6px">
+                <button onClick="{{ it.dec }}" aria-label="fewer sets" style="width:40px;height:40px;border:0;border-radius:12px;background:var(--ft-tabs);color:var(--ft-text);font-size:20px;cursor:pointer">−</button>
+                <span style="min-width:64px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums">{{ it.sets }} sets</span>
+                <button onClick="{{ it.inc }}" aria-label="more sets" style="width:40px;height:40px;border:0;border-radius:12px;background:var(--ft-tabs);color:var(--ft-text);font-size:20px;cursor:pointer">+</button>
+                <button onClick="{{ it.up }}" aria-label="move up" style="width:40px;height:40px;border:0;border-radius:12px;background:transparent;color:var(--ft-muted);font-size:18px;cursor:pointer">↑</button>
+                <button onClick="{{ it.down }}" aria-label="move down" style="width:40px;height:40px;border:0;border-radius:12px;background:transparent;color:var(--ft-muted);font-size:18px;cursor:pointer">↓</button>
+                <button onClick="{{ it.remove }}" aria-label="remove" style="width:40px;height:40px;border:0;border-radius:12px;background:transparent;color:var(--ft-muted);font-size:20px;cursor:pointer">✕</button>
+              </span>
+            </div>
+          </sc-for>
+          <sc-if value="{{ edEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:36px 16px;text-align:center;color:var(--ft-muted);font-size:17px">{{ emptyNote }}</div>
+          </sc-if>
+        </div>
+      </section>
+    </div>
+    </sc-if>
+  </main>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:1080}}">
+class Component extends DCLogic {
+  state = { ready: false, isMobile: false, mode: 'month', ym: [2026, 7], selDate: null, template: null, selected: 0, saved: false, picking: false };
+  async componentDidMount() {
+    const base = new URL('.', location.href).href;
+    this.d = await import(base + 'data.js');
+    this.app = await import(base + 'app.js'); window.addEventListener('ft-locale', e => this.setState({ locale: e.detail })); window.addEventListener('ft-theme', e => this.setState({ theme: e.detail }));
+    this.app.bootTheme();
+    this.unwatch = this.app.watchMobile((m, bp) => this.setState({ isMobile: m, bp }));
+    this.setState({ ready: true, locale: this.app.getLocale(), template: this.clone(this.d.TEMPLATE), selDate: new Date(this.d.TODAY) });
+  }
+  componentWillUnmount() { this.unwatch && this.unwatch(); }
+  clone(t) { return t.map(day => ({ ...day, name: { ...day.name }, groups: [...day.groups], items: day.items.map(i => ({ ...i })) })); }
+  regroup(day) { const gs = []; for (const it of day.items) { const g = this.d.EX_BY_ID[it.exId].group; if (!gs.includes(g)) gs.push(g); } day.groups = gs; }
+  mutate(fn) { const tpl = this.clone(this.state.template); fn(tpl[this.state.selected], tpl); this.setState({ template: tpl, saved: false }); }
+  tab(active) { return { height: 'clamp(44px,3vw,58px)', padding: '0 clamp(14px,1vw,20px)', border: 0, borderRadius: '11px', background: active ? 'var(--ft-tab-active)' : 'transparent', boxShadow: active ? '0 0 0 1px var(--ft-line)' : 'none', color: 'var(--ft-text)', fontFamily: 'inherit', fontSize: 'clamp(16px,1.25vw,24px)', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }; }
+  same(a, b) { return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+  renderVals() {
+    if (!this.d || !this.state.template) return { ready: false, standalone: !this.props.embedded };
+    const { d, app } = this; const en = this.state.locale === 'en'; const m = this.state.isMobile; const loc = this.state.locale; const stack = this.state.bp !== 'desktop';
+    const tpl = this.state.template; const gName = g => app.groupLabel(d.GROUPS, g, loc);
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const [Y, M] = this.state.ym;
+    const DOW_SUN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const planFor = dt => tpl[d.dowOf(dt)];
+    const today = d.TODAY; const sel = this.state.selDate;
+    // month grid (Sun-first, as in Figma)
+    const first = new Date(Y, M, 1); const lead = first.getDay(); const days = new Date(Y, M + 1, 0).getDate();
+    const cellH = m ? '64px' : 'clamp(96px,7.8vw,150px)';
+    const monthCells = [];
+    for (let i = 0; i < lead; i++) monthCells.push({ num: '', label: '', pick: () => {}, style: { visibility: 'hidden', height: cellH }, numStyle: {}, labelStyle: {} });
+    for (let n = 1; n <= days; n++) {
+      const dt = new Date(Y, M, n); const p = planFor(dt); const isSel = this.same(dt, sel); const isToday = this.same(dt, today);
+      monthCells.push({
+        num: String(n), label: m ? '' : (p.rest ? (en ? 'Rest' : 'พัก') : (en ? p.name.en : p.name.th)),
+        pick: () => this.setState({ selDate: dt, mode: 'week' }),
+        style: { position: 'relative', height: cellH, border: 0, borderRadius: '10px', background: 'var(--ft-cell)', boxShadow: isSel ? '0 0 0 2px var(--ft-accent)' : '0 0 0 2px var(--ft-cell-line)', color: 'var(--ft-text)', fontFamily: 'inherit', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-end', padding: m ? '6px' : 'clamp(8px,0.7vw,14px) clamp(10px,0.9vw,16px)', textAlign: 'right' },
+        numStyle: { fontSize: m ? '18px' : 'clamp(24px,1.9vw,36px)', fontWeight: 600, lineHeight: 1, color: isToday ? 'var(--ft-accent-strong)' : 'var(--ft-text)' },
+        labelStyle: { alignSelf: 'stretch', textAlign: 'left', fontSize: 'clamp(11px,0.7vw,13px)', fontWeight: 600, lineHeight: 1.25, color: p.rest ? 'var(--ft-muted)' : 'var(--ft-accent-strong)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' },
+      });
+    }
+    const colGap = m ? '6px' : 'clamp(10px,3.2vw,62px)';
+    // week of selected (Mon-first as in Figma select view)
+    const monday = new Date(sel); monday.setDate(sel.getDate() - d.dowOf(sel));
+    const DOW_MON = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const weekCells = DOW_MON.map((lbl, i) => {
+      const dt = new Date(monday); dt.setDate(monday.getDate() + i); const p = tpl[i]; const isSel = this.same(dt, sel);
+      return { dow: lbl, num: dt.getDate(), label: p.rest ? (en ? 'Rest' : 'พัก') : (en ? p.name.en : p.name.th), labelStyle: p.rest ? 'color:var(--ft-muted)' : 'color:var(--ft-accent-strong)',
+        pick: () => this.setState({ selDate: dt }),
+        style: { minHeight: m ? '110px' : 'clamp(140px,12vw,240px)', border: 0, borderRadius: '10px', background: 'var(--ft-cell)', boxShadow: isSel ? '0 0 0 3px rgb(120,230,150)' : '0 0 0 2px var(--ft-cell-line)', color: 'var(--ft-text)', fontFamily: 'inherit', cursor: 'pointer', padding: 'clamp(10px,0.8vw,16px)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '8px' } };
+    });
+    const sp = planFor(sel); const setCount = sp.items.reduce((a, x) => a + x.sets, 0);
+    const selItems = sp.items.map(it => { const e = d.EX_BY_ID[it.exId]; return { name: en ? e.en : e.th, group: gName(e.group), detail: e.type === 'cardio' ? (en ? 'Cardio session' : 'คาร์ดิโอ') : `${it.sets} × ${it.low}-${it.high}${it.weight ? ' · ' + app.fmtWeight(it.weight, app.getUnits()) : ''}`, dotStyle: { width: '46px', height: '46px', flex: 'none', borderRadius: '15px', background: it.primary ? 'var(--ft-accent)' : 'var(--ft-tile)' } }; });
+    // 7-day plan
+    const order = stack ? [0,1,2,3,4,5,6] : [0,4,1,5,2,6,3];
+    const planDays = order.map(i => { const p = tpl[i]; const isSel = this.state.selected === i; return {
+      dow: DOW_MON[i], name: p.rest ? (en ? 'Rest day' : 'วันพัก') : (en ? p.name.en : p.name.th), nameStyle: p.rest ? 'color:var(--ft-muted)' : '',
+      meta: p.rest ? '' : `${p.items.length} ${en ? 'exercises' : 'ท่า'} · ${p.items.reduce((a, x) => a + x.sets, 0)} sets`,
+      select: () => this.setState({ selected: i, picking: false }),
+      style: { height: m ? '96px' : 'clamp(120px,9vw,174px)', border: 0, borderRadius: '15px', background: isSel ? 'var(--ft-accent-soft)' : 'var(--ft-card)', boxShadow: isSel ? '0 0 0 2px rgb(60,150,90)' : '0 0 0 2px var(--ft-card-line)', color: 'var(--ft-text)', fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer', padding: 'clamp(14px,1vw,20px)', display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: (!stack && i === 3) ? '1' : 'auto' } }; });
+    const ed = tpl[this.state.selected];
+    const TYPES = [['push', 'Push'], ['pull', 'Pull'], ['legs', 'Legs'], ['upper', 'Upper'], ['lower', 'Lower'], ['full', 'Full body'], ['cardio', 'Cardio'], ['rest', en ? 'Rest' : 'พัก']];
+    const edType = ed.rest ? 'rest' : (ed.type || (ed.groups.includes('cardio') ? 'cardio' : ed.groups.includes('legs') ? 'legs' : ed.groups.includes('chest') ? 'push' : 'pull'));
+    const edItems = ed.items.map((it, i) => { const e = d.EX_BY_ID[it.exId]; return {
+      name: en ? e.en : e.th, sets: it.sets, detail: e.type === 'cardio' ? gName(e.group) : `${it.low}-${it.high} reps${it.weight ? ' · ' + app.fmtWeight(it.weight, app.getUnits()) : ''} · ${gName(e.group)}`,
+      dotStyle: { width: '12px', height: '12px', borderRadius: '50%', flex: 'none', background: it.primary ? 'var(--ft-accent)' : 'var(--ft-muted)' },
+      inc: () => this.mutate(day => { day.items[i].sets = Math.min(8, day.items[i].sets + 1); }), dec: () => this.mutate(day => { day.items[i].sets = Math.max(1, day.items[i].sets - 1); }),
+      up: () => this.mutate(day => { if (i > 0) [day.items[i - 1], day.items[i]] = [day.items[i], day.items[i - 1]]; }),
+      down: () => this.mutate(day => { if (i < day.items.length - 1) [day.items[i + 1], day.items[i]] = [day.items[i], day.items[i + 1]]; }),
+      remove: () => this.mutate(day => { day.items.splice(i, 1); this.regroup(day); }),
+    }; });
+    const DAYS_LONG = en ? ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] : ['วันจันทร์','วันอังคาร','วันพุธ','วันพฤหัสบดี','วันศุกร์','วันเสาร์','วันอาทิตย์'];
+    return {
+      standalone: !this.props.embedded, ready: this.state.ready,
+      mainStyle: { maxWidth: '1880px', margin: '0 auto', padding: m ? '20px 14px 100px' : 'clamp(20px,1.6vw,32px) clamp(20px,2.2vw,42px) 48px' },
+      isMonth: this.state.mode === 'month', isWeek: this.state.mode === 'week', isPlan: this.state.mode === 'plan',
+      goMonth: () => this.setState({ mode: 'month' }), goPlan: () => this.setState({ mode: 'plan' }),
+      tabCalStyle: this.tab(this.state.mode !== 'plan'), tabPlanStyle: this.tab(this.state.mode === 'plan'),
+      monthTitle: `${MONTHS[M]} ${Y}`,
+      prevMonth: () => this.setState({ ym: M === 0 ? [Y - 1, 11] : [Y, M - 1] }), nextMonth: () => this.setState({ ym: M === 11 ? [Y + 1, 0] : [Y, M + 1] }),
+      dowHeads: DOW_SUN, dowRowStyle: { display: 'grid', gridTemplateColumns: 'repeat(7,minmax(0,1fr))', gap: colGap, padding: m ? '0 10px 10px' : '0 clamp(10px,3.8vw,72px) 18px', fontSize: m ? '13px' : 'clamp(16px,1.25vw,24px)', fontWeight: 700 },
+      monthGridStyle: { display: 'grid', gridTemplateColumns: 'repeat(7,minmax(0,1fr))', columnGap: colGap, rowGap: m ? '6px' : 'clamp(10px,1.2vw,22px)' },
+      monthCells,
+      splitStyle: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,600px),1fr))', gap: 'clamp(24px,2.7vw,52px)', alignItems: 'start' },
+      weekGridStyle: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(120px,1fr))', gap: 'clamp(10px,1.6vw,32px)' },
+      weekCells, selDateLong: app.fmtLongDate(sel, loc), selPlanName: sp.rest ? (en ? 'Rest day' : 'วันพัก') : (en ? sp.name.en : sp.name.th), selTags: sp.groups.map(gName),
+      selExCount: sp.items.length, selSetCount: setCount, selMin: Math.round(setCount * 2.5), exLbl: en ? 'exercises' : 'ท่า', setsLbl: 'sets', openLbl: en ? 'Open in Today →' : 'เปิดหน้าวันนี้ →',
+      selItems, selRest: sp.rest, restNote: en ? 'Planned rest — never counts as a miss.' : 'วันพักตามแผน ไม่นับว่าพลาด', asideMax: stack ? 'none' : 'calc(100vh - 170px)',
+      splitPlanStyle: { display: 'grid', gridTemplateColumns: stack ? '1fr' : 'minmax(0,1fr) minmax(0,1.2fr)', gap: 'clamp(24px,2.8vw,54px)', alignItems: 'start' },
+      dayGridStyle: { display: 'grid', gridTemplateColumns: m ? '1fr 1fr' : stack ? 'repeat(auto-fill,minmax(150px,1fr))' : 'repeat(2,minmax(0,1fr))', columnGap: 'clamp(16px,4.3vw,82px)', rowGap: '20px' },
+      planDays, edDay: DAYS_LONG[this.state.selected],
+      saveTpl: () => this.setState({ saved: true }), saveLbl: 'SAVE', saved: this.state.saved, savedMsg: en ? 'Template saved — schedule generated 4 weeks ahead.' : 'บันทึกแล้ว สร้างตารางล่วงหน้า 4 สัปดาห์ให้อัตโนมัติ',
+      typeOpts: TYPES.map(([id, label]) => ({ id, label })), edType,
+      setType: e => { const v = e.target.value; this.mutate(day => { day.type = v; if (v === 'rest') { day.rest = true; day.items = []; day.groups = []; day.name = { th: 'วันพัก', en: 'Rest day' }; } else day.rest = false; }); },
+      edName: ed.rest ? '' : (en ? ed.name.en : ed.name.th), setName: e => { const v = e.target.value; this.mutate(day => { day.name = { th: v, en: v }; }); },
+      nameAddCols: m ? '1fr' : 'minmax(0,1.4fr) minmax(0,1fr)',
+      picking: this.state.picking, notPicking: !this.state.picking, startPick: () => this.setState({ picking: true }), pickPh: en ? 'Choose exercise…' : 'เลือกท่า…',
+      addOptions: d.EXERCISES.map(e => ({ id: e.id, label: `${en ? e.en : e.th} · ${gName(e.group)}` })),
+      addExercise: e => { const id = e.target.value; if (!id) return; const ex = d.EX_BY_ID[id]; this.mutate(day => { day.rest = false; day.items.push({ exId: id, sets: 3, low: ex.low, high: ex.high, weight: ex.type === 'strength' ? 10 : null, primary: false }); this.regroup(day); }); this.setState({ picking: false }); },
+      edItems, edEmpty: ed.items.length === 0, emptyNote: en ? 'No exercises yet — press ADD.' : 'ยังไม่มีท่า กด ADD เพื่อเพิ่ม',
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -15,7 +15,7 @@
 
 :root, [data-theme="dark"] {
   --ft-bg: rgb(17,25,19);
-  --ft-glow: rgba(28,49,34,.9);
+  --ft-glow: rgba(36,66,45,.95);
   --ft-glow-soft: rgba(18,37,23,.8);
   --ft-card: rgb(25,30,25);
   --ft-card-line: rgb(49,55,48);
