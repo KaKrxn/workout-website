@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DesignControls } from "./design-controls";
 import { signOut } from "@/app/(auth)/actions";
 
@@ -15,6 +15,37 @@ export function AppHeader({ locale, admin, initial }: { locale: "th" | "en"; adm
   const [open, setOpen] = useState(false);
   const menu = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
+  const nav = useRef<HTMLElement>(null);
+  const wave = useRef<HTMLSpanElement>(null);
+  const tabRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const waveX = useRef<number | null>(null);
+  useEffect(() => {
+    const navEl = nav.current;
+    const waveEl = wave.current;
+    if (!navEl || !waveEl) return;
+    const placeWave = () => {
+      if (active < 0) { waveEl.style.opacity = "0"; return; }
+      const tab = tabRefs.current[active];
+      if (!tab) return;
+      const target = tab.offsetLeft + tab.offsetWidth / 2 - waveEl.offsetWidth / 2;
+      const from = waveX.current;
+      waveEl.getAnimations().forEach(animation => animation.cancel());
+      waveEl.style.opacity = "1";
+      waveEl.style.transform = `translateX(${target}px)`;
+      waveX.current = target;
+      if (from === null || Math.abs(target - from) < 1 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const middle = (from + target) / 2;
+      waveEl.animate([
+        { transform: `translateX(${from}px) scaleX(1)` },
+        { transform: `translateX(${middle}px) scaleX(1.65)`, offset: .5 },
+        { transform: `translateX(${target}px) scaleX(1)` },
+      ], { duration: 460, easing: "cubic-bezier(.22,1,.36,1)" });
+    };
+    placeWave();
+    const observer = new ResizeObserver(placeWave);
+    observer.observe(navEl);
+    return () => observer.disconnect();
+  }, [active]);
   useEffect(() => {
     function close(e: PointerEvent) { if (!menu.current?.contains(e.target as Node)) setOpen(false); }
     function escape(e: KeyboardEvent) { if (e.key === "Escape") { setOpen(false); trigger.current?.focus(); } }
@@ -24,9 +55,9 @@ export function AppHeader({ locale, admin, initial }: { locale: "th" | "en"; adm
   const more = [["/history", "History", "ประวัติ"], ["/library", "Library", "คลังท่า"], ["/settings", "Settings", "ตั้งค่า"], ...(admin ? [["/admin", "Admin", "ผู้ดูแล"]] : [])];
   return <header className="ft-header">
     <Brand/>
-    <nav className="ft-liquid-nav" aria-label="Main navigation" style={{ "--tab-index": Math.max(0, active) } as CSSProperties}>
-      {tabs.map(([href, en, th]) => <Link key={href} href={href} aria-current={pathname.startsWith(href) ? "page" : undefined}>{locale === "th" ? th : en}</Link>)}
-      <span className="ft-wave" style={{ opacity: active < 0 ? 0 : 1 }} aria-hidden="true"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0 24 C18 24 23 0 50 0 C77 0 82 24 100 24 Z"/></svg></span>
+    <nav ref={nav} className="ft-liquid-nav" aria-label="Main navigation">
+      {tabs.map(([href, en, th], index) => <Link ref={element => { tabRefs.current[index] = element; }} key={href} href={href} aria-current={pathname.startsWith(href) ? "page" : undefined}>{locale === "th" ? th : en}</Link>)}
+      <span ref={wave} className="ft-wave" aria-hidden="true"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0 24 C18 24 23 0 50 0 C77 0 82 24 100 24 Z"/></svg></span>
     </nav>
     <div className="ft-header-actions"><DesignControls locale={locale}/>
       <div ref={menu} className="ft-account">

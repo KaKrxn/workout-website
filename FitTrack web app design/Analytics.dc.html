@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-6d50803f-0be1-4926-88ed-8707846947c5/styles.css">
+<link rel="stylesheet" href="ft-theme.css">
+</helmet>
+<div style="min-height:100vh">
+  <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}"><dc-import name="Nav" active="analytics" hint-size="100%,110px"></dc-import></sc-if>
+  <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+  <main style="{{ mainStyle }}">
+    <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px">
+      <div>
+        <h1 style="font-size:32px;margin:0 0 6px">Analytics</h1>
+        <p class="text-muted" style="margin:0;font-size:14px">{{ sub }}</p>
+      </div>
+      <div class="seg" role="group" aria-label="range">
+        <sc-for list="{{ ranges }}" as="r" hint-placeholder-count="4">
+          <label class="seg-opt" style="white-space:nowrap"><input type="radio" name="range" checked="{{ r.active }}" onChange="{{ r.pick }}"><span>{{ r.label }}</span></label>
+        </sc-for>
+      </div>
+    </header>
+
+    <!-- stat tiles -->
+    <div style="display:grid;grid-template-columns:{{ tileCols }};gap:2px;background:var(--color-divider);border:2px solid var(--color-divider);margin-bottom:24px">
+      <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="4">
+        <div style="background:var(--color-surface);padding:18px">
+          <div class="text-muted" style="font-size:12px;margin-bottom:8px">{{ t.label }}</div>
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:30px;line-height:1;font-variant-numeric:tabular-nums">{{ t.value }}</div>
+          <div style="font-size:12px;margin-top:6px;{{ t.deltaStyle }}">{{ t.delta }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- heatmap -->
+    <section class="card elev-sm" style="margin-bottom:24px;overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div><div class="card-kicker">{{ heatKicker }}</div><div style="font-family:var(--font-heading);font-weight:800;font-size:17px">{{ heatTitle }}</div></div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px" class="text-muted">
+          <span>{{ lessLabel }}</span>
+          <sc-for list="{{ legend }}" as="l" hint-placeholder-count="5"><span style="{{ l.style }}"></span></sc-for>
+          <span>{{ moreLabel }}</span>
+        </div>
+      </div>
+      <div style="overflow-x:auto;padding-top:12px">
+        <div style="display:flex;gap:3px;min-width:max-content">
+          <sc-for list="{{ heatWeeks }}" as="w" hint-placeholder-count="20">
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <sc-for list="{{ w.cells }}" as="c" hint-placeholder-count="7">
+                <a href="{{ c.href }}" title="{{ c.title }}" style="{{ c.style }}"></a>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div class="text-muted" style="font-size:11px;margin-top:10px">{{ heatNote }}</div>
+    </section>
+
+    <!-- charts -->
+    <div style="display:grid;grid-template-columns:{{ chartCols }};gap:16px">
+      <sc-for list="{{ charts }}" as="ch" hint-placeholder-count="4">
+        <section class="card elev-sm">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+            <div><div class="card-kicker">{{ ch.kicker }}</div><div style="font-family:var(--font-heading);font-weight:800;font-size:17px">{{ ch.title }}</div></div>
+            <button class="btn btn-ghost" onClick="{{ ch.toggle }}" style="white-space:nowrap;font-size:12px">{{ ch.toggleLabel }}</button>
+          </div>
+          <sc-if value="{{ ch.showChart }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:10px">{{ ch.svg }}</div>
+          </sc-if>
+          <sc-if value="{{ ch.showTable }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:10px;max-height:220px;overflow:auto">
+              <table class="table">
+                <thead><tr><sc-for list="{{ ch.headers }}" as="h" hint-placeholder-count="2"><th>{{ h }}</th></sc-for></tr></thead>
+                <tbody><sc-for list="{{ ch.rows }}" as="row" hint-placeholder-count="6"><tr><sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="2"><td style="font-variant-numeric:tabular-nums">{{ cell }}</td></sc-for></tr></sc-for></tbody>
+              </table>
+            </div>
+          </sc-if>
+        </section>
+      </sc-for>
+    </div>
+  </main>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:1100}}">
+class Component extends DCLogic {
+  state = { ready: false, isMobile: false, range: 90, tables: {} };
+  async componentDidMount() {
+    const base = new URL('.', location.href).href;
+    this.d = await import(base + 'data.js');
+    this.app = await import(base + 'app.js'); window.addEventListener('ft-locale', e => this.setState({ locale: e.detail })); window.addEventListener('ft-theme', e => this.setState({ theme: e.detail }));
+    this.app.bootTheme();
+    this.unwatch = this.app.watchMobile(m => this.setState({ isMobile: m }));
+    this.setState({ ready: true, locale: this.app.getLocale() });
+  }
+  componentWillUnmount() { this.unwatch && this.unwatch(); }
+  heatColor(lvl, rest) {
+    if (rest) return 'var(--color-neutral-100)';
+    const map = ['var(--color-neutral-200)', 'var(--color-accent-200)', 'var(--color-accent-400)', 'var(--color-accent-500)', 'var(--color-accent-700)'];
+    return map[lvl] || map[0];
+  }
+  barChart(vals, labels, target) {
+    const W = 300, H = 150, pad = 22, n = vals.length, max = Math.max(1, ...vals, target || 0);
+    const bw = (W - pad * 2) / n * 0.68, gap = (W - pad * 2) / n;
+    const bars = vals.map((v, i) => {
+      const h = v / max * (H - pad * 2), x = pad + i * gap + (gap - bw) / 2, y = H - pad - h;
+      return React.createElement('rect', { key: i, x, y, width: bw, height: h, fill: 'var(--color-accent)' });
+    });
+    const tl = target != null ? React.createElement('line', { x1: pad, x2: W - pad, y1: H - pad - target / max * (H - pad * 2), y2: H - pad - target / max * (H - pad * 2), stroke: 'var(--color-neutral-500)', strokeDasharray: '4 3', strokeWidth: 1 }) : null;
+    const labs = labels.map((l, i) => React.createElement('text', { key: 'l' + i, x: pad + i * gap + gap / 2, y: H - 6, fontSize: 8, fill: 'var(--color-neutral-600)', textAnchor: 'middle' }, l));
+    return React.createElement('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', height: 'auto', style: { display: 'block' } }, [React.createElement('line', { key: 'ax', x1: pad, x2: W - pad, y1: H - pad, y2: H - pad, stroke: 'var(--color-divider)', strokeWidth: 1 }), tl, ...bars, ...labs]);
+  }
+  lineChart(series, labels, fmt) {
+    const W = 300, H = 150, pad = 24;
+    const all = series.flatMap(s => s.vals); const min = Math.min(...all), max = Math.max(...all); const rng = max - min || 1;
+    const xy = (v, i, n) => [pad + i / (n - 1) * (W - pad * 2), H - pad - (v - min) / rng * (H - pad * 2)];
+    const colors = ['var(--color-accent)', 'var(--color-neutral-500)'];
+    const paths = series.map((s, si) => { const pts = s.vals.map((v, i) => xy(v, i, s.vals.length)); const dd = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' '); return React.createElement('path', { key: si, d: dd, fill: 'none', stroke: colors[si] || 'var(--color-neutral-400)', strokeWidth: 2, strokeDasharray: si ? '4 3' : 'none' }); });
+    const dots = series[0].vals.map((v, i) => { const p = xy(v, i, series[0].vals.length); return React.createElement('circle', { key: i, cx: p[0], cy: p[1], r: 2.5, fill: 'var(--color-accent)' }); });
+    const labs = labels.map((l, i) => i % 2 === 0 ? React.createElement('text', { key: 'l' + i, x: pad + i / (labels.length - 1) * (W - pad * 2), y: H - 6, fontSize: 8, fill: 'var(--color-neutral-600)', textAnchor: 'middle' }, l) : null);
+    return React.createElement('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', height: 'auto', style: { display: 'block' } }, [React.createElement('line', { key: 'ax', x1: pad, x2: W - pad, y1: H - pad, y2: H - pad, stroke: 'var(--color-divider)', strokeWidth: 1 }), ...paths, ...dots, ...labs]);
+  }
+  renderVals() {
+    if (!this.d) return { ready: false, standalone: !this.props.embedded };
+    const { d, app } = this; const t = app.makeT(this.state.locale); const en = this.state.locale === 'en'; const m = this.state.isMobile;
+    const S = d.SUMMARY;
+    const vtDelta = (S.vtaper - S.vtaperPrev).toFixed(2), bfDelta = (S.bf - S.bfPrev).toFixed(1);
+    const tiles = [
+      { label: t('body.vtaper'), value: S.vtaper.toFixed(2), delta: '+' + vtDelta + (en ? ' in 8 wks' : ' ใน 8 สัปดาห์'), deltaStyle: 'color:var(--color-accent-700);font-weight:600' },
+      { label: t('body.bf'), value: S.bf.toFixed(1) + '%', delta: bfDelta + (en ? ' pts' : ' จุด'), deltaStyle: 'color:var(--color-accent-700);font-weight:600' },
+      { label: t('an.streak'), value: S.streak + (en ? ' wk' : ' สัปดาห์'), delta: en ? 'weeks in a row' : 'ต่อเนื่อง', deltaStyle: 'color:var(--color-neutral-600)' },
+      { label: t('an.adherence'), value: Math.round(S.adherence * 100) + '%', delta: en ? 'sessions vs planned' : 'ทำได้ตามแผน', deltaStyle: 'color:var(--color-neutral-600)' },
+    ];
+    // heatmap: 26 weeks ending this week
+    const WEEKS = m ? 18 : 26;
+    const heatWeeks = [];
+    const end = new Date(d.TODAY); const endDow = d.dowOf(end);
+    const start = new Date(end); start.setDate(start.getDate() - endDow - (WEEKS - 1) * 7);
+    const z = n => String(n).padStart(2, '0'); const ymd = dt => `${dt.getFullYear()}-${z(dt.getMonth() + 1)}-${z(dt.getDate())}`;
+    for (let w = 0; w < WEEKS; w++) {
+      const cells = [];
+      for (let dd = 0; dd < 7; dd++) {
+        const dt = new Date(start); dt.setDate(start.getDate() + w * 7 + dd);
+        const key = ymd(dt); const st = d.DAILY_STATS[key]; const future = dt > d.TODAY;
+        const lvl = st ? st.level : 0; const rest = st ? st.rest : false;
+        cells.push({ style: { display: 'block', width: '14px', height: '14px', background: future ? 'transparent' : this.heatColor(lvl, rest), border: rest ? '1px dashed var(--color-neutral-400)' : 'none', opacity: future ? 0.25 : 1, textDecoration: 'none' }, title: `${app.fmtShortDate(key, this.state.locale)} · ${st ? (st.rest ? t('hist.rest') : (st.vol ? 'vol ' + st.vol : t('hist.missed'))) : '—'}`, href: st && st.vol ? 'App.dc.html#history' : 'App.dc.html#history' });
+      }
+      heatWeeks.push({ cells });
+    }
+    const legend = [0, 1, 2, 3, 4].map(l => ({ style: { display: 'block', width: '12px', height: '12px', background: this.heatColor(l, false) } }));
+    // charts responding to range
+    const nWeeks = this.state.range === 30 ? 4 : this.state.range === 90 ? 9 : 9;
+    const wk = d.WEEKLY.slice(-nWeeks); const bm = d.BODY_METRICS;
+    const isT = k => !!this.state.tables[k]; const mkToggle = k => () => this.setState({ tables: { ...this.state.tables, [k]: !this.state.tables[k] } });
+    const wLabels = wk.map((_, i) => 'W' + (i + 1)); const bLabels = bm.map((_, i) => 'W' + (i + 1));
+    const charts = [
+      { key: 'vol', kicker: en ? 'CONSISTENCY' : 'ความสม่ำเสมอ', title: t('an.volume'), svg: this.barChart(wk.map(w => w.vol), wLabels), headers: ['Week', en ? 'Volume' : 'ปริมาตร'], rows: wk.map((w, i) => ({ cells: ['W' + (i + 1), String(w.vol)] })) },
+      { key: 'days', kicker: en ? 'CONSISTENCY' : 'ความสม่ำเสมอ', title: t('an.days'), svg: this.barChart(wk.map(w => w.days), wLabels, 5), headers: ['Week', en ? 'Days' : 'วัน', 'Target'], rows: wk.map((w, i) => ({ cells: ['W' + (i + 1), String(w.days), '5'] })) },
+      { key: 'vt', kicker: en ? 'PROGRESS' : 'ความก้าวหน้า', title: t('body.vtaper'), svg: this.lineChart([{ vals: bm.map(x => x.vtaper) }], bLabels), headers: ['Week', 'V-Taper'], rows: bm.map((x, i) => ({ cells: ['W' + (i + 1), x.vtaper.toFixed(3)] })) },
+      { key: 'bf', kicker: en ? 'PROGRESS' : 'ความก้าวหน้า', title: t('body.bf') + ' + ' + t('body.weight'), svg: this.lineChart([{ vals: bm.map(x => x.bf) }, { vals: bm.map(x => x.weight) }], bLabels), headers: ['Week', 'BF%', 'kg'], rows: bm.map((x, i) => ({ cells: ['W' + (i + 1), x.bf.toFixed(1), x.weight.toFixed(1)] })) },
+    ].map(c => ({ ...c, showChart: !isT(c.key), showTable: isT(c.key), toggle: mkToggle(c.key), toggleLabel: isT(c.key) ? (en ? 'View chart' : 'ดูกราฟ') : t('an.table') }));
+
+    const ranges = [[30, t('an.range.30')], [90, t('an.range.90')], [365, t('an.range.365')], [9999, t('an.range.all')]].map(([v, l]) => ({ label: l, active: this.state.range === v, pick: () => this.setState({ range: v }) }));
+    return {
+      standalone: !this.props.embedded, ready: this.state.ready, isMobile: m,
+      mainStyle: { maxWidth: '1120px', margin: '0 auto', padding: m ? '20px 16px 96px' : '32px 24px 48px' },
+      sub: en ? 'How consistent have you been, and are you actually progressing?' : 'ที่ผ่านมาสม่ำเสมอแค่ไหน และก้าวหน้าขึ้นจริงไหม',
+      ranges, tileCols: 'repeat(auto-fit,minmax(min(100%,160px),1fr))', tiles,
+      heatKicker: en ? 'DAILY' : 'รายวัน', heatTitle: t('an.heatmap'), lessLabel: t('an.less'), moreLabel: t('an.more'), legend,
+      heatWeeks, heatNote: en ? 'Dashed = planned rest (never a miss). Click a day to open its history.' : 'ขอบประ = วันพักตามแผน (ไม่นับว่าพลาด) · กดช่องเพื่อดูประวัติวันนั้น',
+      chartCols: 'repeat(auto-fit,minmax(min(100%,420px),1fr))', charts,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-6d50803f-0be1-4926-88ed-8707846947c5/styles.css">
+<link rel="stylesheet" href="ft-theme.css">
+</helmet>
+<div style="min-height:100vh">
+  <sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}"><dc-import name="Nav" active="library" hint-size="100%,110px"></dc-import></sc-if>
+  <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+  <main style="{{ mainStyle }}">
+    <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+      <div><h1 style="font-size:32px;margin:0 0 6px">Library</h1><p class="text-muted" style="margin:0;font-size:14px">{{ sub }}</p></div>
+      <button class="btn btn-primary" onClick="{{ toggleAdd }}" style="white-space:nowrap">＋ {{ addLabel }}</button>
+    </header>
+
+    <sc-if value="{{ adding }}" hint-placeholder-val="{{ false }}">
+    <section class="card elev-sm" style="margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:{{ addCols }};gap:10px;align-items:end">
+        <div class="field"><label>{{ nameLabel }}</label><input class="input" value="{{ newName }}" onChange="{{ setName }}" placeholder="{{ namePh }}" style="min-height:44px"></div>
+        <div class="field"><label>{{ groupLabel }}</label><select class="input" value="{{ newGroup }}" onChange="{{ setGroup }}" style="min-height:44px"><sc-for list="{{ groupOpts }}" as="g" hint-placeholder-count="6"><option value="{{ g.id }}">{{ g.label }}</option></sc-for></select></div>
+        <button class="btn btn-primary" onClick="{{ addNew }}" style="justify-content:center;min-height:44px">{{ saveLabel }}</button>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- search + filter -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      <input class="input" value="{{ query }}" onChange="{{ setQuery }}" placeholder="{{ searchPh }}" style="max-width:320px;min-height:44px">
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px">
+      <sc-for list="{{ groupFilters }}" as="g" hint-placeholder-count="7"><button onClick="{{ g.pick }}" style="{{ g.style }}">{{ g.label }}</button></sc-for>
+    </div>
+
+    <div class="text-muted" style="font-size:12px;margin-bottom:10px">{{ countLabel }}</div>
+    <div style="display:grid;grid-template-columns:{{ cardCols }};gap:2px;background:var(--color-divider);border:2px solid var(--color-divider)">
+      <sc-for list="{{ items }}" as="e" hint-placeholder-count="9">
+        <div style="background:var(--color-surface);padding:16px;display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="{{ e.dotStyle }}"></span>
+            <span style="font-family:var(--font-heading);font-weight:800;font-size:15px;line-height:1.2">{{ e.name }}</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="tag tag-neutral">{{ e.group }}</span>
+            <span class="tag tag-outline">{{ e.type }}</span>
+            <sc-if value="{{ e.custom }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent">{{ mineLabel }}</span></sc-if>
+          </div>
+          <div class="text-muted" style="font-size:12px;font-variant-numeric:tabular-nums">{{ e.meta }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </main>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { ready: false, isMobile: false, query: '', group: 'all', adding: false, extra: [], newName: '', newGroup: 'chest' };
+  async componentDidMount() {
+    const base = new URL('.', location.href).href;
+    this.d = await import(base + 'data.js');
+    this.app = await import(base + 'app.js'); window.addEventListener('ft-locale', e => this.setState({ locale: e.detail })); window.addEventListener('ft-theme', e => this.setState({ theme: e.detail }));
+    this.app.bootTheme();
+    this.unwatch = this.app.watchMobile(m => this.setState({ isMobile: m }));
+    this.setState({ ready: true, locale: this.app.getLocale() });
+  }
+  componentWillUnmount() { this.unwatch && this.unwatch(); }
+  addNew = () => { if (!this.state.newName.trim()) return; const e = this.d.EX_BY_ID; const g = this.state.newGroup; const item = { id: 'custom-' + Date.now(), th: this.state.newName, en: this.state.newName, group: g, type: g === 'cardio' ? 'cardio' : 'strength', low: 8, high: 12, unilateral: false, custom: true, equip: 'dumbbell' }; this.setState({ extra: [item, ...this.state.extra], adding: false, newName: '' }); };
+  renderVals() {
+    if (!this.d) return { ready: false, standalone: !this.props.embedded };
+    const { d, app } = this; const t = app.makeT(this.state.locale); const en = this.state.locale === 'en'; const m = this.state.isMobile;
+    const gName = g => app.groupLabel(d.GROUPS, g, this.state.locale);
+    const all = [...this.state.extra, ...d.EXERCISES];
+    const q = this.state.query.toLowerCase();
+    let items = all.filter(e => (this.state.group === 'all' || e.group === this.state.group) && ((en ? e.en : e.th).toLowerCase().includes(q) || e.en.toLowerCase().includes(q)));
+    const typeName = ty => ({ strength: en ? 'strength' : 'เวท', bodyweight: en ? 'bodyweight' : 'ตัวเปล่า', duration: en ? 'timed' : 'จับเวลา', cardio: en ? 'cardio' : 'คาร์ดิโอ' }[ty]);
+    const disp = items.map(e => ({
+      name: en ? e.en : e.th, group: gName(e.group), type: typeName(e.type), custom: !!e.custom,
+      dotStyle: { width: '10px', height: '10px', flex: 'none', background: e.custom ? 'var(--color-accent)' : 'var(--color-neutral-400)' },
+      meta: e.type === 'cardio' ? (en ? 'time · distance' : 'เวลา · ระยะทาง') : `${e.low}–${e.high} ${e.type === 'duration' ? 's' : (en ? 'reps' : 'ครั้ง')}${e.unilateral ? ' · L/R' : ''} · ${e.equip === 'none' ? (en ? 'no equip' : 'ตัวเปล่า') : (en ? 'dumbbell' : 'ดัมเบล')}`,
+    }));
+    const groups = ['all', ...Object.keys(d.GROUPS)];
+    const groupFilters = groups.map(g => ({ label: g === 'all' ? t('lib.all') : gName(g), pick: () => this.setState({ group: g }), style: { padding: '6px 13px', fontSize: '13px', fontFamily: 'var(--font-heading)', fontWeight: 800, cursor: 'pointer', border: '1px solid var(--color-divider)', background: this.state.group === g ? 'var(--color-accent)' : 'transparent', color: this.state.group === g ? 'var(--color-bg)' : 'var(--color-text)' } }));
+    return {
+      standalone: !this.props.embedded, ready: this.state.ready, isMobile: m,
+      mainStyle: { maxWidth: '1120px', margin: '0 auto', padding: m ? '20px 16px 96px' : '32px 24px 48px' },
+      sub: en ? 'Find an exercise or add your own.' : 'ค้นหาท่า หรือเพิ่มท่าของตัวเอง',
+      addLabel: t('lib.add'), toggleAdd: () => this.setState({ adding: !this.state.adding }), adding: this.state.adding, addCols: 'repeat(auto-fit,minmax(min(100%,220px),1fr))',
+      nameLabel: en ? 'Name' : 'ชื่อท่า', namePh: en ? 'e.g. Cable Face Pull' : 'เช่น เฟซพูล', newName: this.state.newName, setName: e => this.setState({ newName: e.target.value }),
+      groupLabel: en ? 'Muscle group' : 'กลุ่มกล้ามเนื้อ', newGroup: this.state.newGroup, setGroup: e => this.setState({ newGroup: e.target.value }), groupOpts: Object.keys(d.GROUPS).map(g => ({ id: g, label: gName(g) })),
+      addNew: this.addNew, saveLabel: t('cta.save'), mineLabel: en ? 'mine' : 'ของฉัน',
+      query: this.state.query, setQuery: e => this.setState({ query: e.target.value }), searchPh: t('lib.search') + '…',
+      groupFilters, cardCols: 'repeat(auto-fill,minmax(min(100%,260px),1fr))', countLabel: `${disp.length} ${en ? 'exercises' : 'ท่า'}`, items: disp,
+    };
+  }
+}
+</script>
+</body>
+</html>

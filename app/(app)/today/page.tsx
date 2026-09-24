@@ -58,7 +58,7 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
     <div className={styles.stage}>
       <div className={styles.shell}>
         <section className={styles.leftColumn}>
-          <div className="min-w-0">
+          <div className={styles.todayHeader}>
             <div className="min-w-0">
               <p className="text-[clamp(16px,1.5vw,25px)] font-medium text-text-1">{dateLine}</p>
               <h1 className="mt-2 max-w-[980px] text-[clamp(40px,3.4vw,64px)] font-black leading-none tracking-normal">
@@ -85,28 +85,17 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
               {!started && session.status !== "completed" ? (
                 <StartButton sessionId={session.id} autoStart={shouldAutoStart} />
               ) : (
-                <span className="rounded-[12px] bg-s1 px-5 py-3 text-center text-[clamp(20px,1.55vw,30px)] font-black leading-none text-on-accent">
+                <span className="grid min-h-[70px] w-full place-items-center rounded-[20px] bg-s1 px-5 py-3 text-center text-[clamp(24px,2.3vw,44px)] font-black leading-none text-on-accent">
                   {session.status === "completed" ? "Done" : "Started"}
                 </span>
               )}
-              <span className="rounded-[10px] bg-white/30 px-4 py-2 text-center text-[clamp(18px,1.35vw,26px)] font-black leading-none tabular-nums text-text-1">
+              <span className="grid min-h-[54px] w-full place-items-center rounded-[15px] bg-white/30 px-4 py-2 text-center text-[clamp(24px,2.5vw,48px)] font-black leading-none tabular-nums text-text-1">
                 <SessionTimer startedAt={session.startedAt} endedAt={session.endedAt} />
               </span>
-              {currentExercise && (
-                <div className="min-w-0 rounded-[12px] border border-border bg-surface px-4 py-2 text-text-2">
-                  <span className="text-[11px] uppercase tracking-[0.06em]">Now</span>
-                  <strong className="block truncate text-[clamp(14px,1.05vw,18px)] text-text-1">
-                    {currentExercise.name}
-                  </strong>
-                  <span className="text-[clamp(11px,.9vw,14px)]">
-                    Set {Math.min(currentExercise.sets.length + 1, currentExercise.targetSets)}
-                  </span>
-                </div>
-              )}
             </section>
 
             {planDay && (
-              <div className="mt-4">
+              <div className={styles.variantRow}>
                 <VariantPicker
                   sessionId={session.id}
                   activePlanDayId={planDay.id}
@@ -175,7 +164,7 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
           </section>
         </section>
 
-        <aside className="grid min-w-0 gap-6 self-start">
+        <aside className={styles.aside}>
           <section className="grid content-start gap-[clamp(14px,1.4vw,24px)] rounded-[20px] border border-border bg-surface p-[clamp(18px,2vw,32px)]">
             <h2 className="text-[clamp(22px,2vw,34px)] font-extrabold tracking-normal">Today</h2>
             <dl className="grid grid-cols-3 gap-3">
@@ -189,22 +178,16 @@ export default async function TodayPage({ searchParams }: PageProps<"/today">) {
             <div className="grid gap-3">{(recent ?? []).map(row => <Link key={row.id} href={`/history/${row.id}`} className="flex justify-between gap-3 rounded-[15px] bg-surface-2 px-4 py-3"><strong>{row.plan_days?.label ?? "Workout"}</strong><span className="text-text-2">{row.date}</span></Link>)}</div>
           </section>
 
-          <section className="grid content-center gap-4 rounded-[20px] border border-border bg-surface p-[clamp(18px,2vw,32px)]">
-            <h2 className="text-center text-[clamp(21px,1.9vw,32px)] font-extrabold tracking-normal">
-              Finish Workout
-            </h2>
-            <p className="text-center text-[clamp(12px,1.1vw,17px)] text-text-2">
-              Save today’s session when the remaining sets are done, or finish early with a note.
-            </p>
+          <section className={styles.finishPanel} aria-label="Finish workout">
             {started && session.status !== "completed" ? (
               <FinishButton sessionId={session.id} />
             ) : (
               <button
                 type="button"
                 disabled
-                className="w-full rounded-[13px] bg-[var(--ft-chip)] px-4 py-4 text-[clamp(16px,1.5vw,24px)] font-black text-text-1/45"
+                className="ft-finish-button"
               >
-                Finish Workout
+                {session.status === "completed" ? "Workout finished" : "Finish Workout"}
               </button>
             )}
           </section>

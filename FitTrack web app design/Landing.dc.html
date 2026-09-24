@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-6d50803f-0be1-4926-88ed-8707846947c5/styles.css">
+<link rel="stylesheet" href="ft-theme.css">
+</helmet>
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+<div style="min-height:100vh">
+  <!-- top bar -->
+  <nav class="nav" style="position:sticky;top:0;z-index:40;background:color-mix(in srgb, var(--color-bg) 88%, transparent);backdrop-filter:blur(10px)">
+    <span class="nav-brand" style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:14px;height:14px;background:var(--color-accent)"></span>FitTrack</span>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <button class="btn btn-secondary" onClick="{{ toggleLang }}" style="justify-content:center;min-width:52px">{{ langLabel }}</button>
+      <button class="btn btn-icon btn-secondary" onClick="{{ toggleTheme }}" aria-label="theme">{{ themeIcon }}</button>
+      <a class="btn btn-secondary" href="Login.dc.html" style="white-space:nowrap">{{ loginLabel }}</a>
+      <a class="btn btn-primary" href="Signup.dc.html" style="white-space:nowrap;justify-content:center">{{ signupLabel }}</a>
+    </div>
+  </nav>
+
+  <main style="max-width:1120px;margin:0 auto;padding:0 24px">
+    <!-- hero -->
+    <section style="padding:64px 0 40px;border-bottom:2px solid var(--color-divider)">
+      <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-accent);font-family:var(--font-heading);font-weight:800;margin-bottom:20px">Home Workout &amp; Body-Composition Tracker</div>
+      <h1 style="font-size:clamp(38px,7vw,72px);line-height:1.02;letter-spacing:-.02em;max-width:16ch;margin:0 0 18px">{{ tagline }}</h1>
+      <p style="font-size:clamp(17px,2.4vw,22px);max-width:52ch;margin:0 0 28px;line-height:1.4">{{ sub }}</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a class="btn btn-primary" href="Signup.dc.html" style="font-size:16px;padding:14px 22px;justify-content:center">{{ ctaMain }} →</a>
+        <a class="btn btn-secondary" href="App.dc.html#today" style="font-size:16px;padding:14px 22px;justify-content:center">{{ ctaDemo }}</a>
+      </div>
+    </section>
+
+    <!-- stat row -->
+    <section style="display:grid;grid-template-columns:{{ statCols }};border-bottom:2px solid var(--color-divider)">
+      <sc-for list="{{ stats }}" as="s" hint-placeholder-count="3">
+        <div style="{{ s.style }}">
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:40px;line-height:1;font-variant-numeric:tabular-nums">{{ s.value }}</div>
+          <div class="text-muted" style="font-size:13px;margin-top:8px">{{ s.label }}</div>
+        </div>
+      </sc-for>
+    </section>
+
+    <!-- features -->
+    <section style="padding:8px 0 48px">
+      <sc-for list="{{ features }}" as="f" hint-placeholder-count="3">
+        <div style="display:grid;grid-template-columns:{{ featCols }};gap:24px;padding:40px 0;border-bottom:2px solid var(--color-divider);align-items:start">
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:14px;color:var(--color-accent);letter-spacing:.06em">{{ f.no }}</div>
+          <div>
+            <h3 style="font-size:26px;margin:0 0 10px">{{ f.title }}</h3>
+            <p style="font-size:16px;max-width:56ch;margin:0;line-height:1.5">{{ f.body }}</p>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+
+    <!-- USP list -->
+    <section style="padding:0 0 56px">
+      <h2 style="font-size:30px;margin:0 0 24px">{{ uspHead }}</h2>
+      <div style="display:grid;grid-template-columns:{{ uspCols }};gap:0;border-top:2px solid var(--color-divider);border-left:2px solid var(--color-divider)">
+        <sc-for list="{{ usps }}" as="u" hint-placeholder-count="4">
+          <div style="padding:20px;border-bottom:2px solid var(--color-divider);border-right:2px solid var(--color-divider)">
+            <div style="font-family:var(--font-heading);font-weight:800;font-size:16px;margin-bottom:6px">{{ u.title }}</div>
+            <div class="text-muted" style="font-size:13px;line-height:1.5">{{ u.body }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </main>
+
+  <!-- red poster close -->
+  <section style="background:var(--color-accent);color:var(--color-bg);padding:72px 24px">
+    <div style="max-width:1120px;margin:0 auto">
+      <h2 style="font-size:clamp(32px,5vw,56px);line-height:1.05;max-width:18ch;margin:0 0 24px;color:var(--color-bg)">{{ closeLine }}</h2>
+      <a class="btn" href="Signup.dc.html" style="background:var(--color-bg);color:var(--color-accent);font-size:16px;padding:14px 24px;justify-content:center">{{ ctaMain }} →</a>
+    </div>
+  </section>
+  <footer style="max-width:1120px;margin:0 auto;padding:24px;font-size:12px" class="text-muted">FitTrack · workout-website · mockup · Modernist</footer>
+</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:1200}}">
+class Component extends DCLogic {
+  state = { ready: false, isMobile: false, locale: 'th', theme: 'light' };
+  async componentDidMount() {
+    const base = new URL('.', location.href).href;
+    this.app = await import(base + 'app.js'); window.addEventListener('ft-locale', e => this.setState({ locale: e.detail })); window.addEventListener('ft-theme', e => this.setState({ theme: e.detail }));
+    this.app.bootTheme();
+    this.unwatch = this.app.watchMobile(m => this.setState({ isMobile: m }));
+    this.setState({ ready: true, locale: this.app.getLocale(), theme: this.app.getTheme() });
+  }
+  componentWillUnmount() { this.unwatch && this.unwatch(); }
+  icon(name, size = 18) {
+    const P = { moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>', sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>' };
+    return React.createElement('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.9, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, dangerouslySetInnerHTML: { __html: P[name] } });
+  }
+  toggleTheme = (e) => { const t = this.state.theme === 'dark' ? 'light' : 'dark'; this.setState({ theme: t }); this.app.switchTheme(t, e && e.currentTarget); };
+  toggleLang = () => { const l = this.state.locale === 'th' ? 'en' : 'th'; this.setState({ locale: l }); this.app.switchLocale(l); };
+  renderVals() {
+    if (!this.app) return { ready: false };
+    const t = this.app.makeT(this.state.locale); const en = this.state.locale === 'en'; const m = this.state.isMobile;
+    return {
+      ready: this.state.ready,
+      langLabel: en ? 'ไทย' : 'EN', themeIcon: this.icon(this.state.theme === 'dark' ? 'sun' : 'moon'),
+      loginLabel: t('cta.login'), signupLabel: t('cta.signup'), ctaMain: t('cta.signup'), ctaDemo: en ? 'See the demo' : 'ดูตัวอย่าง',
+      toggleTheme: this.toggleTheme, toggleLang: this.toggleLang,
+      tagline: t('land.tagline'), sub: t('land.sub'),
+      statCols: m ? '1fr' : 'repeat(3,1fr)',
+      stats: [
+        { value: '41', label: en ? 'exercises, 4 logging types' : 'ท่าออกกำลัง 4 ชนิดการบันทึก', style: this.statStyle(0, m) },
+        { value: '7→∞', label: en ? '7-day template auto-generated into months' : 'เทมเพลต 7 วัน สร้างล่วงหน้าเป็นเดือน', style: this.statStyle(1, m) },
+        { value: '2', label: en ? 'taps to log one set' : 'แตะบันทึก 1 เซ็ต', style: this.statStyle(2, m) },
+      ],
+      featCols: m ? '1fr' : '80px 1fr',
+      features: [
+        { no: '01', title: en ? 'It remembers for you' : 'จำแทนคุณ', body: en ? 'Design a 7-day template once. FitTrack generates your schedule weeks ahead — open the app and today\u2019s workout is already waiting.' : 'ออกแบบเทมเพลต 7 วันครั้งเดียว ระบบสร้างตารางล่วงหน้าให้เป็นเดือน เปิดเว็บมาก็รู้ทันทีว่าวันนี้ต้องทำอะไร' },
+        { no: '02', title: en ? 'It decides with you' : 'ตัดสินใจแทนคุณ', body: en ? 'Every set shows last time and today\u2019s target, and tells you exactly when to add weight — no digging through history.' : 'ทุกแถวบอก \u201cครั้งก่อน\u201d และ \u201cเป้าวันนี้\u201d พร้อมบอกว่าเมื่อไรควรเพิ่มน้ำหนัก โดยไม่ต้องเปิดประวัติเก่าอ่านเอง' },
+        { no: '03', title: en ? 'It proves it to your eyes' : 'พิสูจน์ให้เห็นด้วยตา', body: en ? 'A full-year heatmap answers \u201cam I consistent?\u201d in one glance — and V-Taper Ratio tracks progress the scale can\u2019t show.' : 'heatmap ทั้งปีตอบคำถาม \u201cเราสม่ำเสมอไหม\u201d ได้ในสายตาเดียว และวัดผลด้วย V-Taper Ratio ไม่ใช่น้ำหนักบนตาชั่ง' },
+      ],
+      uspHead: en ? 'What a notebook can\u2019t do' : 'สิ่งที่สมุดจดทำไม่ได้',
+      uspCols: 'repeat(auto-fit,minmax(min(100%,320px),1fr))',
+      usps: [
+        { title: en ? 'Template → auto-generation' : 'เทมเพลต → generate อัตโนมัติ', body: en ? 'Design once, it keeps running every month.' : 'ออกแบบครั้งเดียว วิ่งต่อให้เองทุกเดือน' },
+        { title: en ? 'Plan vs. actual' : 'แยกแผนกับสิ่งที่ทำจริง', body: en ? 'Measures your % plan-adherence, not just rep counts.' : 'คำนวณ % ทำได้ตามแผน วัดวินัยตรงกว่าการนับครั้ง' },
+        { title: en ? 'Multiple plans per day' : 'หลาย Plan ต่อวัน', body: en ? 'No dumbbells today? Switch to bodyweight without editing the schedule.' : 'วันไหนไม่สะดวกใช้อุปกรณ์ ก็สลับได้โดยไม่ต้องแก้ตาราง' },
+        { title: en ? 'Never punishes a miss' : 'ไม่ลงโทษเวลาพลาด', body: en ? 'No red, no failure badges. Planned rest never counts as a miss.' : 'ไม่มีสีแดง ไม่มี badge ล้มเหลว วันพักตามแผนไม่นับว่าขาด' },
+      ],
+      closeLine: en ? 'A schedule you design, that proves you showed up.' : 'ตารางที่คุณออกแบบเอง และพิสูจน์ว่าคุณมาจริง',
+    };
+  }
+  statStyle(i, m) { return { padding: '32px 24px', borderRight: (!m && i < 2) ? '2px solid var(--color-divider)' : 'none', borderBottom: m && i < 2 ? '2px solid var(--color-divider)' : 'none' }; }
+}
+</script>
+</body>
+</html>
